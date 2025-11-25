@@ -1,7 +1,9 @@
+import { VRScene } from '@/components/vr-scene';
 import { login, register } from '@/routes';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+
 
 const HERO_IMAGES = [
     'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1800&q=80&auto=format&fit=crop',
@@ -22,8 +24,6 @@ export default function Landing({ canRegister = true }: { canRegister?: boolean 
     const { auth } = usePage<SharedData>().props;
     const [heroIndex, setHeroIndex] = useState(0);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
-    // Modal state for place info
-    const [openPlace, setOpenPlace] = useState<null | typeof PLACE_LIST[0]>(null);
 
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -48,6 +48,7 @@ export default function Landing({ canRegister = true }: { canRegister?: boolean 
                             <div className="text-2xl font-extrabold tracking-tight">CARAPARÍ</div>
                             <div className="hidden items-center gap-3 text-sm text-neutral-300 ml-6 md:flex">
                                 <a href="#tours" className="hover:text-white">Tours</a>
+                                <a href="#vr-tours" className="hover:text-white">VR Tours</a>
                                 <a href="#places" className="hover:text-white">Lugares</a>
                                 <a href="#faq" className="hover:text-white">Preguntas</a>
                             </div>
@@ -133,6 +134,15 @@ export default function Landing({ canRegister = true }: { canRegister?: boolean 
                     <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-neutral-400 text-sm">Scroll to discover • CARAPARÍ</div>
                 </section>
 
+                {/* VR TOURS */}
+                <section id="vr-tours" className="mx-auto max-w-6xl px-6 py-12">
+                    <h3 className="text-3xl font-bold text-center">VIRTUAL REALITY TOURS</h3>
+                    <p className="mt-2 text-center text-neutral-400">Experience Caraparí in VR.</p>
+                    <div className="mt-8">
+                        <VRScene />
+                    </div>
+                </section>
+
                 {/* POPULAR TOURS */}
                 <section id="tours" className="mx-auto max-w-6xl px-6 py-12">
                     <h3 className="text-3xl font-bold text-center">POPULAR TOURS</h3>
@@ -198,7 +208,7 @@ export default function Landing({ canRegister = true }: { canRegister?: boolean 
                                                         <Link href={login()} className="text-sm underline">Inicia sesión</Link>
                                                     </div>
                                                 ) : (
-                                                    <button onClick={() => setOpenPlace(place)} className="rounded-md bg-amber-500 px-3 py-1 text-sm font-medium text-black">Ver más</button>
+                                                    <Link href={`/places/${place.slug}`} className="rounded-md bg-amber-500 px-3 py-1 text-sm font-medium text-black hover:bg-amber-400 transition">Ver más</Link>
                                                 )}
                                             </div>
                                         </div>
@@ -207,28 +217,6 @@ export default function Landing({ canRegister = true }: { canRegister?: boolean 
                                 </article>
                             );
                         })}
-            {/* MODAL for place info */}
-            {openPlace && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-2">
-                    <div className="relative w-full max-w-3xl rounded-2xl bg-neutral-900 shadow-2xl p-0 flex flex-col md:flex-row overflow-hidden animate-fade-in">
-                        <button onClick={() => setOpenPlace(null)} className="absolute right-4 top-4 text-neutral-400 hover:text-white text-3xl z-10">×</button>
-                        {/* Image side */}
-                        <div className="md:w-1/2 w-full h-64 md:h-auto flex-shrink-0">
-                            <img src={openPlace.img} alt={openPlace.title} className="w-full h-full object-cover" />
-                        </div>
-                        {/* Info side */}
-                        <div className="flex-1 p-6 flex flex-col justify-center">
-                            <h3 className="text-3xl md:text-4xl font-extrabold mb-2">{openPlace.title}</h3>
-                            <div className="mb-2 text-lg text-amber-400 font-semibold">{openPlace.rating} ★ <span className="text-neutral-400 font-normal">• {openPlace.reviews} reseñas</span></div>
-                            <p className="mb-6 text-base md:text-lg text-neutral-200">{openPlace.description}</p>
-                            <div className="flex justify-end">
-                                <Link href={`/places/${openPlace.slug}`} className="rounded-lg bg-amber-500 px-8 py-3 text-lg font-bold text-black shadow-lg hover:bg-amber-400 transition">Explorar</Link>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="fixed inset-0 z-40" onClick={() => setOpenPlace(null)} />
-                </div>
-            )}
                     </div>
                 </section>
                 {/* COMMENTS / TESTIMONIALS */}

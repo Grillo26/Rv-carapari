@@ -24,4 +24,13 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     })->name('dashboard');
 });
 
+// Rutas para la demo de VR y el visor 360
+Route::view('/vr-demo', 'vr_demo');
+// Usar Inertia para el visor VR para que los enlaces desde Inertia funcionen correctamente
+Route::get('/vr', function () {
+    return Inertia::render('VR', [
+        'image' => request()->query('image'),
+    ]);
+});
+
 require __DIR__.'/settings.php';

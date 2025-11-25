@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 
 const PLACE_LIST = [
     { title: 'Catedral', slug: 'catedral', img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1800&q=80&auto=format&fit=crop', description: 'La imponente catedral histórica en el corazón de Caraparí.', rating: 4.8, reviews: 230 },
@@ -28,7 +28,10 @@ export default function PlaceDetail({ slug }: { slug: string }) {
                 <h1 className="text-4xl font-extrabold mb-2">{place.title}</h1>
                 <div className="mb-4 text-neutral-400">{place.rating} ★ • {place.reviews} reseñas</div>
                 <p className="mb-8 text-lg text-neutral-200">{place.description}</p>
-                <Link href="/" className="rounded bg-amber-500 px-4 py-2 text-black font-semibold">Volver al inicio</Link>
+                <div className="flex gap-4">
+                    <Link href="/" className="rounded bg-amber-500 px-4 py-2 text-black font-semibold hover:bg-amber-400 transition">Volver al inicio</Link>
+                    <button onClick={() => router.get('/vr', { image: place.img })} className="rounded bg-amber-500 px-4 py-2 text-black font-semibold hover:bg-amber-400 transition">Explorar</button>
+                </div>
             </div>
         </div>
     );
