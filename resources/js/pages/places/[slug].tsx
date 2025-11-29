@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 
 const PLACE_LIST = [
-    { title: 'Catedral', slug: 'catedral', img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1800&q=80&auto=format&fit=crop', description: 'La imponente catedral histórica en el corazón de Caraparí.', rating: 4.8, reviews: 230 },
+    { title: 'Catedral', slug: 'catedral', img: '/images/panoramas/imagekkk.jpg', description: 'La imponente catedral histórica en el corazón de Caraparí.', rating: 4.8, reviews: 230 },
     { title: 'Plaza Principal', slug: 'plaza-principal', img: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1800&q=80&auto=format&fit=crop', description: 'Punto de encuentro con vida, ferias y actividades culturales.', rating: 4.6, reviews: 142 },
     { title: 'Mercado Central', slug: 'mercado-central', img: 'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1800&q=80&auto=format&fit=crop', description: 'Sabores locales y artesanías en un ambiente tradicional.', rating: 4.4, reviews: 98 },
     { title: 'Plaza Moto Méndez', slug: 'plaza-moto-mendez', img: 'https://images.unsplash.com/photo-1522770179533-24471fcdba45?w=1200&q=80&auto=format&fit=crop', description: 'Espacio moderno ideal para eventos al aire libre.', rating: 4.2, reviews: 64 },
