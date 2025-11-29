@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\Admin\PlaceController as AdminPlaceController;
+use App\Http\Controllers\Admin\PlaceImageController;
 
 
 Route::get('/', function () {
@@ -11,17 +14,31 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-// Dynamic place detail route for /places/{slug}
-Route::get('/places/{slug}', function ($slug) {
-    return Inertia::render('places/[slug]', [
-        'slug' => $slug,
-    ]);
-})->name('places.show');
+// Public places routes
+Route::get('/places', [PlaceController::class, 'index'])->name('places.index');
+Route::get('/places/{slug}', [PlaceController::class, 'show'])->name('places.show');
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    // Admin routes for places management
+    Route::prefix('admin')->name('admin.')->group(function () {
+        // Places management
+        Route::resource('places', AdminPlaceController::class);
+        Route::patch('places/{place}/toggle-availability', [AdminPlaceController::class, 'toggleAvailability'])
+            ->name('places.toggle-availability');
+
+        // Place images management
+        Route::prefix('places/{place}')->name('places.')->group(function () {
+            Route::resource('images', PlaceImageController::class)->except(['show']);
+            Route::patch('images/{image}/toggle-active', [PlaceImageController::class, 'toggleActive'])
+                ->name('images.toggle-active');
+            Route::patch('images/{image}/set-main', [PlaceImageController::class, 'setAsMain'])
+                ->name('images.set-main');
+        });
+    });
 });
 
 // Rutas para la demo de VR y el visor 360
