@@ -88,9 +88,14 @@ class PlaceImageController extends Controller
      */
     public function edit(Place $place, PlaceImage $image)
     {
+        // Ensure the image belongs to the place
+        if ($image->place_id !== $place->id) {
+            abort(404, 'La imagen no pertenece a este lugar.');
+        }
+
         return Inertia::render('Admin/Places/Images/Edit', [
             'place' => $place,
-            'image' => $image,
+            'placeImage' => $image,
         ]);
     }
 
@@ -99,6 +104,10 @@ class PlaceImageController extends Controller
      */
     public function update(Request $request, Place $place, PlaceImage $image)
     {
+        // Ensure the image belongs to the place
+        if ($image->place_id !== $place->id) {
+            abort(404, 'La imagen no pertenece a este lugar.');
+        }
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -133,6 +142,11 @@ class PlaceImageController extends Controller
      */
     public function destroy(Place $place, PlaceImage $image)
     {
+        // Ensure the image belongs to the place
+        if ($image->place_id !== $place->id) {
+            abort(404, 'La imagen no pertenece a este lugar.');
+        }
+
         Storage::disk('public')->delete($image->image_path);
         $image->delete();
 
@@ -145,6 +159,11 @@ class PlaceImageController extends Controller
      */
     public function toggleActive(Place $place, PlaceImage $image)
     {
+        // Ensure the image belongs to the place
+        if ($image->place_id !== $place->id) {
+            abort(404, 'La imagen no pertenece a este lugar.');
+        }
+
         $image->update(['is_active' => !$image->is_active]);
 
         return redirect()->back()
@@ -156,6 +175,11 @@ class PlaceImageController extends Controller
      */
     public function setAsMain(Place $place, PlaceImage $image)
     {
+        // Ensure the image belongs to the place
+        if ($image->place_id !== $place->id) {
+            abort(404, 'La imagen no pertenece a este lugar.');
+        }
+
         // Remove main flag from other images
         PlaceImage::where('place_id', $place->id)
             ->where('id', '!=', $image->id)

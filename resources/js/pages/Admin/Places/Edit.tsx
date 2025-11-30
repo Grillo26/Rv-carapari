@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import { Camera } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 
 interface Place {
@@ -203,9 +204,18 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
 
                      <div className="p-6">
                             <div className="mb-6">
-                                   <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                          Editar Lugar Turístico: {place.title}
-                                   </h1>
+                                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                                 Editar Lugar Turístico: {place.title}
+                                          </h1>
+                                          <Link
+                                                 href={`/admin/places/${place.id}/images`}
+                                                 className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50"
+                                          >
+                                                 <Camera className="h-5 w-5" />
+                                                 Gestionar Imágenes 360°
+                                          </Link>
+                                   </div>
                             </div>
 
                             <div className="py-0">
