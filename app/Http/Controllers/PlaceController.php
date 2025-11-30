@@ -35,7 +35,7 @@ class PlaceController extends Controller
             }])
             ->firstOrFail();
 
-        return Inertia::render('Places/Show', [
+        return Inertia::render('Places/[slug]', [
             'place' => $place,
         ]);
     }

@@ -1,6 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+
+interface Place {
+       id: number;
+       title: string;
+       slug: string;
+       short_description: string;
+       description: string;
+       thumbnail: string | null;
+       main_360_image: string | null;
+       is_available: boolean;
+       sort_order: number;
+       created_at: string;
+       updated_at: string;
+}
 
 interface Errors {
        title?: string[];
@@ -12,14 +26,18 @@ interface Errors {
        sort_order?: string[];
 }
 
-export default function PlacesCreate() {
+interface PlacesEditProps {
+       place: Place;
+}
+
+export default function PlacesEdit({ place }: PlacesEditProps) {
        const [formData, setFormData] = useState({
-              title: '',
-              slug: '',
-              short_description: '',
-              description: '',
-              is_available: true,
-              sort_order: 0,
+              title: place.title,
+              slug: place.slug,
+              short_description: place.short_description,
+              description: place.description,
+              is_available: place.is_available,
+              sort_order: place.sort_order,
        });
 
        const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -28,6 +46,16 @@ export default function PlacesCreate() {
        const [main360Preview, setMain360Preview] = useState<string>('');
        const [errors, setErrors] = useState<Errors>({});
        const [processing, setProcessing] = useState(false);
+
+       useEffect(() => {
+              // Cargar imágenes existentes como preview
+              if (place.thumbnail) {
+                     setThumbnailPreview(`/storage/${place.thumbnail}`);
+              }
+              if (place.main_360_image) {
+                     setMain360Preview(`/storage/${place.main_360_image}`);
+              }
+       }, [place]);
 
        const generateSlug = (title: string) => {
               return title
@@ -45,7 +73,7 @@ export default function PlacesCreate() {
               setFormData({
                      ...formData,
                      title: value,
-                     slug: formData.slug === '' ? generateSlug(value) : formData.slug,
+                     slug: formData.slug === place.slug ? generateSlug(value) : formData.slug,
               });
        };
 
@@ -92,10 +120,10 @@ export default function PlacesCreate() {
               } else {
                      if (type === 'thumbnail') {
                             setThumbnailFile(null);
-                            setThumbnailPreview('');
+                            setThumbnailPreview(place.thumbnail ? `/storage/${place.thumbnail}` : '');
                      } else {
                             setMain360ImageFile(null);
-                            setMain360Preview('');
+                            setMain360Preview(place.main_360_image ? `/storage/${place.main_360_image}` : '');
                      }
               }
        };
@@ -138,6 +166,7 @@ export default function PlacesCreate() {
                      submitData.append('slug', formData.slug);
               }
 
+              // Solo agregar archivos si se seleccionaron nuevos
               if (thumbnailFile) {
                      submitData.append('thumbnail', thumbnailFile);
               }
@@ -145,13 +174,12 @@ export default function PlacesCreate() {
                      submitData.append('main_360_image', main360ImageFile);
               }
 
-              // Debug: mostrar datos que se están enviando
-              console.log('Datos del formulario:', Object.fromEntries(submitData.entries()));
+              // Agregar método PUT para Laravel
+              submitData.append('_method', 'PUT');
 
-              router.post('/admin/places', submitData, {
+              router.post(`/admin/places/${place.id}`, submitData, {
                      onSuccess: (response) => {
-                            console.log('Éxito:', response);
-                            // El redirect será manejado por el controlador
+                            console.log('Lugar actualizado exitosamente:', response);
                      },
                      onError: (errors) => {
                             console.log('Errores del servidor:', errors);
@@ -169,14 +197,14 @@ export default function PlacesCreate() {
               <AppLayout breadcrumbs={[
                      { title: 'Dashboard', href: '/dashboard' },
                      { title: 'Lugares Turísticos', href: '/admin/places' },
-                     { title: 'Agregar Lugar', href: '/admin/places/create' }
+                     { title: 'Editar Lugar', href: `/admin/places/${place.id}/edit` }
               ]}>
-                     <Head title="Admin - Agregar Lugar" />
+                     <Head title={`Admin - Editar ${place.title}`} />
 
                      <div className="p-6">
                             <div className="mb-6">
                                    <h1 className="text-2xl font-bold text-gray-900">
-                                          Agregar Nuevo Lugar Turístico
+                                          Editar Lugar Turístico: {place.title}
                                    </h1>
                             </div>
 
@@ -288,7 +316,7 @@ export default function PlacesCreate() {
                                                                                                          onClick={() => handleFileChange(null, 'thumbnail')}
                                                                                                          className="text-red-600 hover:text-red-700 text-sm"
                                                                                                   >
-                                                                                                         Eliminar
+                                                                                                         {thumbnailFile ? 'Eliminar nueva imagen' : 'Eliminar imagen actual'}
                                                                                                   </button>
                                                                                            </div>
                                                                                     ) : (
@@ -338,7 +366,7 @@ export default function PlacesCreate() {
                                                                                                          onClick={() => handleFileChange(null, 'main360')}
                                                                                                          className="text-red-600 hover:text-red-700 text-sm"
                                                                                                   >
-                                                                                                         Eliminar
+                                                                                                         {main360ImageFile ? 'Eliminar nueva imagen' : 'Eliminar imagen actual'}
                                                                                                   </button>
                                                                                            </div>
                                                                                     ) : (
@@ -413,13 +441,12 @@ export default function PlacesCreate() {
 
                                                         {/* Botones */}
                                                         <div className="flex items-center justify-end space-x-3 pt-6 border-t">
-                                                               <button
-                                                                      type="button"
-                                                                      onClick={() => window.history.back()}
+                                                               <Link
+                                                                      href="/admin/places"
                                                                       className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
                                                                >
                                                                       Cancelar
-                                                               </button>
+                                                               </Link>
                                                                <button
                                                                       type="submit"
                                                                       disabled={processing}
@@ -428,7 +455,7 @@ export default function PlacesCreate() {
                                                                              : 'bg-blue-600 hover:bg-blue-700'
                                                                              }`}
                                                                >
-                                                                      {processing ? 'Guardando...' : 'Guardar Lugar'}
+                                                                      {processing ? 'Actualizando...' : 'Actualizar Lugar'}
                                                                </button>
                                                         </div>
                                                  </form>

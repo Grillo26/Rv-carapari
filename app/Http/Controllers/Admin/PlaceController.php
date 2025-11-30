@@ -39,31 +39,76 @@ class PlaceController extends Controller
      */
     public function store(Request $request)
     {
+        // Log para debug
+        \Log::info('Place creation request received', [
+            'data' => $request->except(['thumbnail', 'main_360_image']),
+            'files' => [
+                'thumbnail' => $request->hasFile('thumbnail'),
+                'main_360_image' => $request->hasFile('main_360_image')
+            ]
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:places',
             'short_description' => 'required|string|max:500',
             'description' => 'required|string',
-            'thumbnail' => 'nullable|image|max:2048',
-            'main_360_image' => 'nullable|image|max:10240',
+            'thumbnail' => 'nullable|image|max:2048', // 2MB max
+            'main_360_image' => 'nullable|image|max:10240', // 10MB max
             'is_available' => 'boolean',
             'sort_order' => 'integer|min:0',
         ]);
 
-        // Handle thumbnail upload
-        if ($request->hasFile('thumbnail')) {
-            $validated['thumbnail'] = $request->file('thumbnail')->store('places/thumbnails', 'public');
+        try {
+            // Handle thumbnail upload
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailFile = $request->file('thumbnail');
+                \Log::info('Thumbnail upload', [
+                    'original_name' => $thumbnailFile->getClientOriginalName(),
+                    'size' => $thumbnailFile->getSize(),
+                    'mime' => $thumbnailFile->getMimeType()
+                ]);
+                $validated['thumbnail'] = $thumbnailFile->store('places/thumbnails', 'public');
+            }
+
+            // Handle main 360 image upload
+            if ($request->hasFile('main_360_image')) {
+                $main360File = $request->file('main_360_image');
+                \Log::info('Main 360 image upload', [
+                    'original_name' => $main360File->getClientOriginalName(),
+                    'size' => $main360File->getSize(),
+                    'mime' => $main360File->getMimeType()
+                ]);
+                $validated['main_360_image'] = $main360File->store('places/360', 'public');
+            }
+
+            // Asegurar que is_available tenga un valor por defecto
+            if (!isset($validated['is_available'])) {
+                $validated['is_available'] = true;
+            }
+
+            // Asegurar que sort_order tenga un valor por defecto
+            if (!isset($validated['sort_order'])) {
+                $validated['sort_order'] = 0;
+            }
+
+            $place = Place::create($validated);
+
+            \Log::info('Place created successfully', ['place_id' => $place->id]);
+
+            return redirect()->route('admin.places.index')
+                ->with('success', 'Lugar turístico creado exitosamente.');
+
+        } catch (\Exception $e) {
+            \Log::error('Error creating place', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al crear el lugar turístico: ' . $e->getMessage());
         }
-
-        // Handle main 360 image upload
-        if ($request->hasFile('main_360_image')) {
-            $validated['main_360_image'] = $request->file('main_360_image')->store('places/360', 'public');
-        }
-
-        $place = Place::create($validated);
-
-        return redirect()->route('admin.places.index')
-            ->with('success', 'Lugar turístico creado exitosamente.');
     }
 
     /**
