@@ -259,7 +259,7 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                                                       {/* Sort Order */}
                                                                       <div>
                                                                              <label htmlFor="sort_order" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                                                    Orden de Visualización
+                                                                                    Orden de Visualización *
                                                                              </label>
                                                                              <input
                                                                                     type="number"
@@ -269,7 +269,11 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                                                                     value={formData.sort_order}
                                                                                     onChange={handleInputChange}
                                                                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                                                                    placeholder="1"
                                                                              />
+                                                                             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                                                    Define el orden en que se mostrarán las imágenes (1 = primera)
+                                                                             </p>
                                                                              {errors.sort_order && (
                                                                                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.sort_order}</p>
                                                                              )}

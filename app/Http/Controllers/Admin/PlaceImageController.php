@@ -17,7 +17,7 @@ class PlaceImageController extends Controller
     public function index(Place $place)
     {
         $place->load(['images' => function ($query) {
-            $query->ordered();
+            $query->ordered(); // Ordenar por sort_order
         }]);
 
         return Inertia::render('Admin/Places/Images/Index', [
@@ -46,8 +46,14 @@ class PlaceImageController extends Controller
             'image' => 'required|image|max:10240',
             'is_main' => 'boolean',
             'is_active' => 'boolean',
-            'sort_order' => 'integer|min:0',
+            'sort_order' => 'integer|min:1', // Mínimo 1 en lugar de 0
         ]);
+
+        // Si no se especifica sort_order, usar el siguiente número disponible
+        if (!isset($validated['sort_order'])) {
+            $maxOrder = PlaceImage::where('place_id', $place->id)->max('sort_order') ?? 0;
+            $validated['sort_order'] = $maxOrder + 1;
+        }
 
         // If this is set as main, remove main flag from other images
         if ($validated['is_main'] ?? false) {
@@ -65,7 +71,7 @@ class PlaceImageController extends Controller
             'image_path' => $imagePath,
             'is_main' => $validated['is_main'] ?? false,
             'is_active' => $validated['is_active'] ?? true,
-            'sort_order' => $validated['sort_order'] ?? 0,
+            'sort_order' => $validated['sort_order'],
         ]);
 
         return redirect()->route('admin.places.images.index', $place)
@@ -114,7 +120,7 @@ class PlaceImageController extends Controller
             'image' => 'nullable|image|max:10240',
             'is_main' => 'boolean',
             'is_active' => 'boolean',
-            'sort_order' => 'integer|min:0',
+            'sort_order' => 'integer|min:1', // Mínimo 1 en lugar de 0
         ]);
 
         // If this is set as main, remove main flag from other images

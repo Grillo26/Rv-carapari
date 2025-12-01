@@ -28,25 +28,39 @@ export default function PlacesCreate() {
        const [main360Preview, setMain360Preview] = useState<string>('');
        const [errors, setErrors] = useState<Errors>({});
        const [processing, setProcessing] = useState(false);
+       const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
        const generateSlug = (title: string) => {
               return title
                      .toLowerCase()
                      .normalize('NFD')
                      .replace(/[\u0300-\u036f]/g, '') // Remover acentos
-                     .replace(/[^\w\s-]/g, '')
-                     .replace(/\s+/g, '-')
-                     .replace(/-+/g, '-')
+                     .replace(/ñ/g, 'n') // Reemplazar ñ
+                     .replace(/[^\w\s-]/g, '') // Remover caracteres especiales
+                     .replace(/\s+/g, '-') // Espacios a guiones
+                     .replace(/-+/g, '-') // Múltiples guiones a uno
                      .replace(/^-+|-+$/g, '') // Remover guiones al inicio y final
                      .trim();
        };
 
        const handleTitleChange = (value: string) => {
+              const newSlug = !isSlugManuallyEdited ? generateSlug(value) : formData.slug;
               setFormData({
                      ...formData,
                      title: value,
-                     slug: formData.slug === '' ? generateSlug(value) : formData.slug,
+                     slug: newSlug,
               });
+       };
+
+       const handleSlugChange = (value: string) => {
+              setFormData({ ...formData, slug: value });
+              setIsSlugManuallyEdited(true);
+       };
+
+       const regenerateSlug = () => {
+              const newSlug = generateSlug(formData.title);
+              setFormData({ ...formData, slug: newSlug });
+              setIsSlugManuallyEdited(false);
        };
 
        const handleFileChange = (file: File | null, type: 'thumbnail' | 'main360') => {
@@ -211,15 +225,42 @@ export default function PlacesCreate() {
                                                                              <label htmlFor="slug" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                                                     Slug (URL)
                                                                              </label>
-                                                                             <input
-                                                                                    type="text"
-                                                                                    id="slug"
-                                                                                    value={formData.slug}
-                                                                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.slug ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                                                                                           }`}
-                                                                                    placeholder="url-amigable"
-                                                                             />
+                                                                             <div className="space-y-2">
+                                                                                    <div className="relative">
+                                                                                           <input
+                                                                                                  type="text"
+                                                                                                  id="slug"
+                                                                                                  value={formData.slug}
+                                                                                                  onChange={(e) => handleSlugChange(e.target.value)}
+                                                                                                  className={`w-full px-3 py-2 pr-20 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.slug ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                                                         }`}
+                                                                                                  placeholder="url-amigable"
+                                                                                           />
+                                                                                           <button
+                                                                                                  type="button"
+                                                                                                  onClick={regenerateSlug}
+                                                                                                  disabled={!formData.title}
+                                                                                                  className="absolute right-2 top-1/2 transform -translate-y-1/2 px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors"
+                                                                                                  title="Regenerar slug desde título"
+                                                                                           >
+                                                                                                  🔄
+                                                                                           </button>
+                                                                                    </div>
+                                                                                    {formData.slug && (
+                                                                                           <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-2 rounded border">
+                                                                                                  <span className="font-medium">Vista previa URL:</span>
+                                                                                                  <br />
+                                                                                                  <code className="text-blue-600 dark:text-blue-400">
+                                                                                                         {window.location.origin}/lugares/{formData.slug}
+                                                                                                  </code>
+                                                                                           </div>
+                                                                                    )}
+                                                                                    {isSlugManuallyEdited && (
+                                                                                           <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                                                                                                  ⚠️ Slug editado manualmente - No se actualizará automáticamente
+                                                                                           </div>
+                                                                                    )}
+                                                                             </div>
                                                                              {errors.slug && (
                                                                                     <p className="mt-1 text-sm text-red-600">{errors.slug[0]}</p>
                                                                              )}

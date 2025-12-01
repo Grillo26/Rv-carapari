@@ -47,10 +47,10 @@ class PlaceImage extends Model
     }
 
     /**
-     * Get images ordered by sort order.
+     * Get images ordered by sort order and then by creation date.
      */
     public function scopeOrdered($query)
     {
-        return $query->orderBy('sort_order');
+        return $query->orderBy('sort_order', 'asc')->orderBy('created_at', 'asc');
     }
 }
