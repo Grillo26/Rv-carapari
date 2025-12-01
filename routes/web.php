@@ -6,6 +6,7 @@ use Laravel\Fortify\Features;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\Admin\PlaceController as AdminPlaceController;
 use App\Http\Controllers\Admin\PlaceImageController;
+use App\Http\Controllers\Admin\UserController;
 
 
 Route::get('/', function () {
@@ -25,6 +26,11 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
     // Admin routes for places management
     Route::prefix('admin')->name('admin.')->group(function () {
+        // Users management
+        Route::resource('users', UserController::class);
+        Route::patch('users/{user}/toggle-role', [UserController::class, 'toggleRole'])
+            ->name('users.toggle-role');
+
         // Places management
         Route::resource('places', AdminPlaceController::class);
         Route::patch('places/{place}/toggle-availability', [AdminPlaceController::class, 'toggleAvailability'])
