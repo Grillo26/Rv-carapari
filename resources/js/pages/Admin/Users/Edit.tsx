@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, User, Mail, Lock, Shield, Upload, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, Shield, Upload, Eye, EyeOff, X } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 
 interface User {
@@ -316,7 +316,7 @@ export default function EditUser({ user }: EditUserProps) {
                                                                       <div className="relative">
                                                                              {(avatarPreview || currentAvatarUrl) ? (
                                                                                     <img
-                                                                                           src={avatarPreview || currentAvatarUrl}
+                                                                                           src={(avatarPreview || currentAvatarUrl) as string}
                                                                                            alt="Avatar"
                                                                                            className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
                                                                                     />
@@ -335,7 +335,7 @@ export default function EditUser({ user }: EditUserProps) {
                                                                                            className="absolute top-2 right-2 p-2 bg-red-500/90 text-white rounded-lg hover:bg-red-500 transition-colors"
                                                                                            title="Eliminar cambio"
                                                                                     >
-                                                                                           <ArrowLeft className="h-4 w-4" />
+                                                                                           <X className="h-4 w-4" />
                                                                                     </button>
                                                                              )}
                                                                       </div>

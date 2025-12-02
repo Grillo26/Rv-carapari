@@ -10,8 +10,14 @@ use App\Http\Controllers\Admin\UserController;
 
 
 Route::get('/', function () {
+    $places = \App\Models\Place::where('is_available', true)
+        ->select(['id', 'title', 'slug', 'short_description as description', 'thumbnail'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
     return Inertia::render('Landing', [
         'canRegister' => Features::enabled(Features::registration()),
+        'places' => $places,
     ]);
 })->name('home');
 

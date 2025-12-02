@@ -4,6 +4,23 @@ import { type SharedData } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
+// Interface para los lugares de la base de datos
+interface Place {
+    id: number;
+    title: string;
+    slug: string;
+    description: string;
+    thumbnail: string | null;
+    is_available: boolean;
+    rating?: number;
+    reviews_count?: number;
+}
+
+interface LandingProps extends SharedData {
+    places: Place[];
+    canRegister?: boolean;
+}
+
 
 const HERO_IMAGES = [
     'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1800&q=80&auto=format&fit=crop',
@@ -20,7 +37,7 @@ const PLACE_LIST = [
     { title: 'Catedral (Antigua)', slug: 'catedral-antigua', img: 'https://images.unsplash.com/photo-1498550744923-4a5c0c7b8f3f?w=1200&q=80&auto=format&fit=crop', description: 'Otra vista histórica de la catedral y sus alrededores.', rating: 4.5, reviews: 55 },
 ];
 
-export default function Landing({ canRegister = true }: { canRegister?: boolean }) {
+export default function Landing({ places, canRegister = true }: LandingProps) {
     const { auth } = usePage<SharedData>().props;
     const [heroIndex, setHeroIndex] = useState(0);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -149,13 +166,17 @@ export default function Landing({ canRegister = true }: { canRegister?: boolean 
                     <p className="mt-2 text-center text-neutral-400">There will be a small title here.</p>
 
                     <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                        {PLACE_LIST.slice(0, 4).map((t) => (
-                            <div key={t.slug} className="relative overflow-hidden rounded-lg bg-black/40 p-0 shadow-lg">
-                                <img src={t.img} alt={t.title} className="h-48 w-full object-cover" />
+                        {places.slice(0, 4).map((place) => (
+                            <div key={place.slug} className="relative overflow-hidden rounded-lg bg-black/40 p-0 shadow-lg">
+                                <img
+                                    src={place.thumbnail ? `/storage/${place.thumbnail}` : HERO_IMAGES[0]}
+                                    alt={place.title}
+                                    className="h-48 w-full object-cover"
+                                />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                                 <div className="absolute bottom-4 left-4">
-                                    <div className="text-sm font-semibold">{t.title}</div>
-                                    <div className="text-xs text-neutral-300">There will be a small.</div>
+                                    <div className="text-sm font-semibold">{place.title}</div>
+                                    <div className="text-xs text-neutral-300">Descubre este lugar único.</div>
                                 </div>
                             </div>
                         ))}
@@ -187,20 +208,26 @@ export default function Landing({ canRegister = true }: { canRegister?: boolean 
                 {/* PLACES CARDS (6) */}
                 <section id="places" className="mx-auto max-w-6xl px-6 pb-20">
                     <h3 className="text-3xl font-bold text-center">Lugares para visitar</h3>
-                    <p className="mt-2 text-center text-neutral-400">6 sitios destacados en CARAPARÍ</p>
+                    <p className="mt-2 text-center text-neutral-400">{places.length} sitios destacados en CARAPARÍ</p>
 
                     <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {PLACE_LIST.map((place, idx) => {
+                        {places.map((place, idx) => {
                             const locked = !auth.user && idx !== 0; // only first available when not logged
                             return (
                                 <article key={place.slug} className="relative rounded overflow-hidden bg-neutral-800 shadow-lg">
-                                    <img src={place.img} alt={place.title} className="h-48 w-full object-cover" />
+                                    <img
+                                        src={place.thumbnail ? `/storage/${place.thumbnail}` : HERO_IMAGES[idx % HERO_IMAGES.length]}
+                                        alt={place.title}
+                                        className="h-48 w-full object-cover"
+                                    />
                                     <div className="p-4">
                                         <h4 className="text-lg font-semibold">{place.title}</h4>
                                         <p className="mt-1 text-sm text-neutral-300">{place.description}</p>
 
                                         <div className="mt-4 flex items-center justify-between">
-                                            <div className="text-sm text-neutral-300">{place.rating} ★ • {place.reviews} reseñas</div>
+                                            <div className="text-sm text-neutral-300">
+                                                {place.rating || 4.5} ★ • {place.reviews_count || 0} reseñas
+                                            </div>
                                             <div>
                                                 {locked ? (
                                                     <div className="flex items-center gap-3">

@@ -34,5 +34,8 @@ class DatabaseSeeder extends Seeder
                 'role' => 'user',
             ]
         );
+
+        // Seed places
+        $this->call(PlacesSeeder::class);
     }
 }

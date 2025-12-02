@@ -1,4 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import { login, register } from '@/routes';
+import { type SharedData } from '@/types';
 
 interface PlaceImage {
     id: number;
@@ -25,12 +28,16 @@ interface Place {
     active_images: PlaceImage[];
 }
 
-interface PlaceShowProps {
+interface PlaceShowProps extends SharedData {
     place: Place;
+    canRegister?: boolean;
 }
 
-export default function PlaceShow({ place }: PlaceShowProps) {
-    const placeholderImage = "/images/placeholder-place.jpg";
+export default function PlaceShow({ place, canRegister = true }: PlaceShowProps) {
+    const { auth } = usePage<SharedData>().props;
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const placeholderImage = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80&auto=format&fit=crop";
 
     const mainImage = place.thumbnail
         ? `/storage/${place.thumbnail}`
@@ -38,148 +45,210 @@ export default function PlaceShow({ place }: PlaceShowProps) {
             ? `/storage/${place.active_images.find(img => img.is_main)?.image_path}`
             : placeholderImage;
 
+    // Mock rating data (you can replace with real data later)
+    const rating = place.rating || 4.6;
+    const reviewsCount = place.reviews_count || Math.floor(Math.random() * 200) + 50;
+
     return (
-        <div className="min-h-screen bg-gray-100">
-            <Head title={`${place.title} - Lugares Turísticos`} />
+        <div className="min-h-screen bg-neutral-900 text-white" style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto" }}>
+            <Head title={`${place.title} - Caraparí Turismo`} />
 
             {/* Navigation */}
-            <nav className="bg-white shadow">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <Link
-                                href="/"
-                                className="text-xl font-bold text-gray-900 hover:text-blue-600"
-                            >
-                                Carapari Turismo
-                            </Link>
+            <nav className="fixed left-0 right-0 top-0 z-40 bg-neutral-900/60 backdrop-blur-sm">
+                <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Link href="/" className="text-2xl font-extrabold tracking-tight hover:text-amber-400 transition-colors">CARAPARÍ</Link>
+                        <div className="hidden items-center gap-3 text-sm text-neutral-300 ml-6 md:flex">
+                            <a href="/#tours" className="hover:text-white">Tours</a>
+                            <a href="/#vr-tours" className="hover:text-white">VR Tours</a>
+                            <a href="/#places" className="hover:text-white">Lugares</a>
+                            <a href="/#faq" className="hover:text-white">Preguntas</a>
                         </div>
+                    </div>
 
-                        <div className="flex items-center space-x-4">
-                            <Link
-                                href="/"
-                                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-                            >
-                                Inicio
-                            </Link>
-                            <Link
-                                href="/places"
-                                className="text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-                            >
-                                Lugares
-                            </Link>
-                        </div>
+                    <div className="flex items-center gap-4 relative">
+                        {!auth.user ? (
+                            <>
+                                <Link href={login()} className="text-sm text-neutral-300 hover:text-white">Iniciar sesión</Link>
+                                {canRegister && <Link href={register()} className="rounded-md bg-amber-500 px-3 py-1 text-sm font-medium text-black">Registro</Link>}
+                            </>
+                        ) : (
+                            <div className="relative">
+                                <button onClick={() => setMenuOpen((s) => !s)} className="flex items-center gap-2">
+                                    <div className="h-8 w-8 overflow-hidden rounded-full bg-neutral-700">
+                                        <img src={auth.user.avatar ? `/storage/${auth.user.avatar}` : '/images/default-avatar.png'} alt="avatar" className="h-full w-full object-cover" />
+                                    </div>
+                                    <div className="text-sm text-neutral-300 hidden md:block">{auth.user.name}</div>
+                                </button>
+
+                                {menuOpen && (
+                                    <div className="absolute right-0 mt-2 w-40 rounded bg-neutral-800/90 p-2 shadow-lg">
+                                        <Link href="/settings/profile" className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded">Perfil</Link>
+                                        <Link href="/dashboard" className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded">Dashboard</Link>
+                                        <Link method="post" href="/logout" as="button" className="mt-2 w-full rounded bg-red-600 px-3 py-1 text-sm font-medium text-white">Cerrar sesión</Link>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </nav>
 
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-                <div className="container mx-auto px-4 py-8">
-                    {/* Header */}
-                    <div className="mb-8">
-                        <Link
-                            href="/places"
-                            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4"
-                        >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                            Volver a lugares
-                        </Link>
+            <div className="pt-20">
+                {/* Hero Section */}
+                <section className="relative">
+                    <div className="mx-auto max-w-6xl px-6 py-12">
+                        {/* Back Button */}
+                        <div className="mb-8">
+                            <Link
+                                href="/"
+                                className="inline-flex items-center gap-2 text-neutral-300 hover:text-white transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Volver al inicio
+                            </Link>
+                        </div>
 
-                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                            {place.title}
-                        </h1>
+                        {/* Main Content Grid */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+                            {/* Left Content - Title and Info */}
+                            <div className="lg:col-span-2 space-y-6">
+                                {/* Main Title */}
+                                <div>
+                                    <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-6" style={{ fontFamily: "Playfair Display, serif" }}>
+                                        {place.title}
+                                    </h1>
 
-                        <p className="text-xl text-gray-600 max-w-3xl">
-                            {place.short_description}
-                        </p>
-                    </div>
+                                    {/* Rating and Reviews */}
+                                    <div className="flex items-center gap-6 mb-6">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <svg
+                                                        key={i}
+                                                        className={`w-5 h-5 ${i < Math.floor(rating) ? 'text-amber-400' : 'text-neutral-600'}`}
+                                                        fill="currentColor"
+                                                        viewBox="0 0 20 20"
+                                                    >
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                    </svg>
+                                                ))}
+                                            </div>
+                                            <span className="text-xl font-semibold text-amber-400">{rating}</span>
+                                        </div>
+                                        <div className="text-neutral-300">
+                                            <span className="text-lg">{reviewsCount} reseñas</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-                        {/* Main Image */}
-                        <div className="relative">
-                            <img
-                                src={mainImage}
-                                alt={place.title}
-                                className="w-full h-96 object-cover rounded-2xl shadow-lg"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = placeholderImage;
-                                }}
-                            />
+                                {/* Description */}
+                                <div className="prose prose-lg prose-invert max-w-none">
+                                    <p className="text-neutral-300 text-lg leading-relaxed">
+                                        {place.description}
+                                    </p>
+                                </div>
 
-                            {/* VR Button Overlay */}
-                            {place.active_images.length > 0 && (
-                                <div className="absolute bottom-4 right-4">
+                                {/* Action Buttons */}
+                                <div className="flex flex-col sm:flex-row gap-4 pt-6">
                                     <button
                                         onClick={() => {
-                                            const mainImagePath = place.active_images.find(img => img.is_main)?.image_path ||
+                                            // Prioridad: main_360_image > imagen marcada como principal > primera imagen disponible
+                                            const imagePath = place.main_360_image ||
+                                                place.active_images.find(img => img.is_main)?.image_path ||
                                                 place.active_images[0]?.image_path;
-                                            if (mainImagePath) {
-                                                router.get('/vr', { image: `/storage/${mainImagePath}` });
+
+                                            if (imagePath) {
+                                                router.get('/vr', { image: `/storage/${imagePath}` });
+                                            } else {
+                                                alert('No hay imágenes 360° disponibles para este lugar');
                                             }
                                         }}
-                                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center"
+                                        className="inline-flex items-center gap-3 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold text-lg rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
                                     >
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
-                                        Vista 360°
+                                        Explorar
                                     </button>
-                                </div>
-                            )}
-                        </div>
 
-                        {/* Description */}
-                        <div className="bg-white rounded-2xl shadow-lg p-8">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-4">Descripción</h2>
-                            <div className="prose prose-lg text-gray-700">
-                                {place.description.split('\n').map((paragraph, index) => (
-                                    <p key={index} className="mb-4">
-                                        {paragraph}
-                                    </p>
-                                ))}
+                                    <Link
+                                        href="/"
+                                        className="inline-flex items-center gap-2 px-6 py-4 text-neutral-300 hover:text-white transition-colors"
+                                    >
+                                        Ver más lugares
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </Link>
+                                </div>
+                            </div>
+
+                            {/* Right Content - Main Image */}
+                            <div className="lg:col-span-1">
+                                <div className="relative group">
+                                    <img
+                                        src={mainImage}
+                                        alt={place.title}
+                                        className="w-full h-96 object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = placeholderImage;
+                                        }}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    {/* 360° Images Gallery */}
-                    {place.active_images.length > 0 && (
-                        <div className="mb-12">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-6">Galería 360°</h2>
+                {/* Images Gallery */}
+                {place.active_images.length > 0 && (
+                    <section className="mx-auto max-w-6xl px-6 py-16">
+                        <h2 className="text-3xl font-bold mb-8 text-center">Galería de Imágenes 360°</h2>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {place.active_images.map((image) => (
-                                    <div
-                                        key={image.id}
-                                        className="relative group cursor-pointer"
-                                        onClick={() => router.get('/vr', { image: `/storage/${image.image_path}` })}
-                                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {place.active_images.map((image, index) => (
+                                <div
+                                    key={image.id}
+                                    className="relative group cursor-pointer"
+                                    onClick={() => router.get('/vr', { image: `/storage/${image.image_path}` })}
+                                >
+                                    <div className="relative overflow-hidden rounded-xl bg-neutral-800">
                                         <img
                                             src={`/storage/${image.image_path}`}
-                                            alt={image.title || place.title}
-                                            className="w-full h-48 object-cover rounded-xl shadow-md transition-transform duration-300 group-hover:scale-105"
+                                            alt={image.title || `${place.title} - Imagen ${index + 1}`}
+                                            className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = placeholderImage;
+                                            }}
                                         />
 
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex items-center justify-center">
-                                            <div className="text-white text-center">
-                                                <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        {/* Overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100 group-hover:opacity-80 transition-opacity duration-300"></div>
+
+                                        {/* Play Icon */}
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <div className="bg-amber-500/90 text-black rounded-full p-3">
+                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                                                 </svg>
-                                                <p className="font-medium">Ver en 360°</p>
                                             </div>
                                         </div>
 
+                                        {/* Main Badge */}
                                         {image.is_main && (
                                             <div className="absolute top-3 left-3">
-                                                <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                                <span className="bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-bold">
                                                     Principal
                                                 </span>
                                             </div>
                                         )}
 
+                                        {/* Title */}
                                         {image.title && (
                                             <div className="absolute bottom-3 left-3 right-3">
                                                 <p className="bg-black/70 text-white text-sm px-3 py-1 rounded-lg truncate">
@@ -188,46 +257,24 @@ export default function PlaceShow({ place }: PlaceShowProps) {
                                             </div>
                                         )}
                                     </div>
-                                ))}
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Footer */}
+                <footer className="mt-20 border-t border-neutral-800/60 bg-neutral-900/80">
+                    <div className="mx-auto max-w-6xl px-6 py-10">
+                        <div className="text-center">
+                            <div className="text-xl font-bold mb-2">CARAPARÍ</div>
+                            <div className="text-sm text-neutral-400">
+                                © {new Date().getFullYear()} CARAPARÍ — Turismo. Todos los derechos reservados.
                             </div>
                         </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="text-center">
-                        <Link
-                            href="/places"
-                            className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 mr-4"
-                        >
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                            Ver más lugares
-                        </Link>
-
-                        <Link
-                            href="/"
-                            className="inline-flex items-center px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200"
-                        >
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            Inicio
-                        </Link>
                     </div>
-                </div>
+                </footer>
             </div>
-
-            {/* Footer */}
-            <footer className="bg-gray-800 text-white py-8">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center">
-                        <p className="text-sm">
-                            © 2025 Carapari Turismo. Descubre la belleza de nuestra ciudad.
-                        </p>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }
