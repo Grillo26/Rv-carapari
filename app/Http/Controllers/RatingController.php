@@ -38,15 +38,7 @@ class RatingController extends Controller
             ]
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Calificación guardada exitosamente',
-            'rating' => $rating,
-            'place_stats' => [
-                'average_rating' => $place->average_rating,
-                'total_ratings' => $place->total_ratings,
-            ]
-        ]);
+        return back()->with('success', 'Calificación guardada exitosamente');
     }
 
     /**

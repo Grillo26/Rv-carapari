@@ -56,14 +56,10 @@ class ReviewController extends Controller
             'user_id' => Auth::id(),
             'title' => $request->title,
             'content' => $request->content,
-            'is_approved' => false, // Requires admin approval
+            'is_approved' => true, // Aprobado automáticamente
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Reseña enviada exitosamente. Será revisada antes de publicarse.',
-            'review' => $review->load('user')
-        ]);
+        return back()->with('success', 'Reseña enviada exitosamente.');
     }
 
     /**
@@ -87,16 +83,9 @@ class ReviewController extends Controller
         $review->update([
             'title' => $request->title,
             'content' => $request->content,
-            'is_approved' => false, // Reset approval status
-            'approved_at' => null,
-            'approved_by' => null,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Reseña actualizada exitosamente. Será revisada antes de publicarse.',
-            'review' => $review->load('user')
-        ]);
+        return back()->with('success', 'Reseña actualizada exitosamente.');
     }
 
     /**
