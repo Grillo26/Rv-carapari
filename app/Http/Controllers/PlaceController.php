@@ -35,6 +35,12 @@ class PlaceController extends Controller
             }])
             ->firstOrFail();
 
+        // Add rating and review statistics
+        $place->loadCount(['ratings', 'approvedReviews']);
+        $place->average_rating = $place->average_rating;
+        $place->total_ratings = $place->total_ratings;
+        $place->total_reviews = $place->total_reviews;
+
         return Inertia::render('Places/[slug]', [
             'place' => $place,
         ]);

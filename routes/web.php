@@ -7,6 +7,9 @@ use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\Admin\PlaceController as AdminPlaceController;
 use App\Http\Controllers\Admin\PlaceImageController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 
 
 Route::get('/', function () {
@@ -25,13 +28,51 @@ Route::get('/', function () {
 Route::get('/places', [PlaceController::class, 'index'])->name('places.index');
 Route::get('/places/{slug}', [PlaceController::class, 'show'])->name('places.show');
 
+// Public API routes for ratings and reviews
+Route::prefix('api')->group(function () {
+    // Ratings (requires authentication)
+    Route::middleware('auth')->group(function () {
+        Route::post('/ratings', [RatingController::class, 'store'])->name('ratings.store');
+        Route::delete('/places/{place}/rating', [RatingController::class, 'destroy'])->name('ratings.destroy');
+    });
+    
+    // Rating statistics (public)
+    Route::get('/places/{place}/ratings', [RatingController::class, 'show'])->name('ratings.show');
+    
+    // Reviews
+    Route::get('/places/{place}/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+    
+    Route::middleware('auth')->group(function () {
+        Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+        Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+        Route::post('/reviews/{review}/vote', [ReviewController::class, 'vote'])->name('reviews.vote');
+        
+        // Admin only
+        Route::middleware('admin')->group(function () {
+            Route::post('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
+        });
+    });
+});
+
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [AdminReviewController::class, 'dashboard'])
+        ->name('dashboard');
 
     // Admin routes for places management
     Route::prefix('admin')->name('admin.')->group(function () {
+        // Test route for admin reviews system
+        Route::get('reviews/test', function () {
+            return Inertia::render('Admin/Reviews/Test');
+        })->name('reviews.test');
+
+        // Reviews management
+        Route::resource('reviews', AdminReviewController::class);
+        Route::patch('reviews/{review}/approve', [AdminReviewController::class, 'approve'])
+            ->name('reviews.approve');
+        Route::patch('reviews/{review}/disapprove', [AdminReviewController::class, 'disapprove'])
+            ->name('reviews.disapprove');
+
         // Users management
         Route::resource('users', UserController::class);
         Route::patch('users/{user}/toggle-role', [UserController::class, 'toggleRole'])

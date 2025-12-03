@@ -13,7 +13,17 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, MapPin, Users } from 'lucide-react';
+import {
+    BookOpen,
+    Folder,
+    LayoutGrid,
+    MapPin,
+    Users,
+    MessageSquare,
+    Image as ImageIcon,
+    Settings,
+    Star
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -31,6 +41,11 @@ const mainNavItems: NavItem[] = [
         title: 'Gestión de Usuarios',
         href: '/admin/users',
         icon: Users,
+    },
+    {
+        title: 'Reseñas y Calificaciones',
+        href: '/admin/reviews',
+        icon: MessageSquare,
     },
 ];
 

@@ -86,4 +86,57 @@ class Place extends Model
     {
         return $query->orderBy('sort_order')->orderBy('title');
     }
+
+    // Relationships for reviews system
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
+    // Rating statistics
+    public function getAverageRatingAttribute()
+    {
+        return $this->ratings()->avg('rating') ?: 0;
+    }
+
+    public function getTotalRatingsAttribute()
+    {
+        return $this->ratings()->count();
+    }
+
+    public function getTotalReviewsAttribute()
+    {
+        return $this->approvedReviews()->count();
+    }
+
+    public function getRatingDistributionAttribute()
+    {
+        $distribution = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $distribution[$i] = $this->ratings()->where('rating', $i)->count();
+        }
+        return $distribution;
+    }
+
+    // Check if user has rated this place
+    public function hasUserRated($userId): bool
+    {
+        return $this->ratings()->where('user_id', $userId)->exists();
+    }
+
+    // Get user's rating for this place
+    public function getUserRating($userId)
+    {
+        return $this->ratings()->where('user_id', $userId)->first()?->rating;
+    }
 }

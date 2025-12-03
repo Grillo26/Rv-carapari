@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -52,5 +53,41 @@ class User extends Authenticatable
             'role' => 'string',
             'avatar' => 'string',
         ];
+    }
+
+    // Relationships for reviews system
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'approved_by');
+    }
+
+    public function userReviews(): HasMany
+    {
+        return $this->hasMany(UserReview::class);
+    }
+
+    public function getRatingForPlace($placeId)
+    {
+        return $this->ratings()->where('place_id', $placeId)->first()?->rating;
+    }
+
+    public function hasRatedPlace($placeId): bool
+    {
+        return $this->ratings()->where('place_id', $placeId)->exists();
+    }
+
+    public function hasReviewedPlace($placeId): bool
+    {
+        return $this->reviews()->where('place_id', $placeId)->exists();
     }
 }
