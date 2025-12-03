@@ -171,7 +171,7 @@ export default function PlacesIndex({ places }: PlacesIndexProps) {
                             </div>
 
                             {/* Filters and Search */}
-                            <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50 p-4">
+                            <div className="mb-6 bg-white dark:bg-neutral-900 rounded-lg shadow-sm dark:shadow-gray-900/50 p-4">
                                    <div className="flex flex-col md:flex-row md:items-center gap-4">
                                           {/* Search */}
                                           <div className="flex-1 relative">
@@ -183,7 +183,7 @@ export default function PlacesIndex({ places }: PlacesIndexProps) {
                                                         placeholder="Buscar lugares..."
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 dark:focus:placeholder-gray-300 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                                                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 dark:focus:placeholder-gray-300 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
                                                  />
                                           </div>
 
@@ -204,7 +204,7 @@ export default function PlacesIndex({ places }: PlacesIndexProps) {
                             </div>
 
                             {/* Content */}
-                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50">
+                            <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm dark:shadow-gray-900/50">
                                    {filteredPlaces.length === 0 ? (
                                           <EmptyState
                                                  searchTerm={searchTerm}
@@ -237,7 +237,7 @@ export default function PlacesIndex({ places }: PlacesIndexProps) {
                                                                                            ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-md'
                                                                                            : link.url
                                                                                                   ? 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:shadow-sm'
-                                                                                                  : 'text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 cursor-not-allowed'
+                                                                                                  : 'text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-neutral-900 cursor-not-allowed'
                                                                                            }`}
                                                                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                                                              />
@@ -330,7 +330,7 @@ function PlaceCard({ place, onToggleAvailability, onDelete }: PlaceCardProps) {
                      : placeholderImage;
 
        return (
-              <div className="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg dark:shadow-gray-900/50 dark:hover:shadow-gray-900/70 transition-all duration-300 overflow-hidden">
+              <div className="group bg-white dark:bg-neutral-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg dark:shadow-gray-900/50 dark:hover:shadow-gray-900/70 transition-all duration-300 overflow-hidden">
                      <div className="flex flex-col lg:flex-row">
                             {/* Image Section */}
                             <div className="lg:w-80 flex-shrink-0">

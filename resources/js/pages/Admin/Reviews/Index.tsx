@@ -120,7 +120,7 @@ export default function Index({ reviews, stats, places, filters }: Props) {
                      <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                             {/* Header with action button */}
                             <div className="flex justify-between items-center mb-4">
-                                   <h1 className="text-2xl font-semibold text-gray-900">Gestión de Reseñas</h1>
+                                   <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Gestión de Reseñas</h1>
                                    <Link
                                           href="/dashboard"
                                           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
@@ -132,33 +132,33 @@ export default function Index({ reviews, stats, places, filters }: Props) {
                             <div className="space-y-6">
                                    {/* Statistics */}
                                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white text-center">
-                                                 <div className="text-2xl font-bold text-gray-800">{stats.total_reviews}</div>
-                                                 <div className="text-gray-600 text-sm">Total Reseñas</div>
+                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 text-center">
+                                                 <div className="text-2xl font-bold text-gray-800 dark:text-gray-200">{stats.total_reviews}</div>
+                                                 <div className="text-gray-600 dark:text-gray-300 text-sm">Total Reseñas</div>
                                           </div>
-                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white text-center">
-                                                 <div className="text-2xl font-bold text-yellow-600">{stats.pending_reviews}</div>
-                                                 <div className="text-gray-600 text-sm">Pendientes</div>
+                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 text-center">
+                                                 <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.pending_reviews}</div>
+                                                 <div className="text-gray-600 dark:text-gray-300 text-sm">Pendientes</div>
                                           </div>
-                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white text-center">
-                                                 <div className="text-2xl font-bold text-green-600">{stats.approved_reviews}</div>
-                                                 <div className="text-gray-600 text-sm">Aprobadas</div>
+                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 text-center">
+                                                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.approved_reviews}</div>
+                                                 <div className="text-gray-600 dark:text-gray-300 text-sm">Aprobadas</div>
                                           </div>
-                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white text-center">
-                                                 <div className="text-2xl font-bold text-blue-600">{stats.total_ratings}</div>
-                                                 <div className="text-gray-600 text-sm">Calificaciones</div>
+                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 text-center">
+                                                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.total_ratings}</div>
+                                                 <div className="text-gray-600 dark:text-gray-300 text-sm">Calificaciones</div>
                                           </div>
-                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white text-center">
-                                                 <div className="text-2xl font-bold text-purple-600">{stats.average_rating}</div>
-                                                 <div className="text-gray-600 text-sm">Rating Promedio</div>
+                                          <div className="relative p-4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 text-center">
+                                                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.average_rating}</div>
+                                                 <div className="text-gray-600 dark:text-gray-300 text-sm">Rating Promedio</div>
                                           </div>
                                    </div>
 
                                    {/* Filters */}
-                                   <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white">
+                                   <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900">
                                           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                                  <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                Buscar
                                                         </label>
                                                         <input
@@ -166,17 +166,17 @@ export default function Index({ reviews, stats, places, filters }: Props) {
                                                                value={searchTerm}
                                                                onChange={(e) => setSearchTerm(e.target.value)}
                                                                placeholder="Buscar por contenido o usuario..."
-                                                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                                         />
                                                  </div>
                                                  <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                Estado
                                                         </label>
                                                         <select
                                                                value={statusFilter}
                                                                onChange={(e) => setStatusFilter(e.target.value)}
-                                                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                                         >
                                                                <option value="">Todos</option>
                                                                <option value="pending">Pendientes</option>
@@ -184,13 +184,13 @@ export default function Index({ reviews, stats, places, filters }: Props) {
                                                         </select>
                                                  </div>
                                                  <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                Lugar
                                                         </label>
                                                         <select
                                                                value={placeFilter}
                                                                onChange={(e) => setPlaceFilter(e.target.value)}
-                                                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                                         >
                                                                <option value="">Todos los lugares</option>
                                                                {places.map((place) => (
@@ -218,40 +218,40 @@ export default function Index({ reviews, stats, places, filters }: Props) {
                                    </div>
 
                                    {/* Reviews Table */}
-                                   <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white">
+                                   <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900">
                                           <div className="overflow-x-auto">
                                                  <table className="min-w-full divide-y divide-gray-200">
-                                                        <thead className="bg-gray-50">
+                                                        <thead className="bg-gray-50 dark:bg-neutral-800">
                                                                <tr>
-                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                                              Usuario
                                                                       </th>
-                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                                              Lugar
                                                                       </th>
-                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                                              Reseña
                                                                       </th>
-                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                                              Votos
                                                                       </th>
-                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                                              Estado
                                                                       </th>
-                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                                              Fecha
                                                                       </th>
-                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                                              Acciones
                                                                       </th>
                                                                </tr>
                                                         </thead>
-                                                        <tbody className="bg-white divide-y divide-gray-200">
+                                                        <tbody className="bg-white dark:bg-neutral-900 divide-y divide-gray-200 dark:divide-gray-700">
                                                                {reviews.data.map((review) => (
-                                                                      <tr key={review.id} className="hover:bg-gray-50">
+                                                                      <tr key={review.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                                              <td className="px-6 py-4 whitespace-nowrap">
-                                                                                    <div className="font-medium text-gray-900">{review.user.name}</div>
-                                                                                    <div className="text-sm text-gray-500">{review.user.email}</div>
+                                                                                    <div className="font-medium text-gray-900 dark:text-white">{review.user.name}</div>
+                                                                                    <div className="text-sm text-gray-500 dark:text-gray-400">{review.user.email}</div>
                                                                              </td>
                                                                              <td className="px-6 py-4 whitespace-nowrap">
                                                                                     <Link
@@ -264,11 +264,11 @@ export default function Index({ reviews, stats, places, filters }: Props) {
                                                                              <td className="px-6 py-4">
                                                                                     <div className="max-w-xs">
                                                                                            {review.title && (
-                                                                                                  <div className="font-medium text-sm text-gray-900 mb-1">
+                                                                                                  <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">
                                                                                                          {review.title}
                                                                                                   </div>
                                                                                            )}
-                                                                                           <div className="text-sm text-gray-600">
+                                                                                           <div className="text-sm text-gray-600 dark:text-gray-300">
                                                                                                   {review.content.length > 100
                                                                                                          ? review.content.substring(0, 100) + '...'
                                                                                                          : review.content
@@ -276,21 +276,21 @@ export default function Index({ reviews, stats, places, filters }: Props) {
                                                                                            </div>
                                                                                     </div>
                                                                              </td>
-                                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                                                                                     <div className="flex items-center space-x-2">
-                                                                                           <span className="text-green-600">👍 {review.helpful_votes_count}</span>
-                                                                                           <span className="text-red-600">👎 {review.unhelpful_votes_count}</span>
+                                                                                           <span className="text-green-600 dark:text-green-400">👍 {review.helpful_votes_count}</span>
+                                                                                           <span className="text-red-600 dark:text-red-400">👎 {review.unhelpful_votes_count}</span>
                                                                                     </div>
                                                                              </td>
                                                                              <td className="px-6 py-4 whitespace-nowrap">
                                                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${review.is_approved
-                                                                                           ? 'bg-green-100 text-green-800'
-                                                                                           : 'bg-yellow-100 text-yellow-800'
+                                                                                           ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200'
+                                                                                           : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200'
                                                                                            }`}>
                                                                                            {review.is_approved ? 'Aprobada' : 'Pendiente'}
                                                                                     </span>
                                                                              </td>
-                                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                                                                                     {new Date(review.created_at).toLocaleDateString('es-ES')}
                                                                              </td>
                                                                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -328,7 +328,7 @@ export default function Index({ reviews, stats, places, filters }: Props) {
 
                                           {/* Pagination */}
                                           {reviews.last_page > 1 && (
-                                                 <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                                                 <div className="bg-white dark:bg-neutral-900 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
                                                         <div className="flex-1 flex justify-between sm:hidden">
                                                                {reviews.current_page > 1 && (
                                                                       <Link
@@ -349,7 +349,7 @@ export default function Index({ reviews, stats, places, filters }: Props) {
                                                         </div>
                                                         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                                                                <div>
-                                                                      <p className="text-sm text-gray-700">
+                                                                      <p className="text-sm text-gray-700 dark:text-gray-300">
                                                                              Mostrando {((reviews.current_page - 1) * reviews.per_page) + 1} a{' '}
                                                                              {Math.min(reviews.current_page * reviews.per_page, reviews.total)} de{' '}
                                                                              {reviews.total} resultados

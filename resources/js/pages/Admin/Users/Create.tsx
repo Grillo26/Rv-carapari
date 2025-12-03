@@ -148,7 +148,7 @@ export default function CreateUser() {
                                                  {/* Left Column - Form Fields */}
                                                  <div className="space-y-6">
                                                         {/* Basic Information */}
-                                                        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700">
+                                                        <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-sm dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700">
                                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                                                                       <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                                                       Información Personal
@@ -282,7 +282,7 @@ export default function CreateUser() {
 
                                                  {/* Right Column - Avatar Upload */}
                                                  <div>
-                                                        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700">
+                                                        <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-sm dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700">
                                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                                                                       <Upload className="h-5 w-5 text-green-600 dark:text-green-400" />
                                                                       Foto de Perfil
@@ -358,7 +358,7 @@ export default function CreateUser() {
                                           <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
                                                  <Link
                                                         href="/admin/users"
-                                                        className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
+                                                        className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-900 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
                                                  >
                                                         <ArrowLeft className="h-5 w-5" />
                                                         Cancelar

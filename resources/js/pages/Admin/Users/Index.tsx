@@ -189,7 +189,7 @@ export default function UsersIndex({ users, filters, stats }: UserIndexProps) {
                             </div>
 
                             {/* Filters */}
-                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50 p-6 mb-6">
+                            <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm dark:shadow-gray-900/50 p-6 mb-6">
                                    <div className="flex flex-col md:flex-row gap-4">
                                           <div className="flex-1">
                                                  <div className="relative">
@@ -200,7 +200,7 @@ export default function UsersIndex({ users, filters, stats }: UserIndexProps) {
                                                                value={searchTerm}
                                                                onChange={(e) => setSearchTerm(e.target.value)}
                                                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                                               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                         />
                                                  </div>
                                           </div>
@@ -209,7 +209,7 @@ export default function UsersIndex({ users, filters, stats }: UserIndexProps) {
                                                  <select
                                                         value={roleFilter}
                                                         onChange={(e) => setRoleFilter(e.target.value)}
-                                                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                  >
                                                         <option value="all">Todos los roles</option>
                                                         <option value="admin">Administradores</option>
@@ -228,10 +228,10 @@ export default function UsersIndex({ users, filters, stats }: UserIndexProps) {
                             </div>
 
                             {/* Users Table */}
-                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50 overflow-hidden">
+                            <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm dark:shadow-gray-900/50 overflow-hidden">
                                    <div className="overflow-x-auto">
                                           <table className="w-full">
-                                                 <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                                                 <thead className="bg-gray-50 dark:bg-neutral-800 border-b border-gray-200 dark:border-gray-600">
                                                         <tr>
                                                                <th className="px-6 py-3 text-left">
                                                                       <button
@@ -265,7 +265,7 @@ export default function UsersIndex({ users, filters, stats }: UserIndexProps) {
                                                                </th>
                                                         </tr>
                                                  </thead>
-                                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                 <tbody className="bg-white dark:bg-neutral-900 divide-y divide-gray-200 dark:divide-gray-700">
                                                         {users.data.map((user) => (
                                                                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                                       <td className="px-6 py-4">
@@ -355,7 +355,7 @@ export default function UsersIndex({ users, filters, stats }: UserIndexProps) {
 
                                    {/* Pagination */}
                                    {users.last_page > 1 && (
-                                          <div className="bg-white dark:bg-gray-800 px-6 py-3 border-t border-gray-200 dark:border-gray-700">
+                                          <div className="bg-white dark:bg-neutral-900 px-6 py-3 border-t border-gray-200 dark:border-gray-700">
                                                  <div className="flex items-center justify-between">
                                                         <div className="text-sm text-gray-500 dark:text-gray-400">
                                                                Mostrando {users.from} a {users.to} de {users.total} resultados
@@ -383,7 +383,7 @@ export default function UsersIndex({ users, filters, stats }: UserIndexProps) {
                      {/* Delete Modal */}
                      {deleteModal.isOpen && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                   <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+                                   <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 w-full max-w-md">
                                           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                                                  Eliminar Usuario
                                           </h3>

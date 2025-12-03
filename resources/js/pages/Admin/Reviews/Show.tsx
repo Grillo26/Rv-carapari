@@ -103,7 +103,7 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
                             {/* Header */}
                             <div className="flex justify-between items-center mb-4">
                                    <div>
-                                          <h1 className="text-2xl font-semibold text-gray-900">
+                                          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
                                                  Reseñas y Calificaciones: {place.title}
                                           </h1>
                                           <Link
@@ -124,7 +124,7 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
 
                             <div className="space-y-6">
                                    {/* Place Info */}
-                                   <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white">
+                                   <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-gray-800">
                                           <div className="flex flex-col md:flex-row gap-6">
                                                  {place.thumbnail && (
                                                         <div className="md:w-48 h-32 md:h-48">
@@ -136,24 +136,24 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
                                                         </div>
                                                  )}
                                                  <div className="flex-1">
-                                                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{place.title}</h3>
-                                                        <p className="text-gray-600 mb-4">{place.description}</p>
+                                                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{place.title}</h3>
+                                                        <p className="text-gray-600 dark:text-gray-300 mb-4">{place.description}</p>
                                                         <div className="flex items-center space-x-6">
                                                                <div className="text-center">
-                                                                      <div className="text-2xl font-bold text-yellow-600">{ratingStats.average_rating ? ratingStats.average_rating.toFixed(1) : '0.0'}</div>
-                                                                      <div className="text-sm text-gray-500">Rating Promedio</div>
+                                                                      <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{ratingStats.average_rating ? ratingStats.average_rating.toFixed(1) : '0.0'}</div>
+                                                                      <div className="text-sm text-gray-500 dark:text-gray-400">Rating Promedio</div>
                                                                </div>
                                                                <div className="text-center">
-                                                                      <div className="text-2xl font-bold text-blue-600">{ratingStats.total_ratings}</div>
-                                                                      <div className="text-sm text-gray-500">Calificaciones</div>
+                                                                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{ratingStats.total_ratings}</div>
+                                                                      <div className="text-sm text-gray-500 dark:text-gray-400">Calificaciones</div>
                                                                </div>
                                                                <div className="text-center">
-                                                                      <div className="text-2xl font-bold text-green-600">{reviewStats.approved_reviews}</div>
-                                                                      <div className="text-sm text-gray-500">Reseñas Aprobadas</div>
+                                                                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">{reviewStats.approved_reviews}</div>
+                                                                      <div className="text-sm text-gray-500 dark:text-gray-400">Reseñas Aprobadas</div>
                                                                </div>
                                                                <div className="text-center">
-                                                                      <div className="text-2xl font-bold text-orange-600">{reviewStats.pending_reviews}</div>
-                                                                      <div className="text-sm text-gray-500">Reseñas Pendientes</div>
+                                                                      <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{reviewStats.pending_reviews}</div>
+                                                                      <div className="text-sm text-gray-500 dark:text-gray-400">Reseñas Pendientes</div>
                                                                </div>
                                                         </div>
                                                  </div>
@@ -162,36 +162,36 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
 
                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                           {/* Rating Statistics */}
-                                          <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white">
-                                                 <h4 className="text-lg font-semibold mb-4">Distribución de Calificaciones</h4>
+                                          <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-gray-800">
+                                                 <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Distribución de Calificaciones</h4>
                                                  <div className="space-y-3 mb-6">
                                                         {Object.entries(ratingStats.rating_distribution).reverse().map(([rating, count]) => (
                                                                <div key={rating} className="flex items-center">
                                                                       <div className="flex items-center w-16">
-                                                                             <span className="text-sm font-medium">{rating}</span>
+                                                                             <span className="text-sm font-medium text-gray-900 dark:text-white">{rating}</span>
                                                                              <svg className="w-4 h-4 ml-1 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                                                                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                                              </svg>
                                                                       </div>
                                                                       <div className="flex-1 mx-3">
-                                                                             <div className="bg-gray-200 rounded-full h-2">
+                                                                             <div className="bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                                                                                     <div
                                                                                            className="bg-yellow-400 h-2 rounded-full"
                                                                                            style={{ width: `${ratingStats.total_ratings > 0 ? (count / ratingStats.total_ratings) * 100 : 0}%` }}
                                                                                     ></div>
                                                                              </div>
                                                                       </div>
-                                                                      <div className="text-sm text-gray-600 w-16 text-right">
+                                                                      <div className="text-sm text-gray-600 dark:text-gray-300 w-16 text-right">
                                                                              {count} ({ratingStats.total_ratings > 0 ? ((count / ratingStats.total_ratings) * 100).toFixed(1) : 0}%)
                                                                       </div>
                                                                </div>
                                                         ))}
                                                  </div>
 
-                                                 <h5 className="text-md font-medium mb-3">Calificaciones Recientes</h5>
+                                                 <h5 className="text-md font-medium mb-3 text-gray-900 dark:text-white">Calificaciones Recientes</h5>
                                                  <div className="space-y-2 max-h-64 overflow-y-auto">
                                                         {ratings.slice(0, 10).map((rating) => (
-                                                               <div key={rating.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                                               <div key={rating.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
                                                                       <div className="flex items-center">
                                                                              {rating.user.avatar ? (
                                                                                     <img
@@ -203,13 +203,13 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
                                                                                            }}
                                                                                     />
                                                                              ) : (
-                                                                                    <div className="w-8 h-8 rounded-full mr-2 bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium">
+                                                                                    <div className="w-8 h-8 rounded-full mr-2 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-sm font-medium">
                                                                                            {rating.user.name.charAt(0).toUpperCase()}
                                                                                     </div>
                                                                              )}
                                                                              <div>
-                                                                                    <div className="text-sm font-medium">{rating.user.name}</div>
-                                                                                    <div className="text-xs text-gray-500">
+                                                                                    <div className="text-sm font-medium text-gray-900 dark:text-white">{rating.user.name}</div>
+                                                                                    <div className="text-xs text-gray-500 dark:text-gray-400">
                                                                                            {new Date(rating.created_at).toLocaleDateString('es-ES')}
                                                                                     </div>
                                                                              </div>
@@ -225,7 +225,7 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
                                                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                                                     </svg>
                                                                              ))}
-                                                                             <span className="ml-1 text-sm font-medium">{rating.rating}</span>
+                                                                             <span className="ml-1 text-sm font-medium text-gray-900 dark:text-white">{rating.rating}</span>
                                                                       </div>
                                                                </div>
                                                         ))}
@@ -233,35 +233,35 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
                                           </div>
 
                                           {/* Review Statistics */}
-                                          <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white">
-                                                 <h4 className="text-lg font-semibold mb-4">Estadísticas de Reseñas</h4>
+                                          <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-gray-800">
+                                                 <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Estadísticas de Reseñas</h4>
                                                  <div className="grid grid-cols-2 gap-4 mb-6">
-                                                        <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                                               <div className="text-2xl font-bold text-green-600">{reviewStats.approved_reviews}</div>
-                                                               <div className="text-sm text-gray-500">Aprobadas</div>
+                                                        <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                                               <div className="text-2xl font-bold text-green-600 dark:text-green-400">{reviewStats.approved_reviews}</div>
+                                                               <div className="text-sm text-gray-500 dark:text-gray-400">Aprobadas</div>
                                                         </div>
-                                                        <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                                               <div className="text-2xl font-bold text-yellow-600">{reviewStats.pending_reviews}</div>
-                                                               <div className="text-sm text-gray-500">Pendientes</div>
+                                                        <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                                               <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{reviewStats.pending_reviews}</div>
+                                                               <div className="text-sm text-gray-500 dark:text-gray-400">Pendientes</div>
                                                         </div>
-                                                        <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                                               <div className="text-2xl font-bold text-blue-600">{reviewStats.helpful_votes_total}</div>
-                                                               <div className="text-sm text-gray-500">Votos Útiles</div>
+                                                        <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                                               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{reviewStats.helpful_votes_total}</div>
+                                                               <div className="text-sm text-gray-500 dark:text-gray-400">Votos Útiles</div>
                                                         </div>
-                                                        <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                                               <div className="text-2xl font-bold text-red-600">{reviewStats.unhelpful_votes_total}</div>
-                                                               <div className="text-sm text-gray-500">Votos Inútiles</div>
+                                                        <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                                               <div className="text-2xl font-bold text-red-600 dark:text-red-400">{reviewStats.unhelpful_votes_total}</div>
+                                                               <div className="text-sm text-gray-500 dark:text-gray-400">Votos Inútiles</div>
                                                         </div>
                                                  </div>
                                           </div>
                                    </div>
 
                                    {/* Reviews List */}
-                                   <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white">
-                                          <div className="px-6 py-4 border-b border-gray-200">
-                                                 <h4 className="text-lg font-semibold">Todas las Reseñas ({reviews.length})</h4>
+                                   <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-gray-800">
+                                          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                                                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Todas las Reseñas ({reviews.length})</h4>
                                           </div>
-                                          <div className="divide-y divide-gray-200">
+                                          <div className="divide-y divide-gray-200 dark:divide-gray-700">
                                                  {reviews.map((review) => (
                                                         <div key={review.id} className="p-6">
                                                                <div className="flex items-start justify-between">
@@ -311,13 +311,11 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
 
                                                                       <div className="ml-4 flex flex-col items-end space-y-2">
                                                                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${review.is_approved
-                                                                                    ? 'bg-green-100 text-green-800'
-                                                                                    : 'bg-yellow-100 text-yellow-800'
+                                                                                    ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200'
+                                                                                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200'
                                                                                     }`}>
                                                                                     {review.is_approved ? 'Aprobada' : 'Pendiente'}
-                                                                             </span>
-
-                                                                             <div className="flex space-x-2">
+                                                                             </span>                                                                             <div className="flex space-x-2">
                                                                                     {!review.is_approved ? (
                                                                                            <button
                                                                                                   onClick={() => handleApprove(review.id)}
@@ -342,7 +340,7 @@ export default function Show({ place, reviews, ratings, ratingStats, reviewStats
                                                  ))}
 
                                                  {reviews.length === 0 && (
-                                                        <div className="p-6 text-center text-gray-500">
+                                                        <div className="p-6 text-center text-gray-500 dark:text-gray-400">
                                                                No hay reseñas para este lugar todavía.
                                                         </div>
                                                  )}

@@ -28,39 +28,25 @@ export default function PlacesCreate() {
        const [main360Preview, setMain360Preview] = useState<string>('');
        const [errors, setErrors] = useState<Errors>({});
        const [processing, setProcessing] = useState(false);
-       const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
        const generateSlug = (title: string) => {
               return title
                      .toLowerCase()
                      .normalize('NFD')
                      .replace(/[\u0300-\u036f]/g, '') // Remover acentos
-                     .replace(/ñ/g, 'n') // Reemplazar ñ
-                     .replace(/[^\w\s-]/g, '') // Remover caracteres especiales
-                     .replace(/\s+/g, '-') // Espacios a guiones
-                     .replace(/-+/g, '-') // Múltiples guiones a uno
+                     .replace(/[^\w\s-]/g, '')
+                     .replace(/\s+/g, '-')
+                     .replace(/-+/g, '-')
                      .replace(/^-+|-+$/g, '') // Remover guiones al inicio y final
                      .trim();
        };
 
        const handleTitleChange = (value: string) => {
-              const newSlug = !isSlugManuallyEdited ? generateSlug(value) : formData.slug;
               setFormData({
                      ...formData,
                      title: value,
-                     slug: newSlug,
+                     slug: formData.slug === '' ? generateSlug(value) : formData.slug,
               });
-       };
-
-       const handleSlugChange = (value: string) => {
-              setFormData({ ...formData, slug: value });
-              setIsSlugManuallyEdited(true);
-       };
-
-       const regenerateSlug = () => {
-              const newSlug = generateSlug(formData.title);
-              setFormData({ ...formData, slug: newSlug });
-              setIsSlugManuallyEdited(false);
        };
 
        const handleFileChange = (file: File | null, type: 'thumbnail' | 'main360') => {
@@ -196,7 +182,7 @@ export default function PlacesCreate() {
 
                             <div className="py-0">
                                    <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                                          <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                                          <div className="bg-white dark:bg-neutral-900 overflow-hidden shadow-sm sm:rounded-lg">
                                                  <form onSubmit={handleSubmit} className="p-6 space-y-6">
                                                         {/* Información Básica */}
                                                         <div className="space-y-4">
@@ -212,7 +198,7 @@ export default function PlacesCreate() {
                                                                                     id="title"
                                                                                     value={formData.title}
                                                                                     onChange={(e) => handleTitleChange(e.target.value)}
-                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.title ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.title ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                            }`}
                                                                                     placeholder="Nombre del lugar turístico"
                                                                              />
@@ -225,42 +211,15 @@ export default function PlacesCreate() {
                                                                              <label htmlFor="slug" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                                                     Slug (URL)
                                                                              </label>
-                                                                             <div className="space-y-2">
-                                                                                    <div className="relative">
-                                                                                           <input
-                                                                                                  type="text"
-                                                                                                  id="slug"
-                                                                                                  value={formData.slug}
-                                                                                                  onChange={(e) => handleSlugChange(e.target.value)}
-                                                                                                  className={`w-full px-3 py-2 pr-20 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.slug ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                                                                                                         }`}
-                                                                                                  placeholder="url-amigable"
-                                                                                           />
-                                                                                           <button
-                                                                                                  type="button"
-                                                                                                  onClick={regenerateSlug}
-                                                                                                  disabled={!formData.title}
-                                                                                                  className="absolute right-2 top-1/2 transform -translate-y-1/2 px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors"
-                                                                                                  title="Regenerar slug desde título"
-                                                                                           >
-                                                                                                  🔄
-                                                                                           </button>
-                                                                                    </div>
-                                                                                    {formData.slug && (
-                                                                                           <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-2 rounded border">
-                                                                                                  <span className="font-medium">Vista previa URL:</span>
-                                                                                                  <br />
-                                                                                                  <code className="text-blue-600 dark:text-blue-400">
-                                                                                                         {window.location.origin}/lugares/{formData.slug}
-                                                                                                  </code>
-                                                                                           </div>
-                                                                                    )}
-                                                                                    {isSlugManuallyEdited && (
-                                                                                           <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                                                                                                  ⚠️ Slug editado manualmente - No se actualizará automáticamente
-                                                                                           </div>
-                                                                                    )}
-                                                                             </div>
+                                                                             <input
+                                                                                    type="text"
+                                                                                    id="slug"
+                                                                                    value={formData.slug}
+                                                                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.slug ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                                           }`}
+                                                                                    placeholder="url-amigable"
+                                                                             />
                                                                              {errors.slug && (
                                                                                     <p className="mt-1 text-sm text-red-600">{errors.slug[0]}</p>
                                                                              )}
@@ -276,7 +235,7 @@ export default function PlacesCreate() {
                                                                              rows={3}
                                                                              value={formData.short_description}
                                                                              onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                                                                             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.short_description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.short_description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                     }`}
                                                                              placeholder="Descripción corta para mostrar en las cards"
                                                                              maxLength={500}
@@ -296,7 +255,7 @@ export default function PlacesCreate() {
                                                                              rows={6}
                                                                              value={formData.description}
                                                                              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                                                             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                     }`}
                                                                              placeholder="Descripción detallada del lugar turístico"
                                                                       />
@@ -316,7 +275,7 @@ export default function PlacesCreate() {
                                                                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                                     Miniatura (para cards)
                                                                              </label>
-                                                                             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                                                             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-800">
                                                                                     {thumbnailPreview ? (
                                                                                            <div className="space-y-2">
                                                                                                   <img
@@ -366,7 +325,7 @@ export default function PlacesCreate() {
                                                                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                                     Imagen 360° Principal
                                                                              </label>
-                                                                             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                                                             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-800">
                                                                                     {main360Preview ? (
                                                                                            <div className="space-y-2">
                                                                                                   <img
@@ -429,7 +388,7 @@ export default function PlacesCreate() {
                                                                                     min="0"
                                                                                     value={formData.sort_order}
                                                                                     onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
-                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.sort_order ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.sort_order ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                            }`}
                                                                              />
                                                                              {errors.sort_order && (
@@ -443,7 +402,7 @@ export default function PlacesCreate() {
                                                                                     id="is_available"
                                                                                     checked={formData.is_available}
                                                                                     onChange={(e) => setFormData({ ...formData, is_available: e.target.checked })}
-                                                                                    className="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
+                                                                                    className="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-neutral-800 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
                                                                              />
                                                                              <label htmlFor="is_available" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                                                     Disponible para mostrar al público
@@ -457,7 +416,7 @@ export default function PlacesCreate() {
                                                                <button
                                                                       type="button"
                                                                       onClick={() => window.history.back()}
-                                                                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
+                                                                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-neutral-900"
                                                                >
                                                                       Cancelar
                                                                </button>

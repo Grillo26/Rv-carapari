@@ -220,7 +220,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
 
                             <div className="py-0">
                                    <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                                          <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                                          <div className="bg-white dark:bg-neutral-900 overflow-hidden shadow-sm sm:rounded-lg">
                                                  <form onSubmit={handleSubmit} className="p-6 space-y-6">
                                                         {/* Información Básica */}
                                                         <div className="space-y-4">
@@ -236,7 +236,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                                     id="title"
                                                                                     value={formData.title}
                                                                                     onChange={(e) => handleTitleChange(e.target.value)}
-                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.title ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.title ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                            }`}
                                                                                     placeholder="Nombre del lugar turístico"
                                                                              />
@@ -254,7 +254,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                                     id="slug"
                                                                                     value={formData.slug}
                                                                                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.slug ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.slug ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                            }`}
                                                                                     placeholder="url-amigable"
                                                                              />
@@ -273,7 +273,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                              rows={3}
                                                                              value={formData.short_description}
                                                                              onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                                                                             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.short_description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.short_description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                     }`}
                                                                              placeholder="Descripción corta para mostrar en las cards"
                                                                              maxLength={500}
@@ -293,7 +293,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                              rows={6}
                                                                              value={formData.description}
                                                                              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                                                             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                             className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                     }`}
                                                                              placeholder="Descripción detallada del lugar turístico"
                                                                       />
@@ -313,7 +313,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                                     Miniatura (para cards)
                                                                              </label>
-                                                                             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                                                             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-800">
                                                                                     {thumbnailPreview ? (
                                                                                            <div className="space-y-2">
                                                                                                   <img
@@ -363,7 +363,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                                     Imagen 360° Principal
                                                                              </label>
-                                                                             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                                                             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-800">
                                                                                     {main360Preview ? (
                                                                                            <div className="space-y-2">
                                                                                                   <img
@@ -426,7 +426,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                                     min="0"
                                                                                     value={formData.sort_order}
                                                                                     onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
-                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.sort_order ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                                                                                    className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.sort_order ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                            }`}
                                                                              />
                                                                              {errors.sort_order && (
@@ -440,7 +440,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                                     id="is_available"
                                                                                     checked={formData.is_available}
                                                                                     onChange={(e) => setFormData({ ...formData, is_available: e.target.checked })}
-                                                                                    className="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
+                                                                                    className="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-neutral-800 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
                                                                              />
                                                                              <label htmlFor="is_available" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                                                     Disponible para mostrar al público
@@ -453,7 +453,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                         <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
                                                                <Link
                                                                       href="/admin/places"
-                                                                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
+                                                                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-neutral-900"
                                                                >
                                                                       Cancelar
                                                                </Link>
