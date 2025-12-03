@@ -61,10 +61,16 @@ export default function AuthenticatedLayout({ header, children }: Props) {
                                                                       className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                                                >
                                                                       <div className="flex items-center">
-                                                                             {auth.user?.avatar && (
+                                                                             {auth.user?.avatar ? (
                                                                                     <img
                                                                                            className="h-8 w-8 rounded-full object-cover mr-2"
                                                                                            src={`/storage/${auth.user.avatar}`}
+                                                                                           alt={auth.user.name}
+                                                                                    />
+                                                                             ) : (
+                                                                                    <img
+                                                                                           className="h-8 w-8 rounded-full object-cover mr-2"
+                                                                                           src="/storage/avatars/default-avatar.avif"
                                                                                            alt={auth.user.name}
                                                                                     />
                                                                              )}

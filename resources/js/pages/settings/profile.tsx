@@ -62,7 +62,7 @@ export default function Profile({
                                                 // eslint-disable-next-line jsx-a11y/img-redundant-alt
                                                 <img src={`/storage/${auth.user.avatar}`} alt="avatar" className="h-full w-full object-cover" />
                                             ) : (
-                                                <div className="flex h-full w-full items-center justify-center text-sm text-neutral-300">No foto</div>
+                                                <img src="/storage/avatars/default-avatar.avif" alt="avatar" className="h-full w-full object-cover" />
                                             )}
                                         </div>
 
@@ -129,12 +129,12 @@ export default function Profile({
 
                                             {status ===
                                                 'verification-link-sent' && (
-                                                <div className="mt-2 text-sm font-medium text-green-600">
-                                                    A new verification link has
-                                                    been sent to your email
-                                                    address.
-                                                </div>
-                                            )}
+                                                    <div className="mt-2 text-sm font-medium text-green-600">
+                                                        A new verification link has
+                                                        been sent to your email
+                                                        address.
+                                                    </div>
+                                                )}
                                         </div>
                                     )}
 

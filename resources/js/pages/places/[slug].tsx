@@ -217,7 +217,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                             <div className="relative">
                                 <button onClick={() => setMenuOpen((s) => !s)} className="flex items-center gap-2">
                                     <div className="h-8 w-8 overflow-hidden rounded-full bg-neutral-700">
-                                        <img src={auth.user.avatar ? `/storage/${auth.user.avatar}` : '/images/default-avatar.png'} alt="avatar" className="h-full w-full object-cover" />
+                                        <img src={auth.user.avatar ? `/storage/${auth.user.avatar}` : '/storage/avatars/default-avatar.avif'} alt="avatar" className="h-full w-full object-cover" />
                                     </div>
                                     <div className="text-sm text-neutral-300 hidden md:block">{auth.user.name}</div>
                                 </button>
@@ -505,7 +505,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-600">
                                                             <img
-                                                                src={review.user.avatar ? `/storage/${review.user.avatar}` : '/images/default-avatar.png'}
+                                                                src={review.user.avatar ? `/storage/${review.user.avatar}` : '/storage/avatars/default-avatar.avif'}
                                                                 alt={review.user.name}
                                                                 className="w-full h-full object-cover"
                                                             />

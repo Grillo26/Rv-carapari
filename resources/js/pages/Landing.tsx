@@ -82,7 +82,7 @@ export default function Landing({ places, canRegister = true }: LandingProps) {
                                 <div className="relative">
                                     <button onClick={() => setMenuOpen((s) => !s)} className="flex items-center gap-2">
                                         <div className="h-8 w-8 overflow-hidden rounded-full bg-neutral-700">
-                                            <img src={auth.user.avatar ? `/storage/${auth.user.avatar}` : '/images/default-avatar.png'} alt="avatar" className="h-full w-full object-cover" />
+                                            <img src={auth.user.avatar ? `/storage/${auth.user.avatar}` : '/storage/avatars/default-avatar.avif'} alt="avatar" className="h-full w-full object-cover" />
                                         </div>
                                         <div className="text-sm text-neutral-300 hidden md:block">{auth.user.name}</div>
                                     </button>
