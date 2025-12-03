@@ -26,6 +26,9 @@ interface Place {
     created_at: string;
     updated_at: string;
     active_images: PlaceImage[];
+    average_rating?: number;
+    total_ratings?: number;
+    total_reviews?: number;
 }
 
 interface PlaceShowProps extends SharedData {
@@ -45,9 +48,9 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
             ? `/storage/${place.active_images.find(img => img.is_main)?.image_path}`
             : placeholderImage;
 
-    // Mock rating data (you can replace with real data later)
-    const rating = place.rating || 4.6;
-    const reviewsCount = place.reviews_count || Math.floor(Math.random() * 200) + 50;
+    // Rating data from database
+    const rating = place.average_rating || 0;
+    const reviewsCount = place.total_reviews || 0;
 
     return (
         <div className="min-h-screen bg-neutral-900 text-white" style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto" }}>

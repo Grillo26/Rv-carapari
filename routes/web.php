@@ -15,8 +15,15 @@ use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 Route::get('/', function () {
     $places = \App\Models\Place::where('is_available', true)
         ->select(['id', 'title', 'slug', 'short_description as description', 'thumbnail'])
+        ->with(['ratings', 'approvedReviews'])
         ->orderBy('created_at', 'desc')
-        ->get();
+        ->get()
+        ->map(function ($place) {
+            $place->average_rating = $place->average_rating;
+            $place->total_ratings = $place->total_ratings;
+            $place->total_reviews = $place->total_reviews;
+            return $place;
+        });
 
     return Inertia::render('Landing', [
         'canRegister' => Features::enabled(Features::registration()),

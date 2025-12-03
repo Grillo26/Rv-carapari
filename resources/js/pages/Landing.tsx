@@ -12,8 +12,9 @@ interface Place {
     description: string;
     thumbnail: string | null;
     is_available: boolean;
-    rating?: number;
-    reviews_count?: number;
+    average_rating?: number;
+    total_ratings?: number;
+    total_reviews?: number;
 }
 
 interface LandingProps extends SharedData {
@@ -226,7 +227,9 @@ export default function Landing({ places, canRegister = true }: LandingProps) {
 
                                         <div className="mt-4 flex items-center justify-between">
                                             <div className="text-sm text-neutral-300">
-                                                {place.rating || 4.5} ★ • {place.reviews_count || 0} reseñas
+                                                {place.average_rating && typeof place.average_rating === 'number' && place.average_rating > 0
+                                                    ? place.average_rating.toFixed(1)
+                                                    : '0.0'} ★ • {place.total_reviews || 0} reseñas
                                             </div>
                                             <div>
                                                 {locked ? (
