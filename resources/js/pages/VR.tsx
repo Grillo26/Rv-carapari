@@ -33,6 +33,16 @@ export default function VR() {
               <>
                      <Head>
                             <title>Visor 360° — CARAPARÍ VR</title>
+                            <style>{`
+                                   @media (max-width: 768px) {
+                                          .instructions-menu {
+                                                 left: 50% !important;
+                                                 transform: translateX(-50%) !important;
+                                                 width: 90% !important;
+                                                 max-width: 90% !important;
+                                          }
+                                   }
+                            `}</style>
                      </Head>
 
                      <div style={{ height: '100vh', margin: 0, background: '#000', position: 'relative' }}>
@@ -232,80 +242,90 @@ export default function VR() {
                             />
 
                             {/* Back Button */}
-                            <a href="/" style={{
+                            <button onClick={() => window.history.back()} style={{
                                    position: 'fixed',
                                    left: 20,
                                    top: 20,
                                    zIndex: 9999,
-                                   padding: '12px 20px',
-                                   background: 'rgba(255,255,255,0.95)',
-                                   borderRadius: 8,
-                                   textDecoration: 'none',
-                                   color: '#000',
-                                   fontWeight: '600',
-                                   boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
-                            }}>
-                                   ← Volver al inicio
-                            </a>
-
-                            {/* Title */}
-                            <div style={{
-                                   position: 'fixed',
-                                   top: 20,
-                                   right: 20,
-                                   zIndex: 9999,
-                                   padding: '12px 20px',
-                                   background: 'rgba(0,0,0,0.8)',
-                                   borderRadius: 8,
+                                   padding: '8px 14px',
+                                   background: 'rgba(0,0,0,0.7)',
+                                   borderRadius: 6,
+                                   border: 'none',
                                    color: 'white',
-                                   fontWeight: '600'
+                                   fontWeight: '500',
+                                   fontSize: '14px',
+                                   cursor: 'pointer',
+                                   boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
                             }}>
-                                   🌍 Vista 360° - CARAPARÍ
-                            </div>
+                                   ← Volver
+                            </button>
 
                             {/* Instructions Menu */}
                             {showInstructions && (
-                                   <div style={{
+                                   <div className="instructions-menu" style={{
                                           position: 'fixed',
                                           bottom: 20,
-                                          left: '50%',
-                                          transform: 'translateX(-50%)',
+                                          left: 20, // Cambiado de center a left para desktop
+                                          transform: 'none', // Removido el translateX para desktop
                                           zIndex: 9999,
                                           background: 'rgba(0,0,0,0.9)',
                                           borderRadius: 15,
                                           padding: '20px',
                                           color: 'white',
                                           textAlign: 'center',
-                                          maxWidth: '90%',
-                                          width: '400px',
+                                          maxWidth: '350px', // Reducido para el costado
+                                          width: '350px',
                                           border: '2px solid #00AAFF',
                                           boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
                                    }}>
-                                          <h3 style={{
-                                                 color: '#00AAFF',
-                                                 margin: '0 0 15px 0',
-                                                 fontSize: '18px'
+                                          <div style={{
+                                                 display: 'flex',
+                                                 justifyContent: 'space-between',
+                                                 alignItems: 'center',
+                                                 marginBottom: '15px'
                                           }}>
-                                                 🎮 CÓMO NAVEGAR EN 360°
-                                          </h3>
+                                                 <h3 style={{
+                                                        color: '#00AAFF',
+                                                        margin: '0',
+                                                        fontSize: '16px',
+                                                        flex: 1
+                                                 }}>
+                                                        🎮 CÓMO NAVEGAR EN 360°
+                                                 </h3>
 
-                                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                 {/* Botón de cerrar */}
+                                                 <button
+                                                        onClick={() => setShowInstructions(false)}
+                                                        style={{
+                                                               background: 'transparent',
+                                                               border: 'none',
+                                                               color: '#ff4444',
+                                                               fontSize: '20px',
+                                                               cursor: 'pointer',
+                                                               padding: '0',
+                                                               marginLeft: '10px'
+                                                        }}
+                                                        title="Cerrar instrucciones"
+                                                 >
+                                                        ✕
+                                                 </button>
+                                          </div>                                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                                  {/* Desktop Instructions */}
                                                  <div style={{
                                                         background: 'rgba(255,255,255,0.1)',
                                                         padding: '10px',
                                                         borderRadius: '8px'
                                                  }}>
-                                                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#FFFF00' }}>
+                                                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#FFFF00' }}>
                                                                🖱️ En Computadora:
                                                         </div>
-                                                        <div style={{ fontSize: '14px', marginTop: '5px' }}>
+                                                        <div style={{ fontSize: '13px', marginTop: '5px' }}>
                                                                • <strong>ARRASTRA</strong> con el mouse para girar la vista
                                                         </div>
-                                                        <div style={{ fontSize: '14px' }}>
+                                                        <div style={{ fontSize: '13px' }}>
                                                                • <strong>CTRL + RUEDA</strong> o <strong>PELLIZCA</strong> para zoom
                                                         </div>
-                                                        <div style={{ fontSize: '13px', color: '#88DDFF', marginTop: '5px' }}>
+                                                        <div style={{ fontSize: '12px', color: '#88DDFF', marginTop: '5px' }}>
                                                                💫 <em>Efecto ruleta: suelta para que siga girando</em>
                                                         </div>
                                                  </div>
@@ -316,16 +336,16 @@ export default function VR() {
                                                         padding: '10px',
                                                         borderRadius: '8px'
                                                  }}>
-                                                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#FFFF00' }}>
+                                                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#FFFF00' }}>
                                                                📱 En Móvil/Tablet:
                                                         </div>
-                                                        <div style={{ fontSize: '14px', marginTop: '5px' }}>
+                                                        <div style={{ fontSize: '13px', marginTop: '5px' }}>
                                                                • <strong>DESLIZA</strong> con un dedo para girar la vista
                                                         </div>
-                                                        <div style={{ fontSize: '14px' }}>
+                                                        <div style={{ fontSize: '13px' }}>
                                                                • <strong>PELLIZCA</strong> con dos dedos para zoom
                                                         </div>
-                                                        <div style={{ fontSize: '13px', color: '#88DDFF', marginTop: '5px' }}>
+                                                        <div style={{ fontSize: '12px', color: '#88DDFF', marginTop: '5px' }}>
                                                                💫 <em>Suelta el dedo para inercia tipo ruleta</em>
                                                         </div>
                                                  </div>
@@ -336,13 +356,13 @@ export default function VR() {
                                                         padding: '10px',
                                                         borderRadius: '8px'
                                                  }}>
-                                                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#FFFF00' }}>
+                                                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#FFFF00' }}>
                                                                🥽 Modo VR:
                                                         </div>
-                                                        <div style={{ fontSize: '14px', marginTop: '5px' }}>
+                                                        <div style={{ fontSize: '13px', marginTop: '5px' }}>
                                                                • Presiona el ícono <strong>VR</strong> en la esquina
                                                         </div>
-                                                        <div style={{ fontSize: '14px' }}>
+                                                        <div style={{ fontSize: '13px' }}>
                                                                • <strong>MUEVE</strong> tu cabeza para mirar alrededor
                                                         </div>
                                                  </div>
@@ -352,22 +372,20 @@ export default function VR() {
                                                  onClick={() => setShowInstructions(false)}
                                                  style={{
                                                         marginTop: '15px',
-                                                        padding: '10px 25px',
+                                                        padding: '8px 20px',
                                                         background: '#00AAFF',
                                                         border: 'none',
                                                         borderRadius: 6,
                                                         color: 'white',
                                                         cursor: 'pointer',
-                                                        fontSize: '14px',
+                                                        fontSize: '13px',
                                                         fontWeight: 'bold'
                                                  }}
                                           >
                                                  ✅ ¡Entendido! Comenzar a explorar
                                           </button>
                                    </div>
-                            )}
-
-                            {/* Quick Help Toggle - Always visible */}
+                            )}                            {/* Quick Help Toggle - Always visible */}
                             <button
                                    onClick={() => setShowInstructions(!showInstructions)}
                                    style={{
@@ -398,7 +416,7 @@ export default function VR() {
                             <div style={{
                                    position: 'fixed',
                                    bottom: 20,
-                                   right: 20,
+                                   left: 20,
                                    zIndex: 9998,
                                    display: showInstructions ? 'none' : 'flex',
                                    flexDirection: 'column',

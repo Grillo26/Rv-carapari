@@ -28,6 +28,7 @@ export default function PlacesCreate() {
        const [main360Preview, setMain360Preview] = useState<string>('');
        const [errors, setErrors] = useState<Errors>({});
        const [processing, setProcessing] = useState(false);
+       const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
        const generateSlug = (title: string) => {
               return title
@@ -42,11 +43,25 @@ export default function PlacesCreate() {
        };
 
        const handleTitleChange = (value: string) => {
-              setFormData({
+              const newFormData = {
                      ...formData,
                      title: value,
-                     slug: formData.slug === '' ? generateSlug(value) : formData.slug,
-              });
+              };
+
+              // Solo generar slug automáticamente si no ha sido editado manualmente
+              // o si el slug actual coincide con el slug que se generaría del título anterior
+              if (!isSlugManuallyEdited || formData.slug === generateSlug(formData.title)) {
+                     newFormData.slug = generateSlug(value);
+                     setIsSlugManuallyEdited(false);
+              }
+
+              setFormData(newFormData);
+       };
+
+       const handleSlugChange = (value: string) => {
+              setFormData({ ...formData, slug: value });
+              // Marcar que el slug ha sido editado manualmente si no está vacío
+              setIsSlugManuallyEdited(value.trim() !== '');
        };
 
        const handleFileChange = (file: File | null, type: 'thumbnail' | 'main360') => {
@@ -215,11 +230,16 @@ export default function PlacesCreate() {
                                                                                     type="text"
                                                                                     id="slug"
                                                                                     value={formData.slug}
-                                                                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                                                                    onChange={(e) => handleSlugChange(e.target.value)}
                                                                                     className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${errors.slug ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                                                                                            }`}
                                                                                     placeholder="url-amigable"
                                                                              />
+                                                                             {formData.slug && (
+                                                                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                                                           URL: /lugares/{formData.slug}
+                                                                                    </p>
+                                                                             )}
                                                                              {errors.slug && (
                                                                                     <p className="mt-1 text-sm text-red-600">{errors.slug[0]}</p>
                                                                              )}
