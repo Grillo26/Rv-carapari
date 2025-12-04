@@ -2,9 +2,11 @@ import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 export default function VR() {
-       const { props } = usePage<{ image?: string }>();
+       const { props } = usePage<{ image?: string; place?: { title: string; id: number; images?: Array<{ title: string; url: string; id: number }> } }>();
        const image: string | undefined = props.image;
+       const place = props.place;
        const [showInstructions, setShowInstructions] = useState(true);
+       const [sidebarMinimized, setSidebarMinimized] = useState(false);
 
        useEffect(() => {
               // Inject A-Frame script if not already present
@@ -40,6 +42,15 @@ export default function VR() {
                                                  transform: translateX(-50%) !important;
                                                  width: 90% !important;
                                                  max-width: 90% !important;
+                                          }
+                                          .places-sidebar {
+                                                 width: 280px !important;
+                                          }
+                                          .help-button {
+                                                 right: 20px !important;
+                                          }
+                                          .sidebar-toggle {
+                                                 right: 20px !important;
                                           }
                                    }
                             `}</style>
@@ -387,29 +398,184 @@ export default function VR() {
                                    </div>
                             )}                            {/* Quick Help Toggle - Always visible */}
                             <button
+                                   className="help-button"
                                    onClick={() => setShowInstructions(!showInstructions)}
                                    style={{
                                           position: 'fixed',
                                           top: '50%',
                                           right: 20,
                                           transform: 'translateY(-50%)',
-                                          zIndex: 9999,
+                                          zIndex: sidebarMinimized ? 9999 : 9997,
                                           width: '50px',
                                           height: '50px',
                                           borderRadius: '50%',
-                                          background: 'rgba(0,170,255,0.9)',
-                                          border: '2px solid white',
-                                          color: 'white',
+                                          background: 'rgba(0,0,0,0.8)',
+                                          border: '2px solid #00AAFF',
+                                          color: '#00AAFF',
                                           cursor: 'pointer',
                                           fontSize: '20px',
                                           display: 'flex',
                                           alignItems: 'center',
                                           justifyContent: 'center',
-                                          boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
+                                          boxShadow: '0 2px 12px rgba(0,170,255,0.3)',
+                                          transition: 'all 0.3s ease',
+                                          opacity: sidebarMinimized ? 1 : 0.6
+                                   }}
+                                   onMouseEnter={(e) => {
+                                          e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
+                                          e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)';
+                                          e.currentTarget.style.opacity = '1';
+                                   }}
+                                   onMouseLeave={(e) => {
+                                          e.currentTarget.style.background = 'rgba(0,0,0,0.8)';
+                                          e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                                          e.currentTarget.style.opacity = sidebarMinimized ? '1' : '0.6';
                                    }}
                                    title="Mostrar/Ocultar instrucciones"
                             >
                                    ❓
+                            </button>
+
+                            {/* Places Sidebar */}
+                            <div className="places-sidebar" style={{
+                                   position: 'fixed',
+                                   top: 0,
+                                   right: sidebarMinimized ? -300 : 0,
+                                   width: '300px',
+                                   height: '100vh',
+                                   background: 'rgba(0,0,0,0.9)',
+                                   zIndex: 9998,
+                                   transition: 'right 0.3s ease',
+                                   borderLeft: sidebarMinimized ? 'none' : '2px solid #00AAFF'
+                            }}>
+                                   {/* Sidebar Header */}
+                                   <div style={{
+                                          padding: '20px',
+                                          borderBottom: '1px solid rgba(255,255,255,0.1)'
+                                   }}>
+                                          <div style={{
+                                                 display: 'flex',
+                                                 justifyContent: 'space-between',
+                                                 alignItems: 'center'
+                                          }}>
+                                                 <h3 style={{
+                                                        color: '#00AAFF',
+                                                        margin: '0',
+                                                        fontSize: '16px',
+                                                        fontWeight: 'bold'
+                                                 }}>
+                                                        📍 Vistas del Lugar
+                                                 </h3>
+                                          </div>
+                                          {place && (
+                                                 <p style={{
+                                                        color: 'white',
+                                                        margin: '10px 0 0 0',
+                                                        fontSize: '14px',
+                                                        opacity: 0.8
+                                                 }}>
+                                                        {place.title}
+                                                 </p>
+                                          )}
+                                   </div>
+
+                                   {/* Places List */}
+                                   <div style={{
+                                          padding: '20px',
+                                          height: 'calc(100vh - 120px)',
+                                          overflowY: 'auto'
+                                   }}>
+                                          {place?.images && place.images.length > 0 ? (
+                                                 <div style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: '12px'
+                                                 }}>
+                                                        {place.images.map((img, index) => (
+                                                               <div
+                                                                      key={img.id || index}
+                                                                      style={{
+                                                                             padding: '12px',
+                                                                             background: 'rgba(255,255,255,0.1)',
+                                                                             borderRadius: '8px',
+                                                                             cursor: 'pointer',
+                                                                             transition: 'background 0.2s ease',
+                                                                             border: '1px solid transparent'
+                                                                      }}
+                                                                      onMouseEnter={(e) => {
+                                                                             e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
+                                                                             e.currentTarget.style.border = '1px solid #00AAFF';
+                                                                      }}
+                                                                      onMouseLeave={(e) => {
+                                                                             e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                                                                             e.currentTarget.style.border = '1px solid transparent';
+                                                                      }}
+                                                               >
+                                                                      <div style={{
+                                                                             color: 'white',
+                                                                             fontSize: '14px',
+                                                                             fontWeight: '500'
+                                                                      }}>
+                                                                             🌍 {img.title}
+                                                                      </div>
+                                                                      <div style={{
+                                                                             color: '#88DDFF',
+                                                                             fontSize: '12px',
+                                                                             marginTop: '5px'
+                                                                      }}>
+                                                                             Click para cambiar vista
+                                                                      </div>
+                                                               </div>
+                                                        ))}
+                                                 </div>
+                                          ) : (
+                                                 <div style={{
+                                                        textAlign: 'center',
+                                                        color: 'rgba(255,255,255,0.6)',
+                                                        fontSize: '14px',
+                                                        marginTop: '40px'
+                                                 }}>
+                                                        <div style={{ fontSize: '48px', marginBottom: '20px' }}>🗺️</div>
+                                                        <p>No hay vistas adicionales disponibles para este lugar</p>
+                                                 </div>
+                                          )}
+                                   </div>
+                            </div>
+
+                            {/* Sidebar Toggle Button - Always visible */}
+                            <button
+                                   className="sidebar-toggle"
+                                   onClick={() => setSidebarMinimized(!sidebarMinimized)}
+                                   style={{
+                                          position: 'fixed',
+                                          top: '20px',
+                                          right: 20,
+                                          zIndex: 9999,
+                                          width: '45px',
+                                          height: '45px',
+                                          borderRadius: '50%',
+                                          background: 'rgba(0,0,0,0.8)',
+                                          border: '2px solid #00AAFF',
+                                          color: '#00AAFF',
+                                          cursor: 'pointer',
+                                          fontSize: '18px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          boxShadow: '0 2px 12px rgba(0,170,255,0.3)',
+                                          transition: 'all 0.3s ease'
+                                   }}
+                                   onMouseEnter={(e) => {
+                                          e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
+                                          e.currentTarget.style.transform = 'scale(1.05)';
+                                   }}
+                                   onMouseLeave={(e) => {
+                                          e.currentTarget.style.background = 'rgba(0,0,0,0.8)';
+                                          e.currentTarget.style.transform = 'scale(1)';
+                                   }}
+                                   title={sidebarMinimized ? 'Mostrar vistas del lugar' : 'Ocultar panel'}
+                            >
+                                   {sidebarMinimized ? '📍' : '✕'}
                             </button>
 
                             {/* Navigation Indicators */}
