@@ -8,6 +8,13 @@ export default function VR() {
        const [showInstructions, setShowInstructions] = useState(true);
        const [sidebarMinimized, setSidebarMinimized] = useState(false);
 
+       // Procesar la imagen antes de los useEffect
+       const sample = '/images/imagekkk.jpg';
+       let panoSrc = image || sample;
+       if (panoSrc && !/^https?:\/\//i.test(panoSrc) && panoSrc.charAt(0) !== '/') {
+              panoSrc = '/' + panoSrc;
+       }
+
        useEffect(() => {
               // Inject A-Frame script if not already present
               if (!(window as any).AFRAME) {
@@ -22,14 +29,39 @@ export default function VR() {
                      setShowInstructions(false);
               }, 15000);
 
-              return () => clearTimeout(timer);
+              return () => {
+                     clearTimeout(timer);
+                     // Limpiar A-Frame cuando el componente se desmonte
+                     if ((window as any).AFRAME) {
+                            const scene = document.querySelector('a-scene');
+                            if (scene && scene.parentNode) {
+                                   scene.parentNode.removeChild(scene);
+                            }
+                     }
+              };
        }, []);
 
-       const sample = '/images/imagekkk.jpg';
-       let panoSrc = image || sample;
-       if (panoSrc && !/^https?:\/\//i.test(panoSrc) && panoSrc.charAt(0) !== '/') {
-              panoSrc = '/' + panoSrc;
-       }
+       // Effect para manejar cambios en la imagen
+       useEffect(() => {
+              if ((window as any).AFRAME && panoSrc) {
+                     // Esperar a que A-Frame esté completamente cargado
+                     setTimeout(() => {
+                            const sky = document.querySelector('#sky');
+                            const panoImg = document.querySelector('#pano');
+
+                            if (sky && panoImg) {
+                                   // Forzar recarga de la imagen
+                                   panoImg.setAttribute('src', panoSrc);
+                                   sky.setAttribute('src', '#pano');
+
+                                   // Asegurar que la imagen se cargue correctamente
+                                   panoImg.addEventListener('load', () => {
+                                          sky.setAttribute('src', '#pano');
+                                   }, { once: true });
+                            }
+                     }, 100);
+              }
+       }, [panoSrc]);
 
        return (
               <>
@@ -59,13 +91,14 @@ export default function VR() {
                      <div style={{ height: '100vh', margin: 0, background: '#000', position: 'relative' }}>
                             {/* A-Frame Scene */}
                             <div
+                                   key={panoSrc} // Forzar re-render cuando cambia la imagen
                                    dangerouslySetInnerHTML={{
                                           __html: `
-                                                 <a-scene vr-mode-ui="enterVRButton: true" embedded style="height: 100%;">
+                                                 <a-scene vr-mode-ui="enterVRButton: true" embedded style="height: 100%;" id="vr-scene">
                                                         <a-assets>
                                                                <img id="pano" src="${panoSrc}" crossorigin="anonymous" />
                                                         </a-assets>
-                                                        <a-sky id="sky" src="#pano"></a-sky>
+                                                        <a-sky id="sky" src="#pano" material="shader: standard"></a-sky>
                                                         <a-camera 
                                                                look-controls="
                                                                       enabled: true; 
@@ -82,6 +115,24 @@ export default function VR() {
                                                  </a-scene>
                                                  
                                                  <script>
+                                                        // Forzar recarga de la imagen cuando cambia
+                                                        document.addEventListener('DOMContentLoaded', function() {
+                                                               setTimeout(function() {
+                                                                      const panoImg = document.querySelector('#pano');
+                                                                      const sky = document.querySelector('#sky');
+                                                                      
+                                                                      if (panoImg && sky) {
+                                                                             // Forzar recarga de la imagen
+                                                                             const currentSrc = panoImg.getAttribute('src');
+                                                                             panoImg.setAttribute('src', '');
+                                                                             setTimeout(() => {
+                                                                                    panoImg.setAttribute('src', currentSrc);
+                                                                                    sky.setAttribute('src', '#pano');
+                                                                             }, 50);
+                                                                      }
+                                                               }, 500);
+                                                        });
+
                                                         // Efecto de inercia tipo ruleta
                                                         document.addEventListener('DOMContentLoaded', function() {
                                                                setTimeout(function() {
@@ -253,7 +304,7 @@ export default function VR() {
                             />
 
                             {/* Back Button */}
-                            <button onClick={() => window.history.back()} style={{
+                            <a href="/#places" style={{
                                    position: 'fixed',
                                    left: 20,
                                    top: 20,
@@ -266,10 +317,13 @@ export default function VR() {
                                    fontWeight: '500',
                                    fontSize: '14px',
                                    cursor: 'pointer',
-                                   boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                                   boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                                   textDecoration: 'none',
+                                   display: 'inline-flex',
+                                   alignItems: 'center'
                             }}>
-                                   ← Volver
-                            </button>
+                                   ← Volver a lugares
+                            </a>
 
                             {/* Instructions Menu */}
                             {showInstructions && (
