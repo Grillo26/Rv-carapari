@@ -7,13 +7,19 @@ export default function VR() {
        const place = props.place;
        const [showInstructions, setShowInstructions] = useState(true);
        const [sidebarMinimized, setSidebarMinimized] = useState(false);
+       const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
 
        // Procesar la imagen antes de los useEffect
        const sample = '/images/imagekkk.jpg';
-       let panoSrc = image || sample;
+       let panoSrc = currentImageUrl || image || sample;
        if (panoSrc && !/^https?:\/\//i.test(panoSrc) && panoSrc.charAt(0) !== '/') {
               panoSrc = '/' + panoSrc;
        }
+
+       // Función para cambiar la imagen panorámica
+       const changeImage = (newImageUrl: string) => {
+              setCurrentImageUrl(newImageUrl);
+       };
 
        useEffect(() => {
               // Inject A-Frame script if not already present
@@ -545,42 +551,64 @@ export default function VR() {
                                                         flexDirection: 'column',
                                                         gap: '12px'
                                                  }}>
-                                                        {place.images.map((img, index) => (
-                                                               <div
-                                                                      key={img.id || index}
-                                                                      style={{
-                                                                             padding: '12px',
-                                                                             background: 'rgba(255,255,255,0.1)',
-                                                                             borderRadius: '8px',
-                                                                             cursor: 'pointer',
-                                                                             transition: 'background 0.2s ease',
-                                                                             border: '1px solid transparent'
-                                                                      }}
-                                                                      onMouseEnter={(e) => {
-                                                                             e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
-                                                                             e.currentTarget.style.border = '1px solid #00AAFF';
-                                                                      }}
-                                                                      onMouseLeave={(e) => {
-                                                                             e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                                                                             e.currentTarget.style.border = '1px solid transparent';
-                                                                      }}
-                                                               >
-                                                                      <div style={{
-                                                                             color: 'white',
-                                                                             fontSize: '14px',
-                                                                             fontWeight: '500'
-                                                                      }}>
-                                                                             🌍 {img.title}
+                                                        {place.images.map((img, index) => {
+                                                               const isCurrentImage = currentImageUrl === img.url ||
+                                                                      (!currentImageUrl && image === img.url);
+
+                                                               return (
+                                                                      <div
+                                                                             key={img.id || index}
+                                                                             onClick={() => changeImage(img.url)}
+                                                                             style={{
+                                                                                    padding: '12px',
+                                                                                    background: isCurrentImage
+                                                                                           ? 'rgba(0,170,255,0.3)'
+                                                                                           : 'rgba(255,255,255,0.1)',
+                                                                                    borderRadius: '8px',
+                                                                                    cursor: 'pointer',
+                                                                                    transition: 'all 0.2s ease',
+                                                                                    border: isCurrentImage
+                                                                                           ? '2px solid #00AAFF'
+                                                                                           : '1px solid transparent',
+                                                                                    transform: isCurrentImage ? 'scale(1.02)' : 'scale(1)'
+                                                                             }}
+                                                                             onMouseEnter={(e) => {
+                                                                                    if (!isCurrentImage) {
+                                                                                           e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
+                                                                                           e.currentTarget.style.border = '1px solid #00AAFF';
+                                                                                    }
+                                                                             }}
+                                                                             onMouseLeave={(e) => {
+                                                                                    if (!isCurrentImage) {
+                                                                                           e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                                                                                           e.currentTarget.style.border = '1px solid transparent';
+                                                                                    }
+                                                                             }}
+                                                                      >
+                                                                             <div style={{
+                                                                                    color: 'white',
+                                                                                    fontSize: '14px',
+                                                                                    fontWeight: isCurrentImage ? 'bold' : '500',
+                                                                                    display: 'flex',
+                                                                                    alignItems: 'center',
+                                                                                    gap: '8px'
+                                                                             }}>
+                                                                                    <span style={{ fontSize: '16px' }}>
+                                                                                           {isCurrentImage ? '📍' : '🌍'}
+                                                                                    </span>
+                                                                                    {img.title || `Vista ${index + 1}`}
+                                                                             </div>
+                                                                             <div style={{
+                                                                                    color: isCurrentImage ? '#00AAFF' : '#88DDFF',
+                                                                                    fontSize: '12px',
+                                                                                    marginTop: '5px',
+                                                                                    fontWeight: isCurrentImage ? '500' : 'normal'
+                                                                             }}>
+                                                                                    {isCurrentImage ? '✅ Vista actual' : 'Click para cambiar vista'}
+                                                                             </div>
                                                                       </div>
-                                                                      <div style={{
-                                                                             color: '#88DDFF',
-                                                                             fontSize: '12px',
-                                                                             marginTop: '5px'
-                                                                      }}>
-                                                                             Click para cambiar vista
-                                                                      </div>
-                                                               </div>
-                                                        ))}
+                                                               );
+                                                        })}
                                                  </div>
                                           ) : (
                                                  <div style={{

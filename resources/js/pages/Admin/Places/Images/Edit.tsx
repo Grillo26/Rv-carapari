@@ -137,7 +137,7 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
 
        const viewImage360 = () => {
               const imageUrl = imagePreview || currentImageUrl;
-              window.open(`/vr?image=${encodeURIComponent(imageUrl)}`, '_blank');
+              window.open(`/vr?image=${encodeURIComponent(imageUrl)}&place_id=${place.id}`, '_blank');
        };
 
        return (

@@ -105,8 +105,32 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 Route::view('/vr-demo', 'vr_demo');
 // Usar Inertia para el visor VR para que los enlaces desde Inertia funcionen correctamente
 Route::get('/vr', function () {
+    $placeId = request()->query('place_id');
+    $place = null;
+    
+    if ($placeId) {
+        $place = \App\Models\Place::with(['activeImages'])->find($placeId);
+        
+        // Formatear las imágenes para el frontend
+        if ($place && $place->activeImages) {
+            $place->images = $place->activeImages->map(function($image) {
+                return [
+                    'id' => $image->id,
+                    'title' => $image->title,
+                    'url' => '/storage/' . $image->image_path,
+                    'is_main' => $image->is_main
+                ];
+            });
+        }
+    }
+    
     return Inertia::render('VR', [
         'image' => request()->query('image'),
+        'place' => $place ? [
+            'id' => $place->id,
+            'title' => $place->title,
+            'images' => $place->images ?? []
+        ] : null,
     ]);
 });
 

@@ -302,7 +302,10 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                 place.active_images[0]?.image_path;
 
                                             if (imagePath) {
-                                                router.get('/vr', { image: `/storage/${imagePath}` });
+                                                router.get('/vr', {
+                                                    image: `/storage/${imagePath}`,
+                                                    place_id: place.id
+                                                });
                                             } else {
                                                 alert('No hay imágenes 360° disponibles para este lugar');
                                             }

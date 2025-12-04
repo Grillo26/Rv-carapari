@@ -156,7 +156,7 @@ function PlaceCard({ place, placeholderImage }: PlaceCardProps) {
 
                                    {place.main_image && (
                                           <a
-                                                 href={`/vr?image=${encodeURIComponent(`/storage/${place.main_image.image_path}`)}`}
+                                                 href={`/vr?image=${encodeURIComponent(`/storage/${place.main_image.image_path}`)}&place_id=${place.id}`}
                                                  className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200"
                                                  title="Vista 360°"
                                           >
