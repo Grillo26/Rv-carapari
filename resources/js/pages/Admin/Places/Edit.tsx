@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Camera } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { Camera } from 'lucide-react';
 
 interface Place {
        id: number;
@@ -47,13 +47,15 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
        const [main360Preview, setMain360Preview] = useState<string>('');
        const [errors, setErrors] = useState<Errors>({});
        const [processing, setProcessing] = useState(false);
+       const [thumbnailDeleted, setThumbnailDeleted] = useState(false);
+       const [main360Deleted, setMain360Deleted] = useState(false);
 
        useEffect(() => {
-              // Cargar imágenes existentes como preview
-              if (place.thumbnail) {
+              // Cargar imágenes existentes como preview (solo si no han sido marcadas para eliminar)
+              if (!thumbnailDeleted && place.thumbnail) {
                      setThumbnailPreview(`/storage/${place.thumbnail}`);
               }
-              if (place.main_360_image) {
+              if (!main360Deleted && place.main_360_image) {
                      setMain360Preview(`/storage/${place.main_360_image}`);
               }
        }, [place]);
@@ -112,19 +114,24 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                             if (type === 'thumbnail') {
                                    setThumbnailFile(file);
                                    setThumbnailPreview(e.target?.result as string);
+                                   setThumbnailDeleted(false);
                             } else {
                                    setMain360ImageFile(file);
                                    setMain360Preview(e.target?.result as string);
+                                   setMain360Deleted(false);
                             }
                      };
                      reader.readAsDataURL(file);
               } else {
+                     // Cuando se envía null, significa que se quiere eliminar (mostrar formulario vacío)
                      if (type === 'thumbnail') {
                             setThumbnailFile(null);
-                            setThumbnailPreview(place.thumbnail ? `/storage/${place.thumbnail}` : '');
+                            setThumbnailPreview('');
+                            setThumbnailDeleted(true);
                      } else {
                             setMain360ImageFile(null);
-                            setMain360Preview(place.main_360_image ? `/storage/${place.main_360_image}` : '');
+                            setMain360Preview('');
+                            setMain360Deleted(true);
                      }
               }
        };
@@ -173,6 +180,14 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
               }
               if (main360ImageFile) {
                      submitData.append('main_360_image', main360ImageFile);
+              }
+
+              // Agregar flags para eliminar imágenes
+              if (thumbnailDeleted) {
+                     submitData.append('delete_thumbnail', '1');
+              }
+              if (main360Deleted) {
+                     submitData.append('delete_main_360_image', '1');
               }
 
               // Agregar método PUT para Laravel
@@ -314,7 +329,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                                     Miniatura (para cards)
                                                                              </label>
                                                                              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-800">
-                                                                                    {thumbnailPreview ? (
+                                                                                    {thumbnailPreview && !thumbnailDeleted ? (
                                                                                            <div className="space-y-2">
                                                                                                   <img
                                                                                                          src={thumbnailPreview}
@@ -364,7 +379,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                                     Imagen 360° Principal
                                                                              </label>
                                                                              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-800">
-                                                                                    {main360Preview ? (
+                                                                                    {main360Preview && !main360Deleted ? (
                                                                                            <div className="space-y-2">
                                                                                                   <img
                                                                                                          src={main360Preview}
