@@ -24,9 +24,9 @@ interface LandingProps extends SharedData {
 
 
 const HERO_IMAGES = [
-    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1800&q=80&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1800&q=80&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1800&q=80&auto=format&fit=crop',
+    '/images/hero/1.jpg',
+    '/images/hero/2.jpg',
+    '/images/hero/3.jpg',
 ];
 
 const PLACE_LIST = [
@@ -107,8 +107,8 @@ export default function Landing({ places, canRegister = true }: LandingProps) {
 
                     <div className="absolute inset-0 mx-auto max-w-6xl px-6 flex flex-col justify-center lg:flex-row lg:items-center lg:justify-between">
                         <div className="lg:w-1/2">
-                            <h2 className="text-5xl font-extrabold tracking-tight">TIME TO TRAVEL</h2>
-                            <p className="mt-4 max-w-xl text-neutral-300">Discover CARAPARÍ — historia, plazas, mercados y avenidas que cuentan historias. Vive la experiencia local.</p>
+                            <h2 className="text-5xl font-extrabold tracking-tight">Realidad Virtual en Caraparí</h2>
+                            <p className="mt-4 max-w-xl text-neutral-300">Descubre CARAPARÍ — historia, plazas, mercados y avenidas que cuentan historias. Vive la experiencia local.</p>
 
                             <div className="mt-6 flex gap-4">
                                 <a href="#places" className="rounded-md border border-neutral-300 px-4 py-2 text-sm hover:bg-white/5">MORE DETAILED</a>
@@ -188,9 +188,9 @@ export default function Landing({ places, canRegister = true }: LandingProps) {
                 <section className="mx-auto max-w-6xl px-6 py-12">
                     <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
                         <div>
-                            <h3 className="text-3xl font-bold">DISCOVER THE WORLD IN A NEW WAY</h3>
-                            <p className="mt-4 text-neutral-400">Watch the video — a short presentation about the most remarkable places in CARAPARÍ.</p>
-                            <button className="mt-6 inline-flex items-center gap-3 rounded-md bg-white/10 px-4 py-2">▶ WATCH THE VIDEO</button>
+                            <h3 className="text-3xl font-bold">DESCUBRE EL MUNDO DE UNA NUEVA MANERA</h3>
+                            <p className="mt-4 text-neutral-400">Mire el video: una breve presentación sobre los lugares más destacados de CARAPARÍ.</p>
+                            <button className="mt-6 inline-flex items-center gap-3 rounded-md bg-white/10 px-4 py-2">▶ Mirar el Video</button>
                         </div>
 
                         <div className="grid grid-cols-3 gap-3">
