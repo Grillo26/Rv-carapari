@@ -1,8 +1,10 @@
 import { VRScene } from '@/components/vr-scene';
+import Navbar from '@/components/Navbar';
 import { login, register } from '@/routes';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import { THEME_COLORS } from '@/constants/theme';
 
 // Interface para los lugares de la base de datos
 interface Place {
@@ -29,25 +31,11 @@ const HERO_IMAGES = [
     '/images/hero/3.jpg',
 ];
 
-// ===== CONFIGURACIÓN DE COLORES =====
-// Modifica estos colores aquí para cambiar toda la paleta de la aplicación
-const THEME_COLORS = {
-    // Botones principales
-    buttonPrimary: 'bg-green-600',
-    buttonPrimaryHover: 'hover:bg-green-500',
-    buttonSecondary: 'bg-red-600',
-
-    // Fondos
-    bgDark: 'bg-neutral-900',
-    bgCard: 'bg-neutral-800',
-    bgCardLight: 'bg-neutral-800/60',
-
-    // Textos
-    textSecondary: 'text-neutral-300',
-    textTertiary: 'text-neutral-400',
-    textMuted: 'text-neutral-500',
-};
-// =======================================
+const VIDEO_IDS = [
+    'WnwhlCF3-GM',
+    'GNVIY_4NCrI',
+    'WnwhlCF3-GM', // tercera imagen usa el primer video
+];
 
 const PLACE_LIST = [
     { title: 'Catedral', slug: 'catedral', img: HERO_IMAGES[0], description: 'La imponente catedral histórica en el corazón de Caraparí.', rating: 4.8, reviews: 230 },
@@ -62,8 +50,8 @@ export default function Landing({ places, canRegister = true }: LandingProps) {
     const { auth } = usePage<SharedData>().props;
     const [heroIndex, setHeroIndex] = useState(0);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
-    const [menuOpen, setMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [showVideo, setShowVideo] = useState<string | null>(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -87,53 +75,13 @@ export default function Landing({ places, canRegister = true }: LandingProps) {
             </Head>
 
             <div className="min-h-screen text-white" style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto" }}>
-                {/* NAVBAR */}
-                <nav className={`fixed left-0 right-0 top-0 z-40 transition-all duration-300 ${isScrolled
-                    ? 'bg-neutral-900/60 backdrop-blur-sm'
-                    : 'bg-transparent'
-                    }`}>
-                    <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between h-20">
-                        {/* Logo - Izquierda */}
-                        <div className="flex-shrink-0">
-                            <div className="text-2xl font-extrabold tracking-tight">CARAPARÍ</div>
-                        </div>
-
-                        {/* Menú - Centro */}
-                        <div className={`hidden items-center gap-8 text-sm ${THEME_COLORS.textSecondary} md:flex flex-1 justify-center`}>
-                            <a href="#tours" className="hover:text-green-600 transition">Tours</a>
-                            <a href="#vr-tours" className="hover:text-green-600 transition">VR Tours</a>
-                            <a href="#places" className="hover:text-green-600 transition">Lugares</a>
-                            <a href="#faq" className="hover:text-green-600 transition">Preguntas</a>
-                        </div>
-
-                        {/* Botones - Derecha */}
-                        <div className="flex items-center gap-4 relative flex-shrink-0">
-                            {!auth.user ? (
-                                <>
-                                    <Link href={login()} className={`text-sm ${THEME_COLORS.textSecondary} hover:text-green-600 transition`}>Iniciar sesión</Link>
-                                    {canRegister && <Link href={register()} className="rounded-md border border-white px-3 py-1 text-sm font-medium text-white transition hover:bg-white/10">Registro</Link>}
-                                </>
-                            ) : (
-                                <div className="relative">
-                                    <button onClick={() => setMenuOpen((s) => !s)} className="flex items-center gap-2">
-                                        <div className="h-8 w-8 overflow-hidden rounded-full bg-neutral-700">
-                                            <img src={auth.user.avatar ? `/storage/${auth.user.avatar}` : '/storage/avatars/default-avatar.avif'} alt="avatar" className="h-full w-full object-cover" />
-                                        </div>
-                                        <div className="text-sm text-neutral-300 hidden md:block">{auth.user.name}</div>
-                                    </button>
-
-                                    {menuOpen && (
-                                        <div className="absolute right-0 mt-2 w-40 rounded bg-neutral-800/90 p-2 shadow-lg">
-                                            <Link href="/settings/profile" className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded transition">Perfil</Link>
-                                            <Link href="/dashboard" className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded transition">Dashboard</Link>
-                                            <Link method="post" href="/logout" as="button" className={`mt-2 w-full rounded ${THEME_COLORS.buttonSecondary} px-3 py-1 text-sm font-medium text-white`}>Cerrar sesión</Link>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </nav>
+                <Navbar
+                    isScrolled={isScrolled}
+                    auth={auth}
+                    canRegister={canRegister}
+                    loginRoute={login()}
+                    registerRoute={register()}
+                />
 
                 <div className="pt-0" />
                 {/* HERO */}
@@ -263,19 +211,43 @@ export default function Landing({ places, canRegister = true }: LandingProps) {
                             <div>
                                 <h3 className="text-3xl font-bold">DESCUBRE EL MUNDO DE UNA NUEVA MANERA</h3>
                                 <p className={`mt-4 ${THEME_COLORS.textTertiary}`}>Mire el video: una breve presentación sobre los lugares más destacados de CARAPARÍ.</p>
-                                <button className={`mt-6 inline-flex items-center gap-3 rounded-md ${THEME_COLORS.buttonPrimary} px-4 py-2`}>▶ Mirar el Video</button>
+                                <button
+                                    onClick={() => setShowVideo(showVideo ? null : VIDEO_IDS[0])}
+                                    className={`mt-6 inline-flex items-center gap-3 rounded-md ${THEME_COLORS.buttonPrimary} px-4 py-2 ${THEME_COLORS.buttonPrimaryHover} transition`}
+                                >
+                                    ▶ {showVideo ? 'Ocultar Video' : 'Mirar el Video'}
+                                </button>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-3">
-                                {HERO_IMAGES.map((img, i) => (
-                                    <div key={i} className="relative overflow-hidden rounded">
-                                        <img src={img} className="h-28 w-full object-cover" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="h-8 w-8 rounded-full bg-white/80 text-black flex items-center justify-center">▶</div>
+                            {!showVideo ? (
+                                <div className="grid grid-cols-3 gap-3">
+                                    {HERO_IMAGES.map((img, i) => (
+                                        <div
+                                            key={i}
+                                            className="relative overflow-hidden rounded cursor-pointer hover:opacity-80 transition"
+                                            onClick={() => setShowVideo(VIDEO_IDS[i])}
+                                        >
+                                            <img src={img} className="h-28 w-full object-cover" />
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <div className="h-8 w-8 rounded-full bg-white/80 text-black flex items-center justify-center">▶</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="aspect-video">
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        src={`https://www.youtube.com/embed/${showVideo}?autoplay=1`}
+                                        title="YouTube video player"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        className="rounded-lg"
+                                    ></iframe>
+                                </div>
+                            )}
                         </div>
                     </section>
 

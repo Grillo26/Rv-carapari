@@ -1,7 +1,9 @@
 import { Head, Link, router, usePage, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Navbar from '@/components/Navbar';
 import { login, register } from '@/routes';
 import { type SharedData } from '@/types';
+import { THEME_COLORS } from '@/constants/theme';
 
 interface PlaceImage {
     id: number;
@@ -67,10 +69,18 @@ interface PlaceShowProps extends SharedData {
 
 export default function PlaceShow({ place, canRegister = true }: PlaceShowProps) {
     const { auth } = usePage<SharedData>().props;
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const [userRating, setUserRating] = useState<number>(place.user_rating || 0);
     const [hoverRating, setHoverRating] = useState<number>(0);
     const [editingReview, setEditingReview] = useState<number | null>(null);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Form para nueva reseña
     const { data: reviewData, setData: setReviewData, post: postReview, processing: reviewProcessing, reset: resetReview } = useForm({
@@ -163,12 +173,12 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
         interactive?: boolean;
     }) => {
         return (
-            <div className="flex items-center">
+            <div className="flex items-center justify-center">
                 {[1, 2, 3, 4, 5].map((star) => (
                     <button
                         key={star}
                         type="button"
-                        className={`${size} ${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : 'cursor-default'}`}
+                        className={`${size} ${interactive ? 'cursor-pointer hover:scale-125 transition-transform' : 'cursor-default'}`}
                         onClick={() => interactive && onRate && onRate(star)}
                         onMouseEnter={() => interactive && setHoverRating(star)}
                         onMouseLeave={() => interactive && setHoverRating(0)}
@@ -176,7 +186,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                     >
                         <svg
                             className={`w-full h-full ${star <= (interactive ? (hoverRating || currentRating) : currentRating)
-                                ? 'text-amber-400'
+                                ? 'text-green-500'
                                 : 'text-neutral-600'
                                 }`}
                             fill="currentColor"
@@ -194,46 +204,13 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
         <div className="min-h-screen bg-neutral-900 text-white" style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto" }}>
             <Head title={`${place.title} - Caraparí Turismo`} />
 
-            {/* Navigation */}
-            <nav className="fixed left-0 right-0 top-0 z-40 bg-neutral-900/60 backdrop-blur-sm">
-                <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link href="/" className="text-2xl font-extrabold tracking-tight hover:text-amber-400 transition-colors">CARAPARÍ</Link>
-                        <div className="hidden items-center gap-3 text-sm text-neutral-300 ml-6 md:flex">
-                            <a href="/#tours" className="hover:text-white">Tours</a>
-                            <a href="/#vr-tours" className="hover:text-white">VR Tours</a>
-                            <a href="/#places" className="hover:text-white">Lugares</a>
-                            <a href="/#faq" className="hover:text-white">Preguntas</a>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 relative">
-                        {!auth.user ? (
-                            <>
-                                <Link href={login()} className="text-sm text-neutral-300 hover:text-white">Iniciar sesión</Link>
-                                {canRegister && <Link href={register()} className="rounded-md bg-amber-500 px-3 py-1 text-sm font-medium text-black">Registro</Link>}
-                            </>
-                        ) : (
-                            <div className="relative">
-                                <button onClick={() => setMenuOpen((s) => !s)} className="flex items-center gap-2">
-                                    <div className="h-8 w-8 overflow-hidden rounded-full bg-neutral-700">
-                                        <img src={auth.user.avatar ? `/storage/${auth.user.avatar}` : '/storage/avatars/default-avatar.avif'} alt="avatar" className="h-full w-full object-cover" />
-                                    </div>
-                                    <div className="text-sm text-neutral-300 hidden md:block">{auth.user.name}</div>
-                                </button>
-
-                                {menuOpen && (
-                                    <div className="absolute right-0 mt-2 w-40 rounded bg-neutral-800/90 p-2 shadow-lg">
-                                        <Link href="/settings/profile" className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded">Perfil</Link>
-                                        <Link href="/dashboard" className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded">Dashboard</Link>
-                                        <Link method="post" href="/logout" as="button" className="mt-2 w-full rounded bg-red-600 px-3 py-1 text-sm font-medium text-white">Cerrar sesión</Link>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </nav>
+            <Navbar
+                isScrolled={isScrolled}
+                auth={auth}
+                canRegister={canRegister}
+                loginRoute={login()}
+                registerRoute={register()}
+            />
 
             <div className="pt-20">
                 {/* Hero Section */}
@@ -263,13 +240,13 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                     </h1>
 
                                     {/* Rating and Reviews */}
-                                    <div className="flex items-center gap-6 mb-6">
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex items-center">
+                                    <div className="mb-8 text-center">
+                                        <div className="flex items-center justify-center gap-3 mb-3">
+                                            <div className="flex items-center gap-2">
                                                 {[...Array(5)].map((_, i) => (
                                                     <svg
                                                         key={i}
-                                                        className={`w-5 h-5 ${i < Math.floor(Number(rating) || 0) ? 'text-amber-400' : 'text-neutral-600'}`}
+                                                        className={`w-7 h-7 transition-all duration-200 cursor-pointer hover:scale-110 ${i < Math.floor(Number(rating) || 0) ? 'text-green-500' : 'text-neutral-600'}`}
                                                         fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                     >
@@ -277,10 +254,10 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                     </svg>
                                                 ))}
                                             </div>
-                                            <span className="text-xl font-semibold text-amber-400">{Number(rating || 0).toFixed(2)}</span>
                                         </div>
-                                        <div className="text-neutral-300">
-                                            <span className="text-lg">{reviewsCount} reseñas</span>
+                                        <div>
+                                            <span className="text-2xl font-bold text-green-500">{Number(rating || 0).toFixed(2)}</span>
+                                            <p className="text-neutral-300 text-sm mt-2">{reviewsCount} reseñas</p>
                                         </div>
                                     </div>
                                 </div>
@@ -310,7 +287,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                 alert('No hay imágenes 360° disponibles para este lugar');
                                             }
                                         }}
-                                        className="inline-flex items-center gap-3 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold text-lg rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                                        className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-500 text-black font-bold text-lg rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
                                     >
                                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -376,7 +353,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
                                         {/* Play Icon */}
                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <div className="bg-amber-500/90 text-black rounded-full p-3">
+                                            <div className="bg-green-600/90 text-black rounded-full p-3">
                                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                                                 </svg>
@@ -386,7 +363,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                         {/* Main Badge */}
                                         {image.is_main && (
                                             <div className="absolute top-3 left-3">
-                                                <span className="bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-bold">
+                                                <span className="bg-green-600 text-black text-xs px-2 py-1 rounded-full font-bold">
                                                     Principal
                                                 </span>
                                             </div>
@@ -418,7 +395,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                     <StarRating
                                         rating={userRating}
                                         onRate={handleRatingClick}
-                                        size="w-8 h-8"
+                                        size="w-10 h-10"
                                         interactive={true}
                                     />
                                     <p className="text-neutral-400 text-sm">
@@ -432,9 +409,9 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                 </div>
                             ) : (
                                 <div className="text-center">
-                                    <StarRating rating={0} size="w-8 h-8" />
+                                    <StarRating rating={0} size="w-10 h-10" />
                                     <p className="text-neutral-400 mt-4">
-                                        <Link href={login()} className="text-amber-400 hover:underline">
+                                        <Link href={login()} className="text-green-500 hover:underline">
                                             Inicia sesión
                                         </Link>
                                         {' '}para calificar este lugar
@@ -454,7 +431,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                             placeholder="Título (opcional)"
                                             value={reviewData.title}
                                             onChange={(e) => setReviewData('title', e.target.value)}
-                                            className="w-full px-4 py-3 rounded-lg bg-neutral-700 text-white placeholder-neutral-400 border border-neutral-600 focus:border-amber-400 focus:outline-none"
+                                            className="w-full px-4 py-3 rounded-lg bg-neutral-700 text-white placeholder-neutral-400 border border-neutral-600 focus:border-green-500 focus:outline-none"
                                             disabled={reviewProcessing}
                                         />
                                     </div>
@@ -465,7 +442,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                             onChange={(e) => setReviewData('content', e.target.value)}
                                             rows={4}
                                             required
-                                            className="w-full px-4 py-3 rounded-lg bg-neutral-700 text-white placeholder-neutral-400 border border-neutral-600 focus:border-amber-400 focus:outline-none resize-none"
+                                            className="w-full px-4 py-3 rounded-lg bg-neutral-700 text-white placeholder-neutral-400 border border-neutral-600 focus:border-green-500 focus:outline-none resize-none"
                                             disabled={reviewProcessing}
                                         />
                                     </div>
@@ -473,7 +450,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                         <button
                                             type="submit"
                                             disabled={reviewProcessing || !reviewData.content.trim()}
-                                            className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="px-6 py-3 bg-green-600 hover:bg-green-500 text-black font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {reviewProcessing ? 'Enviando...' : 'Enviar reseña'}
                                         </button>
@@ -484,8 +461,8 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
                         {/* Mensaje si ya tiene reseña */}
                         {auth.user && userHasReview && (
-                            <div className="mb-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                                <p className="text-amber-400 text-center">
+                            <div className="mb-8 p-4 bg-green-600/10 border border-green-600/20 rounded-lg">
+                                <p className="text-green-500 text-center">
                                     ¡Gracias por tu reseña! Ya has dejado un comentario para este lugar. Si deseas hacer algún cambio, puedes editar tu reseña desde la lista de comentarios.
                                 </p>
                             </div>
@@ -529,7 +506,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                     {auth.user && auth.user.id === review.user.id && (
                                                         <button
                                                             onClick={() => handleEditReview(review)}
-                                                            className="text-neutral-400 hover:text-amber-400 transition-colors"
+                                                            className="text-neutral-400 hover:text-green-500 transition-colors"
                                                             title="Editar reseña"
                                                         >
                                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -547,14 +524,14 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                             placeholder="Título (opcional)"
                                                             value={editData.title}
                                                             onChange={(e) => setEditData('title', e.target.value)}
-                                                            className="w-full px-4 py-2 rounded-lg bg-neutral-600 text-white placeholder-neutral-400 border border-neutral-500 focus:border-amber-400 focus:outline-none"
+                                                            className="w-full px-4 py-2 rounded-lg bg-neutral-600 text-white placeholder-neutral-400 border border-neutral-500 focus:border-green-500 focus:outline-none"
                                                         />
                                                         <textarea
                                                             value={editData.content}
                                                             onChange={(e) => setEditData('content', e.target.value)}
                                                             rows={3}
                                                             required
-                                                            className="w-full px-4 py-2 rounded-lg bg-neutral-600 text-white placeholder-neutral-400 border border-neutral-500 focus:border-amber-400 focus:outline-none resize-none"
+                                                            className="w-full px-4 py-2 rounded-lg bg-neutral-600 text-white placeholder-neutral-400 border border-neutral-500 focus:border-green-500 focus:outline-none resize-none"
                                                         />
                                                         <div className="flex gap-2 justify-end">
                                                             <button
@@ -567,7 +544,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                             <button
                                                                 type="submit"
                                                                 disabled={editProcessing}
-                                                                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition-colors disabled:opacity-50"
+                                                                className="px-4 py-2 bg-green-600 hover:bg-green-500 text-black font-semibold rounded-lg transition-colors disabled:opacity-50"
                                                             >
                                                                 {editProcessing ? 'Guardando...' : 'Guardar'}
                                                             </button>
@@ -605,7 +582,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                     <p className="text-neutral-400">Aún no hay reseñas para este lugar.</p>
                                     {!auth.user && (
                                         <p className="text-neutral-400 mt-2">
-                                            <Link href={login()} className="text-amber-400 hover:underline">
+                                            <Link href={login()} className="text-green-500 hover:underline">
                                                 Inicia sesión
                                             </Link>
                                             {' '}para ser el primero en comentar

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { THEME_COLORS } from '@/constants/theme';
 
 interface Place {
        id: number;
@@ -38,7 +39,7 @@ export default function PlacesIndex({ places }: PlacesIndexProps) {
                                           <div className="flex items-center">
                                                  <Link
                                                         href="/"
-                                                        className="text-xl font-bold text-gray-900 hover:text-blue-600"
+                                                        className="text-xl font-bold text-gray-900 hover:text-green-600"
                                                  >
                                                         Carapari Turismo
                                                  </Link>
@@ -47,13 +48,13 @@ export default function PlacesIndex({ places }: PlacesIndexProps) {
                                           <div className="flex items-center space-x-4">
                                                  <Link
                                                         href="/"
-                                                        className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                                                        className={`${THEME_COLORS.textLight} hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium`}
                                                  >
                                                         Inicio
                                                  </Link>
                                                  <Link
                                                         href="/places"
-                                                        className="text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                                                        className="text-green-600 px-3 py-2 rounded-md text-sm font-medium"
                                                  >
                                                         Lugares
                                                  </Link>
@@ -146,7 +147,7 @@ function PlaceCard({ place, placeholderImage }: PlaceCardProps) {
                             <div className="flex items-center justify-between">
                                    <a
                                           href={`/places/${place.slug}`}
-                                          className="inline-flex items-center px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                                          className={`inline-flex items-center px-6 py-2 ${THEME_COLORS.buttonPrimary} ${THEME_COLORS.buttonPrimaryHover} text-white font-medium rounded-lg transition-colors duration-200`}
                                    >
                                           Explorar
                                           <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +158,7 @@ function PlaceCard({ place, placeholderImage }: PlaceCardProps) {
                                    {place.main_image && (
                                           <a
                                                  href={`/vr?image=${encodeURIComponent(`/storage/${place.main_image.image_path}`)}&place_id=${place.id}`}
-                                                 className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200"
+                                                 className={`inline-flex items-center px-4 py-2 ${THEME_COLORS.buttonSecondary} ${THEME_COLORS.buttonSecondaryHover} text-white font-medium rounded-lg transition-colors duration-200`}
                                                  title="Vista 360°"
                                           >
                                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

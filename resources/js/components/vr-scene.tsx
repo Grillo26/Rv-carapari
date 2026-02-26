@@ -1,7 +1,7 @@
 
 import { VRButton, XR /*, Controllers*/ } from '@react-three/xr';
 import { Canvas } from '@react-three/fiber';
-import { Plane, Text, Image } from '@react-three/drei';
+import { Plane, Text, Sphere, useTexture, OrbitControls } from '@react-three/drei';
 
 const HERO_IMAGES = [
     'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1800&q=80&auto=format&fit=crop',
@@ -80,12 +80,28 @@ function CardsScene() {
     );
 }
 
+function Panorama360() {
+    const texture = useTexture('/images/panoramas/6.jpeg');
+    return (
+        <Sphere args={[50, 64, 64]} scale={[-1, 1, 1]}>
+            <meshBasicMaterial map={texture} side={2} />
+        </Sphere>
+    );
+}
+
 
 export function VRScene() {
     return (
         <div style={{ height: '400px', width: '100%' }}>
-            <Canvas camera={{ position: [0, 1.6, 6], fov: 75 }}>
-                <CardsScene />
+            <Canvas camera={{ position: [0, 0, 0.1], fov: 75 }}>
+                <Panorama360 />
+                <OrbitControls
+                    enableZoom={true}
+                    enablePan={false}
+                    enableDamping={true}
+                    dampingFactor={0.05}
+                    rotateSpeed={-0.5}
+                />
             </Canvas>
         </div>
     );
