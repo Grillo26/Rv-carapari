@@ -239,13 +239,13 @@ export default function Landing({ places, canRegister = true }: LandingProps) {
                         <h3 className="text-3xl font-bold text-center">POPULAR TOURS</h3>
                         <p className={`mt-2 text-center ${THEME_COLORS.textTertiary}`}>There will be a small title here.</p>
 
-                        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {places.slice(0, 4).map((place) => (
                                 <div key={place.slug} className="relative overflow-hidden rounded-lg bg-black/40 p-0 shadow-lg">
                                     <img
                                         src={place.thumbnail ? `/storage/${place.thumbnail}` : HERO_IMAGES[0]}
                                         alt={place.title}
-                                        className="h-48 w-full object-cover"
+                                        className="h-56 w-full object-cover lg:h-64"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                                     <div className="absolute bottom-4 left-4">
