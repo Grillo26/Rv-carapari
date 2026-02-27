@@ -1,35 +1,38 @@
 import { Head, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export default function VR() {
-       const { props } = usePage<{ image?: string; place?: { title: string; id: number; images?: Array<{ title: string; url: string; id: number }> } }>();
+       const { props } = usePage<{ image?: string; place?: { title: string; id: number; images?: Array<{ title: string; url: string; id: number; is_main?: boolean }> } }>();
        const image: string | undefined = props.image;
        const place = props.place;
        const [showInstructions, setShowInstructions] = useState(true);
        const [sidebarMinimized, setSidebarMinimized] = useState(false);
-       const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
+       const vrContainerRef = useRef<HTMLDivElement>(null);
 
-       // Procesar la imagen antes de los useEffect
+       // Procesar la imagen
        const sample = '/images/imagekkk.jpg';
-       let panoSrc = currentImageUrl || image || sample;
+       let panoSrc = image || sample;
        if (panoSrc && !/^https?:\/\//i.test(panoSrc) && panoSrc.charAt(0) !== '/') {
               panoSrc = '/' + panoSrc;
        }
 
+       const normalizeImageUrl = (src: string) => {
+              if (/^https?:\/\//i.test(src)) return src;
+              if (src.startsWith('/')) return src;
+              if (src.startsWith('storage/') || src.startsWith('images/')) return `/${src}`;
+              return `/storage/${src}`;
+       };
+
        // Función para cambiar la imagen panorámica
        const changeImage = (newImageUrl: string) => {
-              setCurrentImageUrl(newImageUrl);
+              const normalizedUrl = normalizeImageUrl(newImageUrl);
+              const placeId = place?.id;
+              const placeParam = placeId ? `&place_id=${encodeURIComponent(String(placeId))}` : '';
+              // Forzar recarga completa para que el visor tome la nueva imagen del servidor
+              window.location.href = `/vr?image=${encodeURIComponent(normalizedUrl)}${placeParam}`;
        };
 
        useEffect(() => {
-              // Inject A-Frame script if not already present
-              if (!(window as any).AFRAME) {
-                     const s = document.createElement('script');
-                     s.src = 'https://aframe.io/releases/1.4.1/aframe.min.js';
-                     s.async = true;
-                     document.head.appendChild(s);
-              }
-
               // Auto-hide instructions after 15 seconds
               const timer = setTimeout(() => {
                      setShowInstructions(false);
@@ -37,42 +40,114 @@ export default function VR() {
 
               return () => {
                      clearTimeout(timer);
-                     // Limpiar A-Frame cuando el componente se desmonte
-                     if ((window as any).AFRAME) {
-                            const scene = document.querySelector('a-scene');
-                            if (scene && scene.parentNode) {
-                                   scene.parentNode.removeChild(scene);
-                            }
-                     }
               };
        }, []);
 
-       // Effect para manejar cambios en la imagen
+       // Inyectar la escena de A-Frame solo una vez
        useEffect(() => {
-              if ((window as any).AFRAME && panoSrc) {
-                     // Esperar a que A-Frame esté completamente cargado
-                     setTimeout(() => {
-                            const sky = document.querySelector('#sky');
-                            const panoImg = document.querySelector('#pano');
+              if (!vrContainerRef.current || vrContainerRef.current.innerHTML) return;
 
-                            if (sky && panoImg) {
-                                   // Forzar recarga de la imagen
-                                   panoImg.setAttribute('src', panoSrc);
-                                   sky.setAttribute('src', '#pano');
-
-                                   // Asegurar que la imagen se cargue correctamente
-                                   panoImg.addEventListener('load', () => {
-                                          sky.setAttribute('src', '#pano');
-                                   }, { once: true });
-                            }
-                     }, 100);
-              }
+              vrContainerRef.current.innerHTML = `
+                     <a-scene vr-mode-ui="enabled: false" embedded style="height: 100%;" id="vr-scene">
+                            <a-assets timeout="5000">
+                                   <img id="pano" src="${panoSrc}" crossorigin="anonymous" />
+                            </a-assets>
+                            <a-sky id="sky" src="#pano"></a-sky>
+                            <a-camera position="0 0 0" look-controls="reverseMouseDrag: true; reverseTouchDrag: true" wasd-controls="enabled: false" id="camera"></a-camera>
+                     </a-scene>
+                     
+                     <script>
+                            // Efecto de inercia tipo ruleta - ejecutar cuando la escena esté lista
+                            (function() {
+                                   const scene = document.querySelector('#vr-scene');
+                                   if (!scene) return;
+                                   
+                                   const initInertia = function() {
+                                          const camera = document.querySelector('#camera');
+                                          const canvas = scene.querySelector('canvas') || document.body;
+                                          if (!camera) return;
+                                          
+                                          let isDragging = false;
+                                          let lastX = 0;
+                                          let lastY = 0;
+                                          let velocityX = 0;
+                                          let velocityY = 0;
+                                          let lastTime = 0;
+                                          let inertiaAnimation = null;
+                                          let momentum = { x: 0, y: 0 };
+                                          const friction = 0.95;
+                                          const minVelocity = 0.001;
+                                          
+                                          // Solo escuchar en el canvas de A-Frame
+                                          canvas.addEventListener('mousedown', function(e) {
+                                                 const target = e.target;
+                                                 if (target.tagName === 'BUTTON' || target.closest('button, .places-sidebar, .instructions-menu, a')) return;
+                                                 isDragging = true;
+                                                 lastX = e.clientX;
+                                                 lastY = e.clientY;
+                                                 lastTime = performance.now();
+                                                 if (inertiaAnimation) {
+                                                        cancelAnimationFrame(inertiaAnimation);
+                                                        inertiaAnimation = null;
+                                                 }
+                                          });
+                                          
+                                          canvas.addEventListener('mousemove', function(e) {
+                                                 if (!isDragging) return;
+                                                 const currentTime = performance.now();
+                                                 const deltaTime = currentTime - lastTime;
+                                                 if (deltaTime > 0) {
+                                                        velocityX = (e.clientX - lastX) / deltaTime;
+                                                        velocityY = (e.clientY - lastY) / deltaTime;
+                                                        lastX = e.clientX;
+                                                        lastY = e.clientY;
+                                                        lastTime = currentTime;
+                                                 }
+                                          });
+                                          
+                                          document.addEventListener('mouseup', function(e) {
+                                                 if (!isDragging) return;
+                                                 isDragging = false;
+                                                 momentum.x = velocityX * 0.3;
+                                                 momentum.y = velocityY * 0.3;
+                                                 if (Math.abs(momentum.x) > minVelocity || Math.abs(momentum.y) > minVelocity) {
+                                                        startInertia();
+                                                 }
+                                          });
+                                          
+                                          function startInertia() {
+                                                 function animate() {
+                                                        momentum.x *= friction;
+                                                        momentum.y *= friction;
+                                                        const rotation = camera.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
+                                                        const newYaw = (rotation.y || 0) + momentum.x * 2;
+                                                        const newPitch = Math.max(-90, Math.min(90, (rotation.x || 0) - momentum.y * 2));
+                                                        camera.setAttribute('rotation', { x: newPitch, y: newYaw, z: 0 });
+                                                        if (Math.abs(momentum.x) > minVelocity || Math.abs(momentum.y) > minVelocity) {
+                                                               inertiaAnimation = requestAnimationFrame(animate);
+                                                        } else {
+                                                               inertiaAnimation = null;
+                                                        }
+                                                 }
+                                                 animate();
+                                          }
+                                   };
+                                   
+                                   if (scene.hasLoaded) {
+                                          initInertia();
+                                   } else {
+                                          scene.addEventListener('loaded', initInertia, { once: true });
+                                   }
+                            })();
+                     </script>
+              `;
        }, [panoSrc]);
 
        return (
               <>
                      <Head>
                             <title>Visor 360° — CARAPARÍ VR</title>
+                            <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
                             <style>{`
                                    @media (max-width: 768px) {
                                           .instructions-menu {
@@ -97,215 +172,7 @@ export default function VR() {
                      <div style={{ height: '100vh', margin: 0, background: '#000', position: 'relative' }}>
                             {/* A-Frame Scene */}
                             <div
-                                   key={panoSrc} // Forzar re-render cuando cambia la imagen
-                                   dangerouslySetInnerHTML={{
-                                          __html: `
-                                                 <a-scene vr-mode-ui="enterVRButton: true" embedded style="height: 100%;" id="vr-scene">
-                                                        <a-assets>
-                                                               <img id="pano" src="${panoSrc}" crossorigin="anonymous" />
-                                                        </a-assets>
-                                                        <a-sky id="sky" src="#pano" material="shader: standard"></a-sky>
-                                                        <a-camera 
-                                                               look-controls="
-                                                                      enabled: true; 
-                                                                      reverseMouseDrag: true; 
-                                                                      reverseTouchDrag: true;
-                                                                      touchEnabled: true;
-                                                                      mouseEnabled: true;
-                                                                      pointerLockEnabled: false;
-                                                                      magicWindowTrackingEnabled: true;
-                                                               " 
-                                                               wasd-controls="enabled: false"
-                                                               id="camera">
-                                                        </a-camera>
-                                                 </a-scene>
-                                                 
-                                                 <script>
-                                                        // Forzar recarga de la imagen cuando cambia
-                                                        document.addEventListener('DOMContentLoaded', function() {
-                                                               setTimeout(function() {
-                                                                      const panoImg = document.querySelector('#pano');
-                                                                      const sky = document.querySelector('#sky');
-                                                                      
-                                                                      if (panoImg && sky) {
-                                                                             // Forzar recarga de la imagen
-                                                                             const currentSrc = panoImg.getAttribute('src');
-                                                                             panoImg.setAttribute('src', '');
-                                                                             setTimeout(() => {
-                                                                                    panoImg.setAttribute('src', currentSrc);
-                                                                                    sky.setAttribute('src', '#pano');
-                                                                             }, 50);
-                                                                      }
-                                                               }, 500);
-                                                        });
-
-                                                        // Efecto de inercia tipo ruleta
-                                                        document.addEventListener('DOMContentLoaded', function() {
-                                                               setTimeout(function() {
-                                                                      const camera = document.querySelector('#camera');
-                                                                      if (!camera) return;
-                                                                      
-                                                                      let isDragging = false;
-                                                                      let lastMouseX = 0;
-                                                                      let lastMouseY = 0;
-                                                                      let velocityX = 0;
-                                                                      let velocityY = 0;
-                                                                      let lastTime = 0;
-                                                                      let inertiaAnimation = null;
-                                                                      
-                                                                      // Variables para el momentum
-                                                                      let momentum = { x: 0, y: 0 };
-                                                                      const friction = 0.95; // Factor de fricción (0.9-0.99)
-                                                                      const minVelocity = 0.001; // Velocidad mínima antes de parar
-                                                                      
-                                                                      // Detectar inicio del arrastre
-                                                                      document.addEventListener('mousedown', function(e) {
-                                                                             isDragging = true;
-                                                                             lastMouseX = e.clientX;
-                                                                             lastMouseY = e.clientY;
-                                                                             lastTime = performance.now();
-                                                                             velocityX = 0;
-                                                                             velocityY = 0;
-                                                                             
-                                                                             // Cancelar animación de inercia existente
-                                                                             if (inertiaAnimation) {
-                                                                                    cancelAnimationFrame(inertiaAnimation);
-                                                                                    inertiaAnimation = null;
-                                                                             }
-                                                                      });
-                                                                      
-                                                                      // Calcular velocidad durante el arrastre
-                                                                      document.addEventListener('mousemove', function(e) {
-                                                                             if (!isDragging) return;
-                                                                             
-                                                                             const currentTime = performance.now();
-                                                                             const deltaTime = currentTime - lastTime;
-                                                                             
-                                                                             if (deltaTime > 0) {
-                                                                                    const deltaX = e.clientX - lastMouseX;
-                                                                                    const deltaY = e.clientY - lastMouseY;
-                                                                                    
-                                                                                    velocityX = deltaX / deltaTime;
-                                                                                    velocityY = deltaY / deltaTime;
-                                                                                    
-                                                                                    lastMouseX = e.clientX;
-                                                                                    lastMouseY = e.clientY;
-                                                                                    lastTime = currentTime;
-                                                                             }
-                                                                      });
-                                                                      
-                                                                      // Activar inercia al soltar
-                                                                      document.addEventListener('mouseup', function(e) {
-                                                                             if (!isDragging) return;
-                                                                             isDragging = false;
-                                                                             
-                                                                             // Iniciar momentum con la velocidad calculada
-                                                                             momentum.x = velocityX * 0.3; // Factor de escala
-                                                                             momentum.y = velocityY * 0.3;
-                                                                             
-                                                                             // Solo aplicar inercia si hay velocidad significativa
-                                                                             if (Math.abs(momentum.x) > minVelocity || Math.abs(momentum.y) > minVelocity) {
-                                                                                    startInertia();
-                                                                             }
-                                                                      });
-                                                                      
-                                                                      // Touch events para móviles
-                                                                      document.addEventListener('touchstart', function(e) {
-                                                                             if (e.touches.length === 1) {
-                                                                                    isDragging = true;
-                                                                                    lastMouseX = e.touches[0].clientX;
-                                                                                    lastMouseY = e.touches[0].clientY;
-                                                                                    lastTime = performance.now();
-                                                                                    velocityX = 0;
-                                                                                    velocityY = 0;
-                                                                                    
-                                                                                    if (inertiaAnimation) {
-                                                                                           cancelAnimationFrame(inertiaAnimation);
-                                                                                           inertiaAnimation = null;
-                                                                                    }
-                                                                             }
-                                                                      });
-                                                                      
-                                                                      document.addEventListener('touchmove', function(e) {
-                                                                             if (!isDragging || e.touches.length !== 1) return;
-                                                                             
-                                                                             const currentTime = performance.now();
-                                                                             const deltaTime = currentTime - lastTime;
-                                                                             
-                                                                             if (deltaTime > 0) {
-                                                                                    const deltaX = e.touches[0].clientX - lastMouseX;
-                                                                                    const deltaY = e.touches[0].clientY - lastMouseY;
-                                                                                    
-                                                                                    velocityX = deltaX / deltaTime;
-                                                                                    velocityY = deltaY / deltaTime;
-                                                                                    
-                                                                                    lastMouseX = e.touches[0].clientX;
-                                                                                    lastMouseY = e.touches[0].clientY;
-                                                                                    lastTime = currentTime;
-                                                                             }
-                                                                      });
-                                                                      
-                                                                      document.addEventListener('touchend', function(e) {
-                                                                             if (!isDragging) return;
-                                                                             isDragging = false;
-                                                                             
-                                                                             momentum.x = velocityX * 0.3;
-                                                                             momentum.y = velocityY * 0.3;
-                                                                             
-                                                                             if (Math.abs(momentum.x) > minVelocity || Math.abs(momentum.y) > minVelocity) {
-                                                                                    startInertia();
-                                                                             }
-                                                                      });
-                                                                      
-                                                                      // Función de animación de inercia
-                                                                      function startInertia() {
-                                                                             function animate() {
-                                                                                    // Aplicar fricción
-                                                                                    momentum.x *= friction;
-                                                                                    momentum.y *= friction;
-                                                                                    
-                                                                                    // Obtener rotación actual de la cámara
-                                                                                    const rotation = camera.getAttribute('rotation');
-                                                                                    const currentYaw = rotation.y;
-                                                                                    const currentPitch = rotation.x;
-                                                                                    
-                                                                                    // Aplicar momentum (invertido para naturalidad)
-                                                                                    const newYaw = currentYaw + momentum.x * 2;
-                                                                                    const newPitch = Math.max(-90, Math.min(90, currentPitch - momentum.y * 2));
-                                                                                    
-                                                                                    // Actualizar rotación
-                                                                                    camera.setAttribute('rotation', {
-                                                                                           x: newPitch,
-                                                                                           y: newYaw,
-                                                                                           z: 0
-                                                                                    });
-                                                                                    
-                                                                                    // Continuar si aún hay momentum significativo
-                                                                                    if (Math.abs(momentum.x) > minVelocity || Math.abs(momentum.y) > minVelocity) {
-                                                                                           inertiaAnimation = requestAnimationFrame(animate);
-                                                                                    } else {
-                                                                                           inertiaAnimation = null;
-                                                                                    }
-                                                                             }
-                                                                             
-                                                                             animate();
-                                                                      }
-                                                                      
-                                                                      // Parar inercia al hacer clic nuevamente
-                                                                      document.addEventListener('click', function(e) {
-                                                                             if (inertiaAnimation) {
-                                                                                    cancelAnimationFrame(inertiaAnimation);
-                                                                                    inertiaAnimation = null;
-                                                                                    momentum.x = 0;
-                                                                                    momentum.y = 0;
-                                                                             }
-                                                                      });
-                                                                      
-                                                               }, 2000); // Esperar a que A-Frame se cargue
-                                                        });
-                                                 </script>
-                                          `
-                                   }}
+                                   ref={vrContainerRef}
                                    style={{ height: '100%', width: '100%' }}
                             />
 
@@ -366,7 +233,10 @@ export default function VR() {
 
                                                  {/* Botón de cerrar */}
                                                  <button
-                                                        onClick={() => setShowInstructions(false)}
+                                                        onClick={(e) => {
+                                                               e.stopPropagation();
+                                                               setShowInstructions(false);
+                                                        }}
                                                         style={{
                                                                background: 'transparent',
                                                                border: 'none',
@@ -440,7 +310,10 @@ export default function VR() {
                                           </div>
 
                                           <button
-                                                 onClick={() => setShowInstructions(false)}
+                                                 onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowInstructions(false);
+                                                 }}
                                                  style={{
                                                         marginTop: '15px',
                                                         padding: '8px 20px',
@@ -459,7 +332,10 @@ export default function VR() {
                             )}                            {/* Quick Help Toggle - Always visible */}
                             <button
                                    className="help-button"
-                                   onClick={() => setShowInstructions(!showInstructions)}
+                                   onClick={(e) => {
+                                          e.stopPropagation();
+                                          setShowInstructions(!showInstructions);
+                                   }}
                                    style={{
                                           position: 'fixed',
                                           top: '50%',
@@ -545,89 +421,111 @@ export default function VR() {
                                           height: 'calc(100vh - 120px)',
                                           overflowY: 'auto'
                                    }}>
-                                          {place?.images && place.images.length > 0 ? (
-                                                 <div style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        gap: '12px'
-                                                 }}>
-                                                        {place.images.map((img, index) => {
-                                                               const isCurrentImage = currentImageUrl === img.url ||
-                                                                      (!currentImageUrl && image === img.url);
+                                          {(() => {
+                                                 // Usar las imágenes del lugar directamente (ya incluyen la imagen principal con is_main)
+                                                 const allImages = place?.images || [];
 
-                                                               return (
-                                                                      <div
-                                                                             key={img.id || index}
-                                                                             onClick={() => changeImage(img.url)}
-                                                                             style={{
-                                                                                    padding: '12px',
-                                                                                    background: isCurrentImage
-                                                                                           ? 'rgba(0,170,255,0.3)'
-                                                                                           : 'rgba(255,255,255,0.1)',
-                                                                                    borderRadius: '8px',
-                                                                                    cursor: 'pointer',
-                                                                                    transition: 'all 0.2s ease',
-                                                                                    border: isCurrentImage
-                                                                                           ? '2px solid #00AAFF'
-                                                                                           : '1px solid transparent',
-                                                                                    transform: isCurrentImage ? 'scale(1.02)' : 'scale(1)'
-                                                                             }}
-                                                                             onMouseEnter={(e) => {
-                                                                                    if (!isCurrentImage) {
-                                                                                           e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
-                                                                                           e.currentTarget.style.border = '1px solid #00AAFF';
-                                                                                    }
-                                                                             }}
-                                                                             onMouseLeave={(e) => {
-                                                                                    if (!isCurrentImage) {
-                                                                                           e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                                                                                           e.currentTarget.style.border = '1px solid transparent';
-                                                                                    }
-                                                                             }}
-                                                                      >
-                                                                             <div style={{
-                                                                                    color: 'white',
-                                                                                    fontSize: '14px',
-                                                                                    fontWeight: isCurrentImage ? 'bold' : '500',
-                                                                                    display: 'flex',
-                                                                                    alignItems: 'center',
-                                                                                    gap: '8px'
-                                                                             }}>
-                                                                                    <span style={{ fontSize: '16px' }}>
-                                                                                           {isCurrentImage ? '📍' : '🌍'}
-                                                                                    </span>
-                                                                                    {img.title || `Vista ${index + 1}`}
+                                                 if (allImages.length === 0) {
+                                                        return (
+                                                               <div style={{
+                                                                      textAlign: 'center',
+                                                                      color: 'rgba(255,255,255,0.6)',
+                                                                      fontSize: '14px',
+                                                                      marginTop: '40px'
+                                                               }}>
+                                                                      <div style={{ fontSize: '48px', marginBottom: '20px' }}>🗺️</div>
+                                                                      <p>No hay vistas disponibles para este lugar</p>
+                                                               </div>
+                                                        );
+                                                 }
+
+                                                 return (
+                                                        <div style={{
+                                                               display: 'flex',
+                                                               flexDirection: 'column',
+                                                               gap: '12px'
+                                                        }}>
+                                                               {allImages.map((img, index) => {
+                                                                      // Comparar directamente con la imagen actual (prop image)
+                                                                      const normalizedImageUrl = normalizeImageUrl(img.url);
+                                                                      const normalizedCurrentImage = image ? normalizeImageUrl(image) : '';
+                                                                      const isCurrentImage = normalizedCurrentImage === normalizedImageUrl;
+
+                                                                      // Determinar el título basado en is_main
+                                                                      const displayTitle = img.is_main ? 'Vista Principal' : (img.title || `Vista ${index + 1}`);
+                                                                      // Icono para imagen principal
+                                                                      const displayIcon = isCurrentImage ? '📍' : (img.is_main ? '⭐' : '🌍');
+
+                                                                      return (
+                                                                             <div
+                                                                                    key={img.id || index}
+                                                                                    onClick={(e) => {
+                                                                                           e.stopPropagation();
+                                                                                           changeImage(img.url);
+                                                                                    }}
+                                                                                    style={{
+                                                                                           padding: '12px',
+                                                                                           background: isCurrentImage
+                                                                                                  ? 'rgba(0,170,255,0.3)'
+                                                                                                  : 'rgba(255,255,255,0.1)',
+                                                                                           borderRadius: '8px',
+                                                                                           cursor: 'pointer',
+                                                                                           transition: 'all 0.2s ease',
+                                                                                           border: isCurrentImage
+                                                                                                  ? '2px solid #00AAFF'
+                                                                                                  : '1px solid transparent',
+                                                                                           transform: isCurrentImage ? 'scale(1.02)' : 'scale(1)'
+                                                                                    }}
+                                                                                    onMouseEnter={(e) => {
+                                                                                           if (!isCurrentImage) {
+                                                                                                  e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
+                                                                                                  e.currentTarget.style.border = '1px solid #00AAFF';
+                                                                                           }
+                                                                                    }}
+                                                                                    onMouseLeave={(e) => {
+                                                                                           if (!isCurrentImage) {
+                                                                                                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                                                                                                  e.currentTarget.style.border = '1px solid transparent';
+                                                                                           }
+                                                                                    }}
+                                                                             >
+                                                                                    <div style={{
+                                                                                           color: 'white',
+                                                                                           fontSize: '14px',
+                                                                                           fontWeight: isCurrentImage ? 'bold' : '500',
+                                                                                           display: 'flex',
+                                                                                           alignItems: 'center',
+                                                                                           gap: '8px'
+                                                                                    }}>
+                                                                                           <span style={{ fontSize: '16px' }}>
+                                                                                                  {displayIcon}
+                                                                                           </span>
+                                                                                           {displayTitle}
+                                                                                    </div>
+                                                                                    <div style={{
+                                                                                           color: isCurrentImage ? '#00AAFF' : '#88DDFF',
+                                                                                           fontSize: '12px',
+                                                                                           marginTop: '5px',
+                                                                                           fontWeight: isCurrentImage ? '500' : 'normal'
+                                                                                    }}>
+                                                                                           {isCurrentImage ? '✅ Vista actual' : 'Click para cambiar vista'}
+                                                                                    </div>
                                                                              </div>
-                                                                             <div style={{
-                                                                                    color: isCurrentImage ? '#00AAFF' : '#88DDFF',
-                                                                                    fontSize: '12px',
-                                                                                    marginTop: '5px',
-                                                                                    fontWeight: isCurrentImage ? '500' : 'normal'
-                                                                             }}>
-                                                                                    {isCurrentImage ? '✅ Vista actual' : 'Click para cambiar vista'}
-                                                                             </div>
-                                                                      </div>
-                                                               );
-                                                        })}
-                                                 </div>
-                                          ) : (
-                                                 <div style={{
-                                                        textAlign: 'center',
-                                                        color: 'rgba(255,255,255,0.6)',
-                                                        fontSize: '14px',
-                                                        marginTop: '40px'
-                                                 }}>
-                                                        <div style={{ fontSize: '48px', marginBottom: '20px' }}>🗺️</div>
-                                                        <p>No hay vistas adicionales disponibles para este lugar</p>
-                                                 </div>
-                                          )}
+                                                                      );
+                                                               })}
+                                                        </div>
+                                                 );
+                                          })()}
                                    </div>
                             </div>
 
                             {/* Sidebar Toggle Button - Always visible */}
                             <button
                                    className="sidebar-toggle"
-                                   onClick={() => setSidebarMinimized(!sidebarMinimized)}
+                                   onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSidebarMinimized(!sidebarMinimized);
+                                   }}
                                    style={{
                                           position: 'fixed',
                                           top: '20px',
@@ -701,7 +599,7 @@ export default function VR() {
                                           Rueda para zoom
                                    </div>
                             </div>
-                     </div>
+                     </div >
               </>
        );
 }
