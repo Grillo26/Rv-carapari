@@ -322,7 +322,7 @@ interface PlaceCardProps {
 }
 
 function PlaceCard({ place, onToggleAvailability, onDelete }: PlaceCardProps) {
-       const placeholderImage = "/images/placeholder-place.jpg";
+       const placeholderImage = "/images/placeholder-place.png";
        const imageUrl = place.thumbnail
               ? `/storage/${place.thumbnail}`
               : place.main_image?.image_path
