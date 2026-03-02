@@ -375,6 +375,8 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
         }
     };
 
+    const imagePath = place.main_360_image || place.active_images[0]?.image_path;
+
     return (
         <div className="min-h-screen bg-neutral-900 text-white" style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto" }}>
             <Head title={`${place.title} - Caraparí Turismo`} />
@@ -423,7 +425,21 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
                             {/* Fila de Metadatos */}
                             <div className="flex flex-wrap items-center gap-5">
-                                <span className="text-green-500 font-bold text-lg">Lugar destacado</span>
+
+                                {/*Verificamos si hay lugar, si no muestre un mensaje */}
+                                <span className={`font-bold text-lg px-3 py-1 rounded-full ${imagePath
+                                    ? "text-green-500 bg-green-500/10"
+                                    : "text-yellow-500 bg-yellow-500/10"
+                                    }`}>
+                                    {imagePath ? "Lugar destacado" : "Lugar en mantenimiento"}
+                                </span>
+
+                                {!imagePath && (
+                                    <span className="relative flex h-3 w-3">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+                                    </span>
+                                )}
 
                                 {/* Puntuación con Estrellas */}
                                 <div className="flex items-center gap-1">
@@ -458,12 +474,15 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                 {/* Botón Explorar con icono de Lentes VR */}
                                 <button
                                     onClick={() => {
-                                        const imagePath = place.main_360_image || place.active_images[0]?.image_path;
                                         if (imagePath) {
                                             router.get('/vr', { image: `/storage/${imagePath}`, place_id: place.id });
                                         }
                                     }}
-                                    className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 bg-white hover:bg-neutral-200 text-black font-extrabold text-lg rounded transition-all transform active:scale-95 shadow-xl"
+                                    disabled={!imagePath} // Deshabilita el botón si no hay imagen
+                                    className={`w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 font-extrabold text-lg rounded transition-all transform shadow-xl ${imagePath
+                                        ? "bg-white hover:bg-neutral-200 text-black active:scale-95"
+                                        : "bg-neutral-700 text-neutral-400 cursor-not-allowed opacity-70"
+                                        }`}
                                 >
                                     <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M18 10h-2V8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2H2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2h2a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1z" />
