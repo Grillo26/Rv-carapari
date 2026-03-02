@@ -359,6 +359,14 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
         );
     };
 
+    const handleDirections = () => {
+        if (place.latitude && place.longitude) {
+            // Esta URL abre Google Maps con la ruta desde la ubicación actual del usuario
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`;
+            window.open(url, '_blank');
+        }
+    };
+
     // 1. Definimos el tipo de la referencia para que TypeScript sepa que es un elemento HTML
     const scrollRef = useRef<HTMLDivElement>(null);
     const commentsRef = useRef<HTMLElement>(null);
@@ -576,6 +584,23 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                 <p className="text-neutral-500 text-sm mt-2">
                                     Coordenadas: {Number(place.latitude).toFixed(6)}, {Number(place.longitude).toFixed(6)}
                                 </p>
+
+
+                                <button
+                                    onClick={handleDirections}
+                                    className="w-auto inline-flex items-center justify-center gap-3 mt-2 px-8 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg rounded-md transition-all border border-white/10 shadow-lg group"
+                                >
+                                    <svg
+                                        className="w-6 h-6 text-green-500 group-hover:scale-110 transition-transform"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Cómo llegar?
+                                </button>
                             </div>
                         </div>
                     </section>
