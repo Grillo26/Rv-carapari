@@ -57,6 +57,9 @@ class PlaceController extends Controller
             'main_360_image' => 'nullable|image|max:10240', // 10MB max
             'is_available' => 'boolean',
             'sort_order' => 'integer|min:0',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'address' => 'nullable|string|max:500',
         ]);
 
         try {
@@ -158,6 +161,9 @@ class PlaceController extends Controller
             'main_360_image' => 'nullable|image|max:10240',
             'is_available' => 'boolean',
             'sort_order' => 'integer|min:0',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'address' => 'nullable|string|max:500',
         ]);
 
         // Handle thumbnail upload

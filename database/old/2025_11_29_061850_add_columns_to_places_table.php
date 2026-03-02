@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('main_360_image')->nullable()->after('thumbnail');
             $table->boolean('is_available')->default(true)->after('main_360_image');
             $table->integer('sort_order')->default(0)->after('is_available');
+            $table->decimal('latitude', 10, 8)->nullable()->after('sort_order')->comment('Coordenada de latitud');
+            $table->decimal('longitude', 11, 8)->nullable()->after('latitude')->comment('Coordenada de longitud');
+            $table->string('address')->nullable()->after('longitude')->comment('Dirección del lugar');
         });
     }
 
@@ -37,7 +40,10 @@ return new class extends Migration
                 'thumbnail',
                 'main_360_image',
                 'is_available',
-                'sort_order'
+                'sort_order',
+                'latitude',
+                'longitude',
+                'address'
             ]);
         });
     }

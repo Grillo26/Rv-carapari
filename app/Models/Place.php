@@ -17,6 +17,9 @@ class Place extends Model
         'main_360_image',
         'is_available',
         'sort_order',
+        'latitude',
+        'longitude',
+        'address',
     ];
 
     protected $casts = [

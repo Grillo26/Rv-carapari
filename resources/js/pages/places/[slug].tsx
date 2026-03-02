@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage, useForm } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
+import LocationMap from '@/components/LocationMap';
 import { login, register } from '@/routes';
 import { type SharedData } from '@/types';
 import { THEME_COLORS } from '@/constants/theme';
@@ -50,6 +51,9 @@ interface Place {
     main_360_image: string | null;
     is_available: boolean;
     sort_order: number;
+    latitude?: number | null;
+    longitude?: number | null;
+    address?: string | null;
     created_at: string;
     updated_at: string;
     active_images: PlaceImage[];
@@ -325,6 +329,31 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                         </div>
                     </div>
                 </section >
+
+                {/* Mapa de Ubicación */}
+                {(place.latitude && place.longitude) && (
+                    <section className="mx-auto max-w-6xl px-6 py-16">
+                        <h2 className="text-3xl font-bold mb-8 text-center">Ubicación</h2>
+                        <div className="bg-neutral-800/60 rounded-2xl p-8">
+                            <LocationMap
+                                latitude={Number(place.latitude)}
+                                longitude={Number(place.longitude)}
+                                placeName={place.title}
+                            />
+                            <div className="mt-6 text-center">
+                                <h3 className="text-xl font-semibold text-white mb-2">{place.title}</h3>
+                                {place.address && (
+                                    <p className="text-neutral-400">
+                                        📍 {place.address}
+                                    </p>
+                                )}
+                                <p className="text-neutral-500 text-sm mt-2">
+                                    Coordenadas: {Number(place.latitude).toFixed(6)}, {Number(place.longitude).toFixed(6)}
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+                )}
 
                 {/* Images Gallery */}
                 {

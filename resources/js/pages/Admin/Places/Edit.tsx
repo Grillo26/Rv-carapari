@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import LocationPicker from '@/components/LocationPicker';
 import { Camera } from 'lucide-react';
 
 interface Place {
@@ -13,6 +14,9 @@ interface Place {
        main_360_image: string | null;
        is_available: boolean;
        sort_order: number;
+       latitude?: number | null;
+       longitude?: number | null;
+       address?: string | null;
        created_at: string;
        updated_at: string;
 }
@@ -39,6 +43,9 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
               description: place.description,
               is_available: place.is_available,
               sort_order: place.sort_order,
+              latitude: place.latitude ? Number(place.latitude) : 0,
+              longitude: place.longitude ? Number(place.longitude) : 0,
+              address: place.address || '',
        });
 
        const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -59,6 +66,10 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                      setMain360Preview(`/storage/${place.main_360_image}`);
               }
        }, [place]);
+
+       const handleLocationChange = (latitude: number, longitude: number, address: string) => {
+              setFormData({ ...formData, latitude, longitude, address });
+       };
 
        const generateSlug = (title: string) => {
               return title
@@ -172,6 +183,17 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
               // Solo agregar slug si no está vacío
               if (formData.slug && formData.slug.trim()) {
                      submitData.append('slug', formData.slug);
+              }
+
+              // Agregar coordenadas y dirección
+              if (formData.latitude) {
+                     submitData.append('latitude', formData.latitude.toString());
+              }
+              if (formData.longitude) {
+                     submitData.append('longitude', formData.longitude.toString());
+              }
+              if (formData.address) {
+                     submitData.append('address', formData.address);
               }
 
               // Solo agregar archivos si se seleccionaron nuevos
@@ -424,6 +446,17 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
                                                                              )}
                                                                       </div>
                                                                </div>
+                                                        </div>
+
+                                                        {/* Ubicación */}
+                                                        <div className="space-y-4">
+                                                               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Ubicación del Lugar</h3>
+                                                               <LocationPicker
+                                                                      initialLatitude={formData.latitude}
+                                                                      initialLongitude={formData.longitude}
+                                                                      initialAddress={formData.address}
+                                                                      onLocationChange={handleLocationChange}
+                                                               />
                                                         </div>
 
                                                         {/* Configuración */}

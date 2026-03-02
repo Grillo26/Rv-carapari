@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import LocationPicker from '@/components/LocationPicker';
 
 interface Errors {
        title?: string[];
@@ -20,6 +21,9 @@ export default function PlacesCreate() {
               description: '',
               is_available: true,
               sort_order: 0,
+              latitude: -21.82883402776101,
+              longitude: -63.742374335631794,
+              address: 'Caraparí',
        });
 
        const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -62,6 +66,15 @@ export default function PlacesCreate() {
               setFormData({ ...formData, slug: value });
               // Marcar que el slug ha sido editado manualmente si no está vacío
               setIsSlugManuallyEdited(value.trim() !== '');
+       };
+
+       const handleLocationChange = (latitude: number, longitude: number, address: string) => {
+              setFormData({
+                     ...formData,
+                     latitude,
+                     longitude,
+                     address
+              });
        };
 
        const handleFileChange = (file: File | null, type: 'thumbnail' | 'main360') => {
@@ -147,6 +160,9 @@ export default function PlacesCreate() {
               submitData.append('description', formData.description);
               submitData.append('is_available', formData.is_available ? '1' : '0');
               submitData.append('sort_order', formData.sort_order.toString());
+              submitData.append('latitude', formData.latitude.toString());
+              submitData.append('longitude', formData.longitude.toString());
+              submitData.append('address', formData.address);
 
               // Solo agregar slug si no está vacío
               if (formData.slug && formData.slug.trim()) {
@@ -391,6 +407,17 @@ export default function PlacesCreate() {
                                                                              )}
                                                                       </div>
                                                                </div>
+                                                        </div>
+
+                                                        {/* Ubicación Geográfica */}
+                                                        <div className="space-y-4">
+                                                               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Ubicación Geográfica</h3>
+                                                               <LocationPicker
+                                                                      initialLatitude={formData.latitude}
+                                                                      initialLongitude={formData.longitude}
+                                                                      initialAddress={formData.address}
+                                                                      onLocationChange={handleLocationChange}
+                                                               />
                                                         </div>
 
                                                         {/* Configuración */}
