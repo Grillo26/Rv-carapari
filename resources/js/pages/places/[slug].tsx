@@ -361,6 +361,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
     // 1. Definimos el tipo de la referencia para que TypeScript sepa que es un elemento HTML
     const scrollRef = useRef<HTMLDivElement>(null);
+    const commentsRef = useRef<HTMLElement>(null);
 
     // 2. Especificamos que 'direction' es un string (solo 'left' o 'right')
     const scroll = (direction: 'left' | 'right') => {
@@ -475,7 +476,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
 
                                 {/* Botón Comentarios con icono de Mensaje */}
-                                <button className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 bg-neutral-600/60 hover:bg-neutral-600/80 text-white font-extrabold text-lg rounded transition-all backdrop-blur-md shadow-lg">
+                                <button onClick={() => commentsRef.current?.scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 bg-neutral-600/60 hover:bg-neutral-600/80 text-white font-extrabold text-lg rounded transition-all backdrop-blur-md shadow-lg">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                                     </svg>
@@ -622,7 +623,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                 }
 
                 {/* Sección de Calificaciones y Comentarios */}
-                <section className="mx-auto max-w-7xl px-6 py-16">
+                <section ref={commentsRef} className="mx-auto max-w-7xl px-6 py-16">
                     <div className="bg-neutral-800/60 rounded-2xl p-8 mb-8">
                         {/* Calificación */}
                         <div className="text-center mb-8">
