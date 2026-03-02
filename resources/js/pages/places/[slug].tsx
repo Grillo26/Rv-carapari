@@ -360,117 +360,137 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
             <div className="pt-20">
                 {/* Hero Section */}
-                <section className="relative">
-                    <div className="mx-auto max-w-6xl px-6 py-12">
-                        {/* Back Button */}
-                        <div className="mb-8">
-                            <Link
-                                href="/"
-                                className="inline-flex items-center gap-2 text-neutral-300 hover:text-white transition-colors"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <section className="relative group overflow-hidden bg-neutral-900"
+                    style={{
+                        backgroundImage: `
+                            linear-gradient(to right, rgba(23, 23, 23, 1) 0%, rgba(23, 23, 23, 1) 40%, rgba(23, 23, 23, 0) 80%), 
+                            linear-gradient(rgba(23, 23, 23, 0.2), rgba(23, 23, 23, 0.2)), 
+                            url('${mainImage}')
+                        `,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'right center',
+                        backgroundRepeat: 'no-repeat'
+                    }}
+                >
+                    {/* Fusión inferior con el fondo de la página bg-neutral-900 */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent opacity-100"></div>
+
+                    <div className="relative z-10 mx-auto max-w-6xl px-6 py-16 lg:py-24">
+                        {/* Botón Volver */}
+                        <div className="mb-10">
+                            <Link href="/" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                                 </svg>
                                 Volver al inicio
                             </Link>
                         </div>
 
-                        {/* Main Content Grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-                            {/* Left Content - Title and Info */}
-                            <div className="lg:col-span-2 space-y-6">
-                                {/* Main Title */}
-                                <div>
-                                    <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-6" style={{ fontFamily: "Playfair Display, serif" }}>
-                                        {place.title}
-                                    </h1>
+                        <div className="max-w-2xl space-y-6">
+                            {/* Título Principal */}
+                            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter text-white uppercase leading-none drop-shadow-md">
+                                {place.title}
+                            </h1>
 
-                                    {/* Rating and Reviews */}
-                                    <div className="mb-8 text-start">
-                                        <div className="flex items-center justify-start gap-3 mb-3">
-                                            <div className="flex items-center gap-2">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <svg
-                                                        key={i}
-                                                        className={`w-6 h-6 transition-all duration-200 ${i < Math.round(Number(rating) || 0) ? 'text-green-500' : 'text-neutral-600'}`}
-                                                        fill="currentColor"
-                                                        viewBox="0 0 20 20"
-                                                    >
-                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                    </svg>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span className="text-2xl font-bold text-green-500">{Number(rating || 0).toFixed(2)}</span>
-                                            <p className="text-neutral-300 text-sm mt-2">{place.total_ratings || 0} {place.total_ratings === 1 ? 'calificación' : 'calificaciones'}</p>
-                                        </div>
+                            {/* Fila de Metadatos */}
+                            <div className="flex flex-wrap items-center gap-5">
+                                <span className="text-green-500 font-bold text-lg">60% de coincidencia</span>
+
+                                {/* Puntuación con Estrellas */}
+                                <div className="flex items-center gap-1">
+                                    <span className="text-white font-bold mr-1">{Number(rating || 0).toFixed(1)}</span>
+                                    <div className="flex">
+                                        {[...Array(5)].map((_, i) => (
+                                            <svg
+                                                key={i}
+                                                className={`w-4 h-4 ${i < Math.round(Number(rating) || 0) ? 'text-yellow-500' : 'text-neutral-600'}`}
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        ))}
                                     </div>
                                 </div>
 
-                                {/* Description */}
-                                <div className="prose prose-lg prose-invert max-w-none">
-                                    <p className="text-neutral-300 text-lg leading-relaxed">
-                                        {place.description}
-                                    </p>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                                    <button
-                                        onClick={() => {
-                                            // Prioridad: main_360_image > imagen marcada como principal > primera imagen disponible
-                                            const imagePath = place.main_360_image ||
-                                                place.active_images.find(img => img.is_main)?.image_path ||
-                                                place.active_images[0]?.image_path;
-
-                                            if (imagePath) {
-                                                router.get('/vr', {
-                                                    image: `/storage/${imagePath}`,
-                                                    place_id: place.id
-                                                });
-                                            } else {
-                                                alert('No hay imágenes 360° disponibles para este lugar');
-                                            }
-                                        }}
-                                        className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-500 text-black font-bold text-lg rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-                                    >
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                        Explorar
-                                    </button>
-
-                                    <Link
-                                        href="/"
-                                        className="inline-flex items-center gap-2 px-6 py-4 text-neutral-300 hover:text-white transition-colors"
-                                    >
-                                        Ver más lugares
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </Link>
-                                </div>
+                                {/* Cantidad de Comentarios */}
+                                <span className="text-neutral-400 text-sm font-medium border-l border-neutral-700 pl-5">
+                                    {place.total_ratings || 0} {place.total_ratings === 1 ? 'comentario' : 'comentarios'}
+                                </span>
                             </div>
 
-                            {/* Right Content - Main Image */}
-                            <div className="lg:col-span-1">
-                                <div className="relative group">
-                                    <img
-                                        src={mainImage}
-                                        alt={place.title}
-                                        className="w-full h-96 object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).src = placeholderImage;
-                                        }}
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl"></div>
-                                </div>
+                            {/* Descripción */}
+                            <p className="text-neutral-200 text-xl leading-relaxed drop-shadow-lg line-clamp-3">
+                                {place.description}
+                            </p>
+
+                            {/* Botones de Acción */}
+                            <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
+                                {/* Botón Explorar con icono de Lentes VR */}
+                                <button
+                                    onClick={() => {
+                                        const imagePath = place.main_360_image || place.active_images[0]?.image_path;
+                                        if (imagePath) {
+                                            router.get('/vr', { image: `/storage/${imagePath}`, place_id: place.id });
+                                        }
+                                    }}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 bg-white hover:bg-neutral-200 text-black font-extrabold text-lg rounded transition-all transform active:scale-95 shadow-xl"
+                                >
+                                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M18 10h-2V8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2H2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2h2a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1z" />
+                                        <circle cx="7" cy="14" r="2" />
+                                        <circle cx="13" cy="14" r="2" />
+                                    </svg>
+                                    Explorar
+                                </button>
+
+                                {/* Botón Comentarios con icono de Mensaje */}
+                                <button className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 bg-neutral-600/60 hover:bg-neutral-600/80 text-white font-extrabold text-lg rounded transition-all backdrop-blur-md shadow-lg">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                    </svg>
+                                    Comentarios
+                                </button>
                             </div>
                         </div>
                     </div>
-                </section >
+                </section>
+
+                {/* Sección de Galería */}
+                <div className="relative -mt-20 z-20 px-8 pb-12 max-w-7xl mx-auto">
+                    <h3 className="text-neutral-400 font-semibold text-lg mb-4 ml-2 uppercase tracking-wider">
+                        Vistas destacadas
+                    </h3>
+
+                    {/* Contenedor de Scroll Horizontal */}
+                    <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x">
+                        {/* Imágenes de Prueba (Simulando place.active_images) */}
+                        {[1, 2, 3, 4, 5, 6].map((item) => (
+                            <div
+                                key={item}
+                                className="flex-none w-64 lg:w-80 aspect-video relative rounded-md overflow-hidden transition-all duration-300 hover:scale-110 hover:z-30 cursor-pointer shadow-2xl bg-neutral-800 snap-start group/item"
+                            >
+                                <img
+                                    src={`https://picsum.photos/seed/${item + 50}/800/450`}
+                                    alt="Vista de prueba"
+                                    className="w-full h-full object-cover transition-opacity duration-300 group-hover/item:opacity-80"
+                                />
+
+                                {/* Overlay al hacer Hover */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-1.5 bg-white rounded-full">
+                                            <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </div>
+                                        <span className="text-white text-xs font-bold uppercase tracking-tighter">Ver en 360°</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
                 {/* Mapa de Ubicación */}
                 {(place.latitude && place.longitude) && (
@@ -765,7 +785,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                                 }`}
                                                         >
                                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M18 9.5a1.5 1.5 0 11-3 0v6a1.5 1.5 0 013 0v-6zM14 9.667v-5.43a2 2 0 00-1.106-1.79l-.05-.025A4 4 0 0011.057 2H5.641a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                                                                <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V9a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                                                             </svg>
                                                             {reviewVoteCounts[review.id]?.unhelpful || review.unhelpful_votes_count} Desacuerdo{(reviewVoteCounts[review.id]?.helpful || review.helpful_votes_count) !== 1 ? 's' : ''}
                                                         </button>
