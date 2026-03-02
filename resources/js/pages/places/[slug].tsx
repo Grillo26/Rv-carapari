@@ -77,6 +77,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
     const [userRating, setUserRating] = useState<number>(place.user_rating || 0);
     const [hoverRating, setHoverRating] = useState<number>(0);
     const [editingReview, setEditingReview] = useState<number | null>(null);
+    const [userVotes, setUserVotes] = useState<{ [key: number]: 'helpful' | 'unhelpful' | null }>({});
 
     useEffect(() => {
         const handleScroll = () => {
@@ -169,6 +170,33 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
         setEditData({ title: '', content: '' });
     };
 
+    // Función para manejar votos de utilidad en reseñas
+    const handleReviewVote = (reviewId: number, voteType: 'helpful' | 'unhelpful') => {
+        if (!auth.user) {
+            router.get('/login');
+            return;
+        }
+
+        // Si ya votó de la misma manera, desvotarlo
+        if (userVotes[reviewId] === voteType) {
+            setUserVotes({ ...userVotes, [reviewId]: null });
+            router.post(`/api/review-votes/${reviewId}`, { vote_type: null }, { preserveState: true });
+            return;
+        }
+
+        // Actualizar estado localmente
+        setUserVotes({ ...userVotes, [reviewId]: voteType });
+
+        // Enviar voto al servidor
+        router.post(`/api/review-votes/${reviewId}`, { vote_type: voteType }, {
+            preserveState: true,
+            onError: () => {
+                // Revertir si hay error
+                setUserVotes({ ...userVotes, [reviewId]: null });
+            }
+        });
+    };
+
     // Componente de estrellas
     const StarRating = ({ rating: currentRating, onRate, size = 'w-6 h-6', interactive = false }: {
         rating: number;
@@ -250,7 +278,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                 {[...Array(5)].map((_, i) => (
                                                     <svg
                                                         key={i}
-                                                        className={`w-6 h-6 transition-all duration-200 ${i < Math.floor(Number(rating) || 0) ? 'text-green-500' : 'text-neutral-600'}`}
+                                                        className={`w-6 h-6 transition-all duration-200 ${i < Math.round(Number(rating) || 0) ? 'text-green-500' : 'text-neutral-600'}`}
                                                         fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                     >
@@ -261,7 +289,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                         </div>
                                         <div>
                                             <span className="text-2xl font-bold text-green-500">{Number(rating || 0).toFixed(2)}</span>
-                                            <p className="text-neutral-300 text-sm mt-2">{reviewsCount} reseñas</p>
+                                            <p className="text-neutral-300 text-sm mt-2">{place.total_ratings || 0} {place.total_ratings === 1 ? 'calificación' : 'calificaciones'}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -502,111 +530,136 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                         {/* Lista de comentarios */}
                         <div>
                             <h4 className="text-xl font-semibold mb-6 text-white text-center">
-                                Reseñas ({place.reviews?.length || 0})
+                                Reseñas ({place.total_reviews || 0})
                             </h4>
 
                             {place.reviews && place.reviews.length > 0 ? (
                                 <div className="space-y-6">
-                                    {place.reviews
-                                        .filter(review => review.is_approved)
-                                        .map((review) => (
-                                            <div key={review.id} className="bg-neutral-700/50 rounded-xl p-6 border border-neutral-600">
-                                                {/* Header de la reseña */}
-                                                <div className="flex items-start justify-between mb-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-600">
-                                                            <img
-                                                                src={review.user.avatar ? `/storage/${review.user.avatar}` : '/storage/avatars/default-avatar.avif'}
-                                                                alt={review.user.name}
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-semibold text-white">{review.user.name}</p>
-                                                            <p className="text-sm text-neutral-400">
-                                                                {new Date(review.created_at).toLocaleDateString('es-ES', {
-                                                                    year: 'numeric',
-                                                                    month: 'long',
-                                                                    day: 'numeric'
-                                                                })}
-                                                            </p>
-                                                        </div>
+                                    {place.reviews.map((review) => (
+                                        <div key={review.id} className="bg-neutral-700/50 rounded-xl p-6 border border-neutral-600">
+                                            {/* Header de la reseña */}
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-600">
+                                                        <img
+                                                            src={review.user.avatar ? `/storage/${review.user.avatar}` : '/storage/avatars/default-avatar.avif'}
+                                                            alt={review.user.name}
+                                                            className="w-full h-full object-cover"
+                                                        />
                                                     </div>
-
-                                                    {/* Botón de editar (solo para el autor) */}
-                                                    {auth.user && auth.user.id === review.user.id && (
-                                                        <button
-                                                            onClick={() => handleEditReview(review)}
-                                                            className="text-neutral-400 hover:text-green-500 transition-colors"
-                                                            title="Editar reseña"
-                                                        >
-                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                            </svg>
-                                                        </button>
-                                                    )}
+                                                    <div>
+                                                        <p className="font-semibold text-white">{review.user.name}</p>
+                                                        <p className="text-sm text-neutral-400">
+                                                            {new Date(review.created_at).toLocaleDateString('es-ES', {
+                                                                year: 'numeric',
+                                                                month: 'long',
+                                                                day: 'numeric'
+                                                            })}
+                                                        </p>
+                                                    </div>
                                                 </div>
 
-                                                {/* Contenido de la reseña */}
-                                                {editingReview === review.id ? (
-                                                    <form onSubmit={(e) => handleUpdateReview(e, review.id)} className="space-y-4">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Título (opcional)"
-                                                            value={editData.title}
-                                                            onChange={(e) => setEditData('title', e.target.value)}
-                                                            className="w-full px-4 py-2 rounded-lg bg-neutral-600 text-white placeholder-neutral-400 border border-neutral-500 focus:border-green-500 focus:outline-none"
-                                                        />
-                                                        <textarea
-                                                            value={editData.content}
-                                                            onChange={(e) => setEditData('content', e.target.value)}
-                                                            rows={3}
-                                                            required
-                                                            className="w-full px-4 py-2 rounded-lg bg-neutral-600 text-white placeholder-neutral-400 border border-neutral-500 focus:border-green-500 focus:outline-none resize-none"
-                                                        />
-                                                        <div className="flex gap-2 justify-end">
-                                                            <button
-                                                                type="button"
-                                                                onClick={cancelEdit}
-                                                                className="px-4 py-2 text-neutral-400 hover:text-white transition-colors"
-                                                            >
-                                                                Cancelar
-                                                            </button>
-                                                            <button
-                                                                type="submit"
-                                                                disabled={editProcessing}
-                                                                className="px-4 py-2 bg-green-600 hover:bg-green-500 text-black font-semibold rounded-lg transition-colors disabled:opacity-50"
-                                                            >
-                                                                {editProcessing ? 'Guardando...' : 'Guardar'}
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                ) : (
-                                                    <div>
-                                                        {review.title && (
-                                                            <h5 className="font-semibold text-white mb-2">{review.title}</h5>
-                                                        )}
-                                                        <p className="text-neutral-300 mb-4 leading-relaxed">{review.content}</p>
-
-                                                        {/* Votos útiles */}
-                                                        <div className="flex items-center gap-4 text-sm text-neutral-400">
-                                                            <span className="flex items-center gap-1">
-                                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
-                                                                </svg>
-                                                                {review.helpful_votes_count} útil{review.helpful_votes_count !== 1 ? 'es' : ''}
-                                                            </span>
-                                                            <span className="flex items-center gap-1">
-                                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V9a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                                {review.unhelpful_votes_count}
-                                                            </span>
-                                                        </div>
-                                                    </div>
+                                                {/* Botón de editar (solo para el autor) */}
+                                                {auth.user && auth.user.id === review.user.id && (
+                                                    <button
+                                                        onClick={() => handleEditReview(review)}
+                                                        className="text-neutral-400 hover:text-green-500 transition-colors"
+                                                        title="Editar reseña"
+                                                    >
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                    </button>
                                                 )}
                                             </div>
-                                        ))}
+
+                                            {/* Badge de aprobación pendiente */}
+                                            {!review.is_approved && (
+                                                <div className="mb-3 p-2 bg-yellow-600/10 border border-yellow-600/20 rounded">
+                                                    <p className="text-yellow-500 text-xs">⏳ Pendiente de aprobación</p>
+                                                </div>
+                                            )}
+
+                                            {/* Contenido de la reseña */}
+                                            {editingReview === review.id ? (
+                                                <form onSubmit={(e) => handleUpdateReview(e, review.id)} className="space-y-4">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Título (opcional)"
+                                                        value={editData.title}
+                                                        onChange={(e) => setEditData('title', e.target.value)}
+                                                        className="w-full px-4 py-2 rounded-lg bg-neutral-600 text-white placeholder-neutral-400 border border-neutral-500 focus:border-green-500 focus:outline-none"
+                                                    />
+                                                    <textarea
+                                                        value={editData.content}
+                                                        onChange={(e) => setEditData('content', e.target.value)}
+                                                        rows={3}
+                                                        required
+                                                        className="w-full px-4 py-2 rounded-lg bg-neutral-600 text-white placeholder-neutral-400 border border-neutral-500 focus:border-green-500 focus:outline-none resize-none"
+                                                    />
+                                                    <div className="flex gap-2 justify-end">
+                                                        <button
+                                                            type="button"
+                                                            onClick={cancelEdit}
+                                                            className="px-4 py-2 text-neutral-400 hover:text-white transition-colors"
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            disabled={editProcessing}
+                                                            className="px-4 py-2 bg-green-600 hover:bg-green-500 text-black font-semibold rounded-lg transition-colors disabled:opacity-50"
+                                                        >
+                                                            {editProcessing ? 'Guardando...' : 'Guardar'}
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            ) : (
+                                                <div>
+                                                    {review.title && (
+                                                        <h5 className="font-semibold text-white mb-2">{review.title}</h5>
+                                                    )}
+                                                    <p className="text-neutral-300 mb-4 leading-relaxed">{review.content}</p>
+
+                                                    {/* Votos útiles */}
+                                                    <div className="flex items-center gap-4 text-sm">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleReviewVote(review.id, 'helpful')}
+                                                            disabled={auth.user && auth.user.id === review.user.id}
+                                                            className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors ${auth.user && auth.user.id === review.user.id
+                                                                    ? 'text-neutral-500 cursor-not-allowed bg-neutral-800/50 border border-neutral-700'
+                                                                    : userVotes[review.id] === 'helpful'
+                                                                        ? 'bg-green-600/30 text-green-400 border border-green-600'
+                                                                        : 'text-neutral-400 hover:text-green-400 hover:bg-green-600/10 border border-transparent hover:border-green-600/30'
+                                                                }`}
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
+                                                            </svg>
+                                                            {review.helpful_votes_count} útil{review.helpful_votes_count !== 1 ? 'es' : ''}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleReviewVote(review.id, 'unhelpful')}
+                                                            disabled={auth.user && auth.user.id === review.user.id}
+                                                            className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors ${auth.user && auth.user.id === review.user.id
+                                                                    ? 'text-neutral-500 cursor-not-allowed bg-neutral-800/50 border border-neutral-700'
+                                                                    : userVotes[review.id] === 'unhelpful'
+                                                                        ? 'bg-red-600/30 text-red-400 border border-red-600'
+                                                                        : 'text-neutral-400 hover:text-red-400 hover:bg-red-600/10 border border-transparent hover:border-red-600/30'
+                                                                }`}
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V9a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                                            </svg>
+                                                            {review.unhelpful_votes_count}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
                             ) : (
                                 <div className="text-center py-8">

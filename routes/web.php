@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Api\ReviewVoteController;
 
 
 Route::get('/', function () {
@@ -54,6 +55,9 @@ Route::prefix('api')->group(function () {
         Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
         Route::post('/reviews/{review}/vote', [ReviewController::class, 'vote'])->name('reviews.vote');
+        
+        // Review votes
+        Route::post('/review-votes/{review}', [ReviewVoteController::class, 'store'])->name('review-votes.store');
         
         // Admin only
         Route::middleware('admin')->group(function () {
