@@ -95,6 +95,43 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
         }
     }, [place.reviews]);
 
+    // Cargar los votos del usuario actual
+    useEffect(() => {
+        if (!auth.user) {
+            setUserVotes({});
+            return;
+        }
+
+        const loadUserVotes = async () => {
+            try {
+                const csrfTokenElement = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement;
+                const csrfToken = csrfTokenElement?.content || '';
+
+                const response = await fetch(`/api/review-votes/user-votes/${place.id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Votos del usuario cargados:', data.votes);
+                    setUserVotes(data.votes || {});
+                } else {
+                    console.error('Error cargando votos del usuario:', response.status);
+                }
+            } catch (error) {
+                console.error('Error al cargar votos del usuario:', error);
+            }
+        };
+
+        loadUserVotes();
+    }, [auth.user, place.id]);
+
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50);
@@ -221,6 +258,12 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
             const csrfTokenElement = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement;
             const csrfToken = csrfTokenElement?.content || '';
 
+            const payload = {
+                vote_type: isToggling ? null : voteType
+            };
+
+            console.log('Enviando voto:', { reviewId, payload });
+
             const response = await fetch(`/api/review-votes/${reviewId}`, {
                 method: 'POST',
                 headers: {
@@ -229,21 +272,24 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                     'Accept': 'application/json',
                 },
                 credentials: 'same-origin',
-                body: JSON.stringify({
-                    vote_type: isToggling ? null : voteType
-                }),
+                body: JSON.stringify(payload),
             });
 
+            console.log('Response status:', response.status);
+
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error al registrar voto:', response.status, errorText);
+                const errorData = await response.json();
+                console.error('Error al registrar voto:', response.status, errorData);
                 // Revertir cambios si hay error
                 setReviewVoteCounts({ ...reviewVoteCounts, [reviewId]: oldCounts });
                 setUserVotes({ ...userVotes, [reviewId]: currentVote });
+                alert('Error: ' + (errorData.message || 'No se pudo registrar el voto'));
                 return;
             }
 
             const data = await response.json();
+
+            console.log('Respuesta del servidor:', data);
 
             if (data.success) {
                 // Actualizar con los conteos del servidor
@@ -254,12 +300,14 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                         unhelpful: data.unhelpful_votes_count
                     }
                 });
+                console.log('Voto registrado exitosamente');
             }
         } catch (error) {
             console.error('Error registrando voto:', error);
             // Revertir el voto si hay error
             setReviewVoteCounts({ ...reviewVoteCounts, [reviewId]: oldCounts });
             setUserVotes({ ...userVotes, [reviewId]: currentVote });
+            alert('Error de conexión: ' + (error instanceof Error ? error.message : 'Unknown error'));
         }
     };
 
@@ -703,7 +751,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
                                                             </svg>
-                                                            {reviewVoteCounts[review.id]?.helpful || review.helpful_votes_count} útil{(reviewVoteCounts[review.id]?.helpful || review.helpful_votes_count) !== 1 ? 'es' : ''}
+                                                            {reviewVoteCounts[review.id]?.helpful || review.helpful_votes_count} De acuerdo{(reviewVoteCounts[review.id]?.helpful || review.helpful_votes_count) !== 1 ? 's' : ''}
                                                         </button>
                                                         <button
                                                             type="button"
@@ -719,7 +767,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V9a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                                                             </svg>
-                                                            {reviewVoteCounts[review.id]?.unhelpful || review.unhelpful_votes_count}
+                                                            {reviewVoteCounts[review.id]?.unhelpful || review.unhelpful_votes_count} Desacuerdo{(reviewVoteCounts[review.id]?.helpful || review.helpful_votes_count) !== 1 ? 's' : ''}
                                                         </button>
                                                     </div>
                                                 </div>

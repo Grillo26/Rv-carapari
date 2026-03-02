@@ -16,6 +16,6 @@ class ReviewVote extends Model
 
     public function review(): BelongsTo
     {
-        return $this->belongsTo(UserReview::class, 'review_id');
+        return $this->belongsTo(Review::class, 'review_id');
     }
 }

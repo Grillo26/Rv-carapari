@@ -47,6 +47,9 @@ Route::prefix('api')->group(function () {
     // Rating statistics (public)
     Route::get('/places/{place}/ratings', [RatingController::class, 'show'])->name('ratings.show');
     
+    // Review votes - obtener votos del usuario (public, pero retorna datos útiles solo si autenticado)
+    Route::get('/review-votes/user-votes/{placeId}', [ReviewVoteController::class, 'getUserVotesForPlace'])->name('review-votes.user-votes');
+    
     // Reviews
     Route::get('/places/{place}/reviews', [ReviewController::class, 'index'])->name('reviews.index');
     

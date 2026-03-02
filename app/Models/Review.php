@@ -18,6 +18,11 @@ class Review extends Model
         'approved_by',
     ];
 
+    protected $appends = [
+        'helpful_votes_count',
+        'unhelpful_votes_count'
+    ];
+
     protected $casts = [
         'is_approved' => 'boolean',
         'approved_at' => 'datetime',
@@ -41,6 +46,11 @@ class Review extends Model
     public function userReviews(): HasMany
     {
         return $this->hasMany(UserReview::class);
+    }
+
+    public function votes(): HasMany
+    {
+        return $this->hasMany(ReviewVote::class, 'review_id');
     }
 
     public function helpfulVotes(): HasMany
@@ -68,13 +78,19 @@ class Review extends Model
         return $query->where('place_id', $placeId);
     }
 
-    public function getHelpfulCountAttribute()
+    public function getHelpfulVotesCountAttribute()
     {
-        return $this->helpfulVotes()->count();
+        // Usar ReviewVote en lugar de UserReview
+        return ReviewVote::where('review_id', $this->id)
+            ->where('vote_type', 'helpful')
+            ->count();
     }
 
-    public function getUnhelpfulCountAttribute()
+    public function getUnhelpfulVotesCountAttribute()
     {
-        return $this->unhelpfulVotes()->count();
+        // Usar ReviewVote en lugar de UserReview
+        return ReviewVote::where('review_id', $this->id)
+            ->where('vote_type', 'unhelpful')
+            ->count();
     }
 }
