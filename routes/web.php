@@ -57,7 +57,7 @@ Route::prefix('api')->group(function () {
         Route::post('/reviews/{review}/vote', [ReviewController::class, 'vote'])->name('reviews.vote');
         
         // Review votes
-        Route::post('/review-votes/{review}', [ReviewVoteController::class, 'store'])->name('review-votes.store');
+        Route::post('/review-votes/{reviewId}', [ReviewVoteController::class, 'store'])->name('review-votes.store');
         
         // Admin only
         Route::middleware('admin')->group(function () {

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UserReview extends Model
 {
@@ -25,6 +26,11 @@ class UserReview extends Model
     public function review(): BelongsTo
     {
         return $this->belongsTo(Review::class);
+    }
+
+    public function votes(): HasMany
+    {
+        return $this->hasMany(ReviewVote::class, 'review_id', 'id');
     }
 
     public function scopeHelpful($query)

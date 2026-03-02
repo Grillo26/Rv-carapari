@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('review_votes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('review_id')->constrained('user_reviews')->onDelete('cascade');
+            $table->foreignId('review_id')->constrained('reviews')->onDelete('cascade');
             $table->enum('vote_type', ['helpful', 'unhelpful'])->nullable();
             $table->timestamps();
             

@@ -78,6 +78,22 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
     const [hoverRating, setHoverRating] = useState<number>(0);
     const [editingReview, setEditingReview] = useState<number | null>(null);
     const [userVotes, setUserVotes] = useState<{ [key: number]: 'helpful' | 'unhelpful' | null }>({});
+    // Estado para los votos de cada comentario
+    const [reviewVoteCounts, setReviewVoteCounts] = useState<{ [key: number]: { helpful: number; unhelpful: number } }>({});
+
+    // Inicializar los conteos de votos
+    useEffect(() => {
+        if (place.reviews) {
+            const voteCounts: { [key: number]: { helpful: number; unhelpful: number } } = {};
+            place.reviews.forEach(review => {
+                voteCounts[review.id] = {
+                    helpful: review.helpful_votes_count,
+                    unhelpful: review.unhelpful_votes_count
+                };
+            });
+            setReviewVoteCounts(voteCounts);
+        }
+    }, [place.reviews]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -171,30 +187,80 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
     };
 
     // Función para manejar votos de utilidad en reseñas
-    const handleReviewVote = (reviewId: number, voteType: 'helpful' | 'unhelpful') => {
+    const handleReviewVote = async (reviewId: number, voteType: 'helpful' | 'unhelpful') => {
         if (!auth.user) {
             router.get('/login');
             return;
         }
 
-        // Si ya votó de la misma manera, desvotarlo
-        if (userVotes[reviewId] === voteType) {
-            setUserVotes({ ...userVotes, [reviewId]: null });
-            router.post(`/api/review-votes/${reviewId}`, { vote_type: null }, { preserveState: true });
-            return;
+        // Obtener el estado actual de votos
+        const currentVote = userVotes[reviewId];
+        const isToggling = currentVote === voteType;
+
+        // Actualizar estado localmente inmediatamente - optimistic update
+        const oldCounts = reviewVoteCounts[reviewId] || { helpful: 0, unhelpful: 0 };
+        const newCounts = { ...oldCounts };
+
+        if (isToggling) {
+            // Si está desmarcando
+            if (voteType === 'helpful') newCounts.helpful = Math.max(0, newCounts.helpful - 1);
+            else newCounts.unhelpful = Math.max(0, newCounts.unhelpful - 1);
+        } else {
+            // Si está marcando
+            if (currentVote === 'helpful') newCounts.helpful = Math.max(0, newCounts.helpful - 1);
+            else if (currentVote === 'unhelpful') newCounts.unhelpful = Math.max(0, newCounts.unhelpful - 1);
+
+            if (voteType === 'helpful') newCounts.helpful += 1;
+            else newCounts.unhelpful += 1;
         }
 
-        // Actualizar estado localmente
-        setUserVotes({ ...userVotes, [reviewId]: voteType });
+        setReviewVoteCounts({ ...reviewVoteCounts, [reviewId]: newCounts });
+        setUserVotes({ ...userVotes, [reviewId]: isToggling ? null : voteType });
 
-        // Enviar voto al servidor
-        router.post(`/api/review-votes/${reviewId}`, { vote_type: voteType }, {
-            preserveState: true,
-            onError: () => {
-                // Revertir si hay error
-                setUserVotes({ ...userVotes, [reviewId]: null });
+        try {
+            const csrfTokenElement = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement;
+            const csrfToken = csrfTokenElement?.content || '';
+
+            const response = await fetch(`/api/review-votes/${reviewId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    vote_type: isToggling ? null : voteType
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error al registrar voto:', response.status, errorText);
+                // Revertir cambios si hay error
+                setReviewVoteCounts({ ...reviewVoteCounts, [reviewId]: oldCounts });
+                setUserVotes({ ...userVotes, [reviewId]: currentVote });
+                return;
             }
-        });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Actualizar con los conteos del servidor
+                setReviewVoteCounts({
+                    ...reviewVoteCounts,
+                    [reviewId]: {
+                        helpful: data.helpful_votes_count,
+                        unhelpful: data.unhelpful_votes_count
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error registrando voto:', error);
+            // Revertir el voto si hay error
+            setReviewVoteCounts({ ...reviewVoteCounts, [reviewId]: oldCounts });
+            setUserVotes({ ...userVotes, [reviewId]: currentVote });
+        }
     };
 
     // Componente de estrellas
@@ -628,32 +694,32 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                             onClick={() => handleReviewVote(review.id, 'helpful')}
                                                             disabled={auth.user && auth.user.id === review.user.id}
                                                             className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors ${auth.user && auth.user.id === review.user.id
-                                                                    ? 'text-neutral-500 cursor-not-allowed bg-neutral-800/50 border border-neutral-700'
-                                                                    : userVotes[review.id] === 'helpful'
-                                                                        ? 'bg-green-600/30 text-green-400 border border-green-600'
-                                                                        : 'text-neutral-400 hover:text-green-400 hover:bg-green-600/10 border border-transparent hover:border-green-600/30'
+                                                                ? 'text-neutral-500 cursor-not-allowed bg-neutral-800/50 border border-neutral-700'
+                                                                : userVotes[review.id] === 'helpful'
+                                                                    ? 'bg-green-600/30 text-green-400 border border-green-600'
+                                                                    : 'text-neutral-400 hover:text-green-400 hover:bg-green-600/10 border border-transparent hover:border-green-600/30'
                                                                 }`}
                                                         >
                                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
                                                             </svg>
-                                                            {review.helpful_votes_count} útil{review.helpful_votes_count !== 1 ? 'es' : ''}
+                                                            {reviewVoteCounts[review.id]?.helpful || review.helpful_votes_count} útil{(reviewVoteCounts[review.id]?.helpful || review.helpful_votes_count) !== 1 ? 'es' : ''}
                                                         </button>
                                                         <button
                                                             type="button"
                                                             onClick={() => handleReviewVote(review.id, 'unhelpful')}
                                                             disabled={auth.user && auth.user.id === review.user.id}
                                                             className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors ${auth.user && auth.user.id === review.user.id
-                                                                    ? 'text-neutral-500 cursor-not-allowed bg-neutral-800/50 border border-neutral-700'
-                                                                    : userVotes[review.id] === 'unhelpful'
-                                                                        ? 'bg-red-600/30 text-red-400 border border-red-600'
-                                                                        : 'text-neutral-400 hover:text-red-400 hover:bg-red-600/10 border border-transparent hover:border-red-600/30'
+                                                                ? 'text-neutral-500 cursor-not-allowed bg-neutral-800/50 border border-neutral-700'
+                                                                : userVotes[review.id] === 'unhelpful'
+                                                                    ? 'bg-red-600/30 text-red-400 border border-red-600'
+                                                                    : 'text-neutral-400 hover:text-red-400 hover:bg-red-600/10 border border-transparent hover:border-red-600/30'
                                                                 }`}
                                                         >
                                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V9a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                                                             </svg>
-                                                            {review.unhelpful_votes_count}
+                                                            {reviewVoteCounts[review.id]?.unhelpful || review.unhelpful_votes_count}
                                                         </button>
                                                     </div>
                                                 </div>
