@@ -79,6 +79,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
     const [hoverRating, setHoverRating] = useState<number>(0);
     const [editingReview, setEditingReview] = useState<number | null>(null);
     const [userVotes, setUserVotes] = useState<{ [key: number]: 'helpful' | 'unhelpful' | null }>({});
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     // Estado para los votos de cada comentario
     const [reviewVoteCounts, setReviewVoteCounts] = useState<{ [key: number]: { helpful: number; unhelpful: number } }>({});
 
@@ -216,7 +217,18 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
     const handleUpdateReview = (e: React.FormEvent, reviewId: number) => {
         e.preventDefault();
 
-        router.put(`/api/reviews/${reviewId}`, editData);
+        router.put(`/api/reviews/${reviewId}`, editData, {
+            onSuccess: () => {
+                setEditingReview(null);
+                setEditData({ title: '', content: '' });
+                setSuccessMessage('✓ Comentario editado correctamente');
+                setTimeout(() => setSuccessMessage(null), 3000);
+            },
+            onError: () => {
+                setSuccessMessage('✗ Error al guardar el comentario');
+                setTimeout(() => setSuccessMessage(null), 3000);
+            }
+        });
     };
 
     const cancelEdit = () => {
@@ -698,6 +710,16 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                             <h4 className="text-xl font-semibold mb-6 text-white text-center">
                                 Reseñas ({place.total_reviews || 0})
                             </h4>
+
+                            {/* Mensaje de éxito */}
+                            {successMessage && (
+                                <div className={`mb-6 p-4 rounded-lg text-center font-semibold transition-all ${successMessage.includes('✓')
+                                    ? 'bg-green-600/20 border border-green-600/50 text-green-400'
+                                    : 'bg-red-600/20 border border-red-600/50 text-red-400'
+                                    }`}>
+                                    {successMessage}
+                                </div>
+                            )}
 
                             {place.reviews && place.reviews.length > 0 ? (
                                 <div className="space-y-6">
