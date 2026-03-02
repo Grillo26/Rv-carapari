@@ -391,7 +391,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                     {/* Fusión inferior con el fondo de la página bg-neutral-900 */}
                     <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent opacity-100"></div>
 
-                    <div className="relative z-10 mx-auto max-w-6xl px-6 py-16 lg:py-24">
+                    <div className="relative z-10 mx-auto max-w-6xl px-0 py-16 lg:py-24">
                         {/* Botón Volver */}
                         <div className="mb-10">
                             <Link href="/" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors">
@@ -410,7 +410,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
                             {/* Fila de Metadatos */}
                             <div className="flex flex-wrap items-center gap-5">
-                                <span className="text-green-500 font-bold text-lg">60% de coincidencia</span>
+                                <span className="text-green-500 font-bold text-lg">Lugar destacado</span>
 
                                 {/* Puntuación con Estrellas */}
                                 <div className="flex items-center gap-1">
@@ -431,12 +431,12 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
                                 {/* Cantidad de Comentarios */}
                                 <span className="text-neutral-400 text-sm font-medium border-l border-neutral-700 pl-5">
-                                    {place.total_ratings || 0} {place.total_ratings === 1 ? 'comentario' : 'comentarios'}
+                                    {place.total_reviews || 0} {place.total_reviews === 1 ? 'comentario' : 'comentarios'}
                                 </span>
                             </div>
 
                             {/* Descripción */}
-                            <p className="text-neutral-200 text-xl leading-relaxed drop-shadow-lg line-clamp-3">
+                            <p className="text-neutral-200 text-xl leading-relaxed drop-shadow-lg">
                                 {place.description}
                             </p>
 
@@ -459,6 +459,8 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                     </svg>
                                     Explorar
                                 </button>
+
+
 
                                 {/* Botón Comentarios con icono de Mensaje */}
                                 <button className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 bg-neutral-600/60 hover:bg-neutral-600/80 text-white font-extrabold text-lg rounded transition-all backdrop-blur-md shadow-lg">
@@ -524,7 +526,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
                 {/* Mapa de Ubicación */}
                 {(place.latitude && place.longitude) && (
-                    <section className="mx-auto max-w-6xl px-6 py-16">
+                    <section className="mx-auto max-w-7xl px-6 py-16">
                         <h2 className="text-3xl font-bold mb-8 text-center">Ubicación</h2>
                         <div className="bg-neutral-800/60 rounded-2xl p-8">
                             <LocationMap
@@ -550,7 +552,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                 {/* Images Gallery */}
                 {
                     place.active_images.length > 0 && (
-                        <section className="mx-auto max-w-6xl px-6 py-16">
+                        <section className="mx-auto max-w-7xl px-6 py-16">
                             <h2 className="text-3xl font-bold mb-8 text-center">Galería de Imágenes 360°</h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -608,7 +610,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                 }
 
                 {/* Sección de Calificaciones y Comentarios */}
-                <section className="mx-auto max-w-6xl px-6 py-16">
+                <section className="mx-auto max-w-7xl px-6 py-16">
                     <div className="bg-neutral-800/60 rounded-2xl p-8 mb-8">
                         {/* Calificación */}
                         <div className="text-center mb-8">
