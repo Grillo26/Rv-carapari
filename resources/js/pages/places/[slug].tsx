@@ -5,6 +5,7 @@ import LocationMap from '@/components/LocationMap';
 import { login, register } from '@/routes';
 import { type SharedData } from '@/types';
 import { THEME_COLORS } from '@/constants/theme';
+import { useRef } from 'react';
 
 interface PlaceImage {
     id: number;
@@ -346,6 +347,21 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
         );
     };
 
+    // 1. Definimos el tipo de la referencia para que TypeScript sepa que es un elemento HTML
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // 2. Especificamos que 'direction' es un string (solo 'left' o 'right')
+    const scroll = (direction: 'left' | 'right') => {
+        // 3. Usamos una comprobación de seguridad para asegurar que scrollRef.current existe
+        if (scrollRef.current) {
+            const scrollAmount = 400;
+            scrollRef.current.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     return (
         <div className="min-h-screen bg-neutral-900 text-white" style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto" }}>
             <Head title={`${place.title} - Caraparí Turismo`} />
@@ -457,35 +473,49 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                 </section>
 
                 {/* Sección de Galería */}
-                <div className="relative -mt-20 z-20 px-8 pb-12 max-w-7xl mx-auto">
-                    <h3 className="text-neutral-400 font-semibold text-lg mb-4 ml-2 uppercase tracking-wider">
-                        Vistas destacadas
-                    </h3>
+                <div className="relative -mt-24 z-30 px-6 pb-12 max-w-7xl mx-auto group/gallery">
+                    <div className="flex items-center justify-between mb-6 pt-20 px-2">
+                        <h3 className="text-neutral-500 font-bold text-sm uppercase tracking-[0.2em]">
+                            Fotos Destacadas
+                        </h3>
 
-                    {/* Contenedor de Scroll Horizontal */}
-                    <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x">
-                        {/* Imágenes de Prueba (Simulando place.active_images) */}
-                        {[1, 2, 3, 4, 5, 6].map((item) => (
+                        {/* Botones de Navegación */}
+                        <div className="hidden md:flex gap-2">
+                            <button
+                                onClick={() => scroll('left')}
+                                className="p-2 rounded-full bg-neutral-800/80 text-white hover:bg-white hover:text-black transition-all shadow-lg"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                            </button>
+                            <button
+                                onClick={() => scroll('right')}
+                                className="p-2 rounded-full bg-neutral-800/80 text-white hover:bg-white hover:text-black transition-all shadow-lg"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Contenedor de Scroll - Eliminamos overflow-hidden del padre inmediato */}
+                    <div
+                        ref={scrollRef}
+                        className="flex gap-4 overflow-x-auto py-10 px-2 scrollbar-hide snap-x select-none"
+                        style={{ margin: '-40px 0' }} // Compensamos el padding para que no ocupe espacio extra en el layout
+                    >
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
                             <div
                                 key={item}
-                                className="flex-none w-64 lg:w-80 aspect-video relative rounded-md overflow-hidden transition-all duration-300 hover:scale-110 hover:z-30 cursor-pointer shadow-2xl bg-neutral-800 snap-start group/item"
+                                className="flex-none w-64 lg:w-80 aspect-video relative rounded-md transition-all duration-500 hover:scale-110 hover:z-50 cursor-pointer shadow-2xl bg-neutral-800 snap-start group/item outline outline-1 outline-white/5"
                             >
+                                {/* La imagen debe tener rounded-md también para que el hover se vea limpio */}
                                 <img
-                                    src={`https://picsum.photos/seed/${item + 50}/800/450`}
-                                    alt="Vista de prueba"
-                                    className="w-full h-full object-cover transition-opacity duration-300 group-hover/item:opacity-80"
+                                    src={`https://picsum.photos/seed/${item + 100}/800/450`}
+                                    alt="Vista de Caraparí"
+                                    className="w-full h-full object-cover rounded-md"
                                 />
 
-                                {/* Overlay al hacer Hover */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-1.5 bg-white rounded-full">
-                                            <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M8 5v14l11-7z" />
-                                            </svg>
-                                        </div>
-                                        <span className="text-white text-xs font-bold uppercase tracking-tighter">Ver en 360°</span>
-                                    </div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 rounded-md">
+                                    <p className="text-white text-xs font-bold uppercase tracking-widest">Explorar en 360°</p>
                                 </div>
                             </div>
                         ))}
