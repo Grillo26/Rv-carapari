@@ -42,6 +42,16 @@ interface Rating {
     user: User;
 }
 
+interface Model3D {
+    id: number;
+    title: string;
+    model_path: string;
+    thumbnail?: string | null;
+    description?: string | null;
+    is_active: boolean;
+    sort_order: number;
+}
+
 interface Place {
     id: number;
     title: string;
@@ -63,6 +73,7 @@ interface Place {
     total_reviews?: number;
     reviews?: Review[];
     ratings?: Rating[];
+    models_3d?: Model3D[];
     user_rating?: number;
     user_has_review?: boolean;
 }
@@ -385,6 +396,46 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
     const imagePath = place.main_360_image || place.active_images[0]?.image_path;
 
+    // Datos estáticos de modelos 3D para prueba
+    const staticModels3D: Model3D[] = [
+        {
+            id: 1,
+            title: "Monumento Principal",
+            model_path: "/images/3d/1.glb",
+            thumbnail: "placeholder-place.png",
+            description: "Modelo 3D del monumento principal del lugar",
+            is_active: true,
+            sort_order: 1
+        },
+        {
+            id: 2,
+            title: "Estructura Histórica",
+            model_path: "/images/3d/1.glb",
+            thumbnail: "placeholder-place.png",
+            description: "Recreación 3D de la estructura histórica",
+            is_active: true,
+            sort_order: 2
+        },
+        {
+            id: 3,
+            title: "Mapa del Territorio",
+            model_path: "/images/3d/1.glb",
+            thumbnail: "placeholder-place.png",
+            description: "Mapa 3D interactivo del territorio",
+            is_active: true,
+            sort_order: 3
+        },
+        {
+            id: 4,
+            title: "Artefacto Cultural",
+            model_path: "/images/3d/1.glb",
+            thumbnail: "placeholder-place.png",
+            description: "Modelo de artefacto cultural importante",
+            is_active: true,
+            sort_order: 4
+        }
+    ];
+
     return (
         <div className="min-h-screen bg-neutral-900 text-white" style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto" }}>
             <Head title={`${place.title} - Caraparí Turismo`} />
@@ -658,6 +709,65 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                                     </p>
                                                 </div>
                                             )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )
+                }
+
+                {/* Sección de Modelos 3D */}
+                {
+                    staticModels3D && staticModels3D.length > 0 && (
+                        <section className="mx-auto max-w-7xl px-6 py-16">
+                            <h2 className="text-3xl font-bold mb-8 text-center">Modelos 3D</h2>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {staticModels3D.map((model, index) => (
+                                    <div
+                                        key={model.id}
+                                        className="relative group cursor-pointer"
+                                        onClick={() => router.get(`/model-3d/${model.id}`)}
+                                    >
+                                        <div className="relative overflow-hidden rounded-xl bg-neutral-800 aspect-square">
+                                            {model.thumbnail ? (
+                                                <img
+                                                    src={`/storage/${model.thumbnail}`}
+                                                    alt={model.title}
+                                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).src = placeholderImage;
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center">
+                                                    <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.354 15.354A9 9 0 008.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                                    </svg>
+                                                </div>
+                                            )}
+
+                                            {/* Overlay */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 group-hover:opacity-80 transition-opacity duration-300"></div>
+
+                                            {/* 3D Icon */}
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <div className="bg-green-600/90 text-black rounded-full p-3">
+                                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+
+                                            {/* Title */}
+                                            <div className="absolute bottom-0 left-0 right-0 p-4">
+                                                <h3 className="text-white font-semibold truncate">{model.title}</h3>
+                                                {model.description && (
+                                                    <p className="text-neutral-300 text-xs mt-1 line-clamp-2">{model.description}</p>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

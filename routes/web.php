@@ -32,6 +32,31 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+// Servir archivos 3D (GLB models)
+Route::get('/images/3d/{filename}', function ($filename) {
+    $path = public_path("images/3d/{$filename}");
+    
+    // Validar que el archivo existe y es un .glb
+    if (!file_exists($path) || !str_ends_with($filename, '.glb')) {
+        abort(404);
+    }
+    
+    return response()
+        ->file($path)
+        ->header('Content-Type', 'model/gltf-binary')
+        ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+        ->header('Cache-Control', 'public, max-age=3600');
+})->name('models.3d');
+
+// Página de visualización de modelo 3D
+Route::get('/model-3d/{id}', function ($id) {
+    return Inertia::render('Model3D', [
+        'model' => [
+            'id' => $id,
+        ],
+    ]);
+})->name('model-3d.show');
+
 // Public places routes
 Route::get('/places', [PlaceController::class, 'index'])->name('places.index');
 Route::get('/places/{slug}', [PlaceController::class, 'show'])->name('places.show');
