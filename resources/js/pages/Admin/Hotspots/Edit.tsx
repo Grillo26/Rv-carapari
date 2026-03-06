@@ -1,4 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
+import Sphere360Picker from '@/components/Sphere360Picker';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
@@ -183,75 +184,64 @@ export default function HotspotEdit({ place, placeImage, hotspot, assets3d }: Pr
                                           </div>
                                    </div>
 
-                                   {/* Coordenadas */}
+                                   {/* Selector Visual 360° */}
+                                   <div className="mb-6">
+                                          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                                 Posición del Hotspot <span className="text-red-500">*</span>
+                                                 <span className="ml-2 font-normal text-gray-500 dark:text-gray-400 text-xs">— Arrastra para girar, haz clic para cambiar la posición</span>
+                                          </label>
+                                          <Sphere360Picker
+                                                 imageUrl={`/storage/${placeImage.image_path}`}
+                                                 initialPosition={{
+                                                        x: parseFloat(data.pos_x) || 0,
+                                                        y: parseFloat(data.pos_y) || 0,
+                                                        z: parseFloat(data.pos_z) || 0,
+                                                 }}
+                                                 onPick={(x, y, z) => {
+                                                        setData('pos_x', String(x));
+                                                        setData('pos_y', String(y));
+                                                        setData('pos_z', String(z));
+                                                 }}
+                                          />
+                                          {(errors.pos_x || errors.pos_y || errors.pos_z) && (
+                                                 <p className="text-red-500 text-sm mt-2">Debes seleccionar una posición haciendo clic en la imagen 360°</p>
+                                          )}
+                                   </div>
+
+                                   {/* Coordenadas capturadas (solo lectura) */}
                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                                           <div>
-                                                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                                                        Posición X *
+                                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+                                                        Posición X
                                                  </label>
                                                  <input
-                                                        type="number"
-                                                        step="0.01"
-                                                        value={data.pos_x}
-                                                        onChange={(e) => {
-                                                               setData('pos_x', e.target.value);
-                                                               clearError('pos_x');
-                                                        }}
-                                                        placeholder="0.00"
-                                                        className={`w-full px-4 py-2 rounded-lg border ${errors.pos_x
-                                                               ? 'border-red-500 dark:border-red-500'
-                                                               : 'border-gray-300 dark:border-gray-600'
-                                                               } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
+                                                        type="text"
+                                                        readOnly
+                                                        value={data.pos_x || '—'}
+                                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-700 text-gray-600 dark:text-gray-300 cursor-default select-none"
                                                  />
-                                                 {errors.pos_x && (
-                                                        <p className="text-red-500 text-sm mt-1">{errors.pos_x}</p>
-                                                 )}
                                           </div>
-
                                           <div>
-                                                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                                                        Posición Y *
+                                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+                                                        Posición Y
                                                  </label>
                                                  <input
-                                                        type="number"
-                                                        step="0.01"
-                                                        value={data.pos_y}
-                                                        onChange={(e) => {
-                                                               setData('pos_y', e.target.value);
-                                                               clearError('pos_y');
-                                                        }}
-                                                        placeholder="0.00"
-                                                        className={`w-full px-4 py-2 rounded-lg border ${errors.pos_y
-                                                               ? 'border-red-500 dark:border-red-500'
-                                                               : 'border-gray-300 dark:border-gray-600'
-                                                               } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
+                                                        type="text"
+                                                        readOnly
+                                                        value={data.pos_y || '—'}
+                                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-700 text-gray-600 dark:text-gray-300 cursor-default select-none"
                                                  />
-                                                 {errors.pos_y && (
-                                                        <p className="text-red-500 text-sm mt-1">{errors.pos_y}</p>
-                                                 )}
                                           </div>
-
                                           <div>
-                                                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                                                        Posición Z *
+                                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+                                                        Posición Z
                                                  </label>
                                                  <input
-                                                        type="number"
-                                                        step="0.01"
-                                                        value={data.pos_z}
-                                                        onChange={(e) => {
-                                                               setData('pos_z', e.target.value);
-                                                               clearError('pos_z');
-                                                        }}
-                                                        placeholder="0.00"
-                                                        className={`w-full px-4 py-2 rounded-lg border ${errors.pos_z
-                                                               ? 'border-red-500 dark:border-red-500'
-                                                               : 'border-gray-300 dark:border-gray-600'
-                                                               } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
+                                                        type="text"
+                                                        readOnly
+                                                        value={data.pos_z || '—'}
+                                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-700 text-gray-600 dark:text-gray-300 cursor-default select-none"
                                                  />
-                                                 {errors.pos_z && (
-                                                        <p className="text-red-500 text-sm mt-1">{errors.pos_z}</p>
-                                                 )}
                                           </div>
                                    </div>
 
