@@ -103,7 +103,7 @@ export default function Model3DPage({ model }: Model3DPageProps) {
                                                         modelPath={currentModel.model_path}
                                                         title={currentModel.title}
                                                         description={currentModel.description}
-                                                        autoRotate={true}
+                                                        autoRotate={false}
                                                  />
                                           </div>
                                    </div>

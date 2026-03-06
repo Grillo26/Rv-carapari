@@ -50,7 +50,7 @@ export default function Model3DViewer({
        modelPath,
        title,
        description,
-       autoRotate = true
+       autoRotate = false //Para desactivar la autorotacion
 }: Model3DViewerProps) {
        const [isLoading, setIsLoading] = useState(true);
        const canvasRef = useRef(null);
