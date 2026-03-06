@@ -17,14 +17,87 @@ class HotspotController extends Controller
      */
     public function index(Place $place, PlaceImage $image)
     {
-        // Cargar hotspots con relaciones
-        $hotspots = $image->hotspots()->with('asset3d')->ordered()->get();
+        // Cargar hotspots con relaciones y paginación
+        $hotspots = $image->hotspots()
+            ->with('asset3d')
+            ->ordered()
+            ->paginate(15);
+
+        // Convertir a array y asegurar que las relaciones se incluyen
+        $hotspotsData = $hotspots->items();
+        
+        // Re-cargar las relaciones si es necesario
+        foreach ($hotspotsData as $hotspot) {
+            if (!$hotspot->asset3d) {
+                $hotspot->load('asset3d');
+            }
+        }
 
         return Inertia::render('Admin/Hotspots/Index', [
             'place' => $place,
-            'image' => $image,
-            'hotspots' => $hotspots,
+            'placeImage' => $image,
+            'hotspots' => [
+                'data' => $hotspotsData,
+                'pagination' => [
+                    'current_page' => $hotspots->currentPage(),
+                    'last_page' => $hotspots->lastPage(),
+                    'per_page' => $hotspots->perPage(),
+                    'total' => $hotspots->total(),
+                    'from' => $hotspots->firstItem(),
+                    'to' => $hotspots->lastItem(),
+                ],
+                'links' => $this->generatePaginationLinks($hotspots),
+            ],
         ]);
+    }
+
+    /**
+     * Generate pagination links manually
+     */
+    private function generatePaginationLinks($paginator)
+    {
+        $links = [];
+        
+        // Previous link
+        if ($paginator->onFirstPage()) {
+            $links[] = [
+                'url' => null,
+                'label' => '&laquo; Anterior',
+                'active' => false,
+            ];
+        } else {
+            $links[] = [
+                'url' => $paginator->previousPageUrl(),
+                'label' => '&laquo; Anterior',
+                'active' => false,
+            ];
+        }
+
+        // Page number links
+        foreach ($paginator->getUrlRange(1, $paginator->lastPage()) as $page => $url) {
+            $links[] = [
+                'url' => $url,
+                'label' => (string)$page,
+                'active' => $page === $paginator->currentPage(),
+            ];
+        }
+
+        // Next link
+        if ($paginator->hasMorePages()) {
+            $links[] = [
+                'url' => $paginator->nextPageUrl(),
+                'label' => 'Siguiente &raquo;',
+                'active' => false,
+            ];
+        } else {
+            $links[] = [
+                'url' => null,
+                'label' => 'Siguiente &raquo;',
+                'active' => false,
+            ];
+        }
+
+        return $links;
     }
 
     /**
@@ -37,7 +110,7 @@ class HotspotController extends Controller
 
         return Inertia::render('Admin/Hotspots/Create', [
             'place' => $place,
-            'image' => $image,
+            'placeImage' => $image,
             'assets3d' => $assets3d,
         ]);
     }
@@ -68,7 +141,7 @@ class HotspotController extends Controller
         $hotspot = PlaceImageHotspot::create($validated);
 
         return redirect()
-            ->route('admin.hotspots.index', [$place, $image])
+            ->route('admin.places.images.hotspots.index', [$place, $image])
             ->with('success', 'Hotspot creado exitosamente');
     }
 
@@ -87,7 +160,7 @@ class HotspotController extends Controller
 
         return Inertia::render('Admin/Hotspots/Edit', [
             'place' => $place,
-            'image' => $image,
+            'placeImage' => $image,
             'hotspot' => $hotspot->load('asset3d'),
             'assets3d' => $assets3d,
         ]);
@@ -119,7 +192,7 @@ class HotspotController extends Controller
         $hotspot->update($validated);
 
         return redirect()
-            ->route('admin.hotspots.index', [$place, $image])
+            ->route('admin.places.images.hotspots.index', [$place, $image])
             ->with('success', 'Hotspot actualizado exitosamente');
     }
 
@@ -136,7 +209,7 @@ class HotspotController extends Controller
         $hotspot->delete();
 
         return redirect()
-            ->route('admin.hotspots.index', [$place, $image])
+            ->route('admin.places.images.hotspots.index', [$place, $image])
             ->with('success', 'Hotspot eliminado exitosamente');
     }
 
@@ -155,7 +228,7 @@ class HotspotController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.hotspots.index', [$place, $image])
+            ->route('admin.places.images.hotspots.index', [$place, $image])
             ->with('success', 'Estado del hotspot actualizado');
     }
 }

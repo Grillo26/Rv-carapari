@@ -15,7 +15,7 @@ class Asset3dController extends Controller
      */
     public function index()
     {
-        $assets = Asset3d::ordered()->paginate(15);
+        $assets = Asset3d::paginate(10);
 
         return Inertia::render('Admin/Assets3d/Index', [
             'assets' => $assets,

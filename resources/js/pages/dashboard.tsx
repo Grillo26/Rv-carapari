@@ -83,6 +83,42 @@ export default function Dashboard({
                     </div>
                 </div>
 
+                {/* Quick Actions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Link
+                        href="/admin/places"
+                        className="p-6 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 hover:shadow-lg dark:hover:shadow-lg dark:hover:shadow-blue-500/20 transition-shadow"
+                    >
+                        <div className="text-2xl mb-2">📍</div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Lugares</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Gestionar lugares</p>
+                    </Link>
+                    <Link
+                        href="/admin/reviews"
+                        className="p-6 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 hover:shadow-lg dark:hover:shadow-lg dark:hover:shadow-blue-500/20 transition-shadow"
+                    >
+                        <div className="text-2xl mb-2">⭐</div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Reseñas</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Moderar reseñas</p>
+                    </Link>
+                    <Link
+                        href="/admin/assets3d"
+                        className="p-6 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 hover:shadow-lg dark:hover:shadow-lg dark:hover:shadow-purple-500/20 transition-shadow"
+                    >
+                        <div className="text-2xl mb-2">🎯</div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Modelos 3D</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Gestionar modelos</p>
+                    </Link>
+                    <Link
+                        href="/admin"
+                        className="p-6 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 hover:shadow-lg dark:hover:shadow-lg dark:hover:shadow-green-500/20 transition-shadow"
+                    >
+                        <div className="text-2xl mb-2">⚙️</div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Configuración</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Ajustes del sistema</p>
+                    </Link>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Top Rated Places */}
                     <div className="relative p-6 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900">

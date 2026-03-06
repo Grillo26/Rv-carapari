@@ -356,6 +356,16 @@ function ImageCard({ image, place, onToggleActive, onDelete }: ImageCardProps) {
                                           Editar
                                    </Link>
 
+                                   {image.type === 'main_360' && (
+                                          <Link
+                                                 href={`/admin/places/${place.id}/images/${image.id}/hotspots`}
+                                                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50 rounded-md text-xs font-medium transition-colors"
+                                          >
+                                                 <span>🎯</span>
+                                                 Puntos
+                                          </Link>
+                                   )}
+
                                    <button
                                           onClick={onToggleActive}
                                           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${image.is_active

@@ -36,6 +36,6 @@ class DatabaseSeeder extends Seeder
         );
 
         // Seed places
-        $this->call(PlacesSeeder::class);
+        //$this->call(PlacesSeeder::class);
     }
 }
