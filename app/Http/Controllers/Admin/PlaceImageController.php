@@ -44,9 +44,10 @@ class PlaceImageController extends Controller
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'image' => 'required|image|max:10240',
+            'type' => 'nullable|in:main_360,gallery,thumbnail',
             'is_main' => 'boolean',
             'is_active' => 'boolean',
-            'sort_order' => 'integer|min:1', // Mínimo 1 en lugar de 0
+            'sort_order' => 'integer|min:1',
         ]);
 
         // Si no se especifica sort_order, usar el siguiente número disponible
@@ -66,16 +67,18 @@ class PlaceImageController extends Controller
         $imagePath = $request->file('image')->store('places/360/' . $place->slug, 'public');
 
         $place->images()->create([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
+            'title' => $validated['title'] ?? null,
+            'description' => $validated['description'] ?? null,
             'image_path' => $imagePath,
+            'type' => $validated['type'] ?? 'main_360',
             'is_main' => $validated['is_main'] ?? false,
             'is_active' => $validated['is_active'] ?? true,
             'sort_order' => $validated['sort_order'],
         ]);
 
+        $typeLabel = $validated['type'] === 'gallery' ? 'Foto al Álbum' : 'Imagen 360°';
         return redirect()->route('admin.places.images.index', $place)
-            ->with('success', 'Imagen 360° agregada exitosamente.');
+            ->with('success', $typeLabel . ' agregada exitosamente.');
     }
 
     /**
@@ -118,9 +121,10 @@ class PlaceImageController extends Controller
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:10240',
+            'type' => 'nullable|in:main_360,gallery,thumbnail',
             'is_main' => 'boolean',
             'is_active' => 'boolean',
-            'sort_order' => 'integer|min:1', // Mínimo 1 en lugar de 0
+            'sort_order' => 'integer|min:1',
         ]);
 
         // If this is set as main, remove main flag from other images
@@ -137,10 +141,27 @@ class PlaceImageController extends Controller
             $validated['image_path'] = $request->file('image')->store('places/360/' . $place->slug, 'public');
         }
 
-        $image->update($validated);
+        // Use null-safe access for optional fields
+        $updateData = [
+            'title' => $validated['title'] ?? $image->title,
+            'description' => array_key_exists('description', $validated) ? $validated['description'] : $image->description,
+            'is_main' => $validated['is_main'] ?? $image->is_main,
+            'is_active' => $validated['is_active'] ?? $image->is_active,
+            'sort_order' => $validated['sort_order'] ?? $image->sort_order,
+        ];
+
+        if (isset($validated['image_path'])) {
+            $updateData['image_path'] = $validated['image_path'];
+        }
+
+        if (isset($validated['type'])) {
+            $updateData['type'] = $validated['type'];
+        }
+
+        $image->update($updateData);
 
         return redirect()->route('admin.places.images.index', $place)
-            ->with('success', 'Imagen 360° actualizada exitosamente.');
+            ->with('success', 'Imagen actualizada exitosamente.');
     }
 
     /**

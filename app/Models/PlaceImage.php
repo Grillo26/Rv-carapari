@@ -12,6 +12,7 @@ class PlaceImage extends Model
         'title',
         'image_path',
         'description',
+        'type',
         'is_main',
         'is_active',
         'sort_order',

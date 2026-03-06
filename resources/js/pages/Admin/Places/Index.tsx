@@ -426,7 +426,7 @@ function PlaceCard({ place, onToggleAvailability, onDelete }: PlaceCardProps) {
                                                         className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg font-medium text-sm transition-colors"
                                                  >
                                                         <Images className="h-4 w-4" />
-                                                        Imágenes 360°
+                                                        Gestionar Imagenes
                                                  </Link>
 
                                                  <button

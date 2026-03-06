@@ -18,6 +18,7 @@ return new class extends Migration
                 $table->string('title')->nullable();
                 $table->string('image_path');
                 $table->text('description')->nullable();
+                $table->enum('type', ['gallery', 'main_360', 'thumbnail'])->default('gallery');
                 $table->boolean('is_main')->default(false);
                 $table->boolean('is_active')->default(true);
                 $table->integer('sort_order')->default(0);

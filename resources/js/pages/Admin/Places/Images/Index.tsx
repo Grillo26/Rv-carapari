@@ -25,6 +25,7 @@ interface PlaceImage {
        title: string | null;
        image_path: string;
        description: string | null;
+       type: 'main_360' | 'gallery' | 'thumbnail';
        is_main: boolean;
        is_active: boolean;
        sort_order: number;
@@ -111,34 +112,53 @@ export default function PlaceImagesIndex({ place }: PlaceImagesIndexProps) {
                                           </Link>
                                    </div>
 
-                                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                                           <div>
                                                  <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                                                         <Camera className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                                                        Imágenes 360° - {place.title}
+                                                        Galería de Imágenes - {place.title}
                                                  </h1>
                                                  <p className="mt-2 text-gray-600 dark:text-gray-400">
-                                                        Gestiona las experiencias inmersivas de este lugar turístico
+                                                        Gestiona imágenes 360° y el álbum de fotos de este lugar turístico
                                                  </p>
                                           </div>
-                                          <Link
-                                                 href={`/admin/places/${place.id}/images/create`}
-                                                 className="mt-4 lg:mt-0 inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50"
-                                          >
-                                                 <Plus className="h-5 w-5" />
-                                                 Agregar Imagen 360°
-                                          </Link>
+                                          <div className="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-0">
+                                                 <Link
+                                                        href={`/admin/places/${place.id}/images/create?type=main_360`}
+                                                        className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50"
+                                                 >
+                                                        <Plus className="h-5 w-5" />
+                                                        Agregar Imagen 360°
+                                                 </Link>
+                                                 <Link
+                                                        href={`/admin/places/${place.id}/images/create?type=gallery`}
+                                                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50"
+                                                 >
+                                                        <Plus className="h-5 w-5" />
+                                                        Agregar Foto al Álbum
+                                                 </Link>
+                                          </div>
                                    </div>
 
                                    {/* Stats Cards */}
-                                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                           <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
                                                  <div className="flex items-center justify-between">
                                                         <div>
-                                                               <p className="text-sm font-medium text-purple-100">Total Imágenes</p>
-                                                               <p className="text-2xl font-bold">{place.images.length}</p>
+                                                               <p className="text-sm font-medium text-purple-100">Imágenes 360°</p>
+                                                               <p className="text-2xl font-bold">{place.images.filter(img => img.type === 'main_360').length}</p>
                                                         </div>
                                                         <Camera className="h-8 w-8 text-purple-200" />
+                                                 </div>
+                                          </div>
+
+                                          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                                                 <div className="flex items-center justify-between">
+                                                        <div>
+                                                               <p className="text-sm font-medium text-blue-100">Fotos del Álbum</p>
+                                                               <p className="text-2xl font-bold">{place.images.filter(img => img.type === 'gallery').length}</p>
+                                                        </div>
+                                                        <Eye className="h-8 w-8 text-blue-200" />
                                                  </div>
                                           </div>
 
@@ -150,51 +170,43 @@ export default function PlaceImagesIndex({ place }: PlaceImagesIndexProps) {
                                                                       {place.images.filter(img => img.is_active).length}
                                                                </p>
                                                         </div>
-                                                        <Eye className="h-8 w-8 text-green-200" />
+                                                        <ToggleRight className="h-8 w-8 text-green-200" />
                                                  </div>
                                           </div>
-
-                                          {/* Estadísticas de imagen principal comentadas para uso futuro */}
-                                          {/* <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-yellow-100">Principal</p>
-                                    <p className="text-2xl font-bold">
-                                        {place.images.filter(img => img.is_main).length}
-                                    </p>
-                                </div>
-                                <Star className="h-8 w-8 text-yellow-200" />
-                            </div>
-                        </div> 
-
-                                                 <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-4 text-white">
-                                                        <div className="flex items-center justify-between">
-                                                               <div>
-                                                                      <p className="text-sm font-medium text-red-100">Inactivas</p>
-                                                                      <p className="text-2xl font-bold">
-                                                                             {place.images.filter(img => !img.is_active).length}
-                                                                      </p>
-                                                               </div>
-                                                               <ToggleLeft className="h-8 w-8 text-red-200" />
-                                                        </div>
-                                                 </div>
-                                   </div>*/}
                                    </div>
+                            </div>
 
-                                   {/* Content */}
+                            {/* Content - Imágenes 360° */}
+                            <div className="mt-8">
+                                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+                                          <span className="text-purple-600 dark:text-purple-400">🌐</span>
+                                          Imágenes 360°
+                                   </h2>
                                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50">
-                                          {place.images.length === 0 ? (
-                                                 <EmptyState placeId={place.id} />
+                                          {place.images.filter(img => img.type === 'main_360').length === 0 ? (
+                                                 <div className="text-center py-16">
+                                                        <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">🌐</div>
+                                                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No hay imágenes 360° registradas</h3>
+                                                        <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+                                                               Comienza agregando tu primera imagen 360° para crear experiencias inmersivas
+                                                        </p>
+                                                        <Link
+                                                               href={`/admin/places/${place.id}/images/create?type=main_360`}
+                                                               className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-medium px-6 py-3 rounded-lg transition-all"
+                                                        >
+                                                               <Upload className="h-5 w-5" />
+                                                               Agregar Primera Imagen 360°
+                                                        </Link>
+                                                 </div>
                                           ) : (
                                                  <div className="p-6">
                                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                               {place.images.map((image) => (
+                                                               {place.images.filter(img => img.type === 'main_360').map((image) => (
                                                                       <ImageCard
                                                                              key={image.id}
                                                                              image={image}
                                                                              place={place}
                                                                              onToggleActive={() => handleToggleActive(image)}
-                                                                             // onSetAsMain={() => handleSetAsMain(image)} // Comentado para uso futuro
                                                                              onDelete={() => handleDeleteClick(image)}
                                                                       />
                                                                ))}
@@ -204,55 +216,69 @@ export default function PlaceImagesIndex({ place }: PlaceImagesIndexProps) {
                                    </div>
                             </div>
 
-                            {/* Delete Modal */}
-                            <ConfirmDeleteModal
-                                   isOpen={deleteModal.isOpen}
-                                   onClose={handleDeleteCancel}
-                                   onConfirm={handleDeleteConfirm}
-                                   title="Eliminar Imagen 360°"
-                                   message="¿Estás seguro de que deseas eliminar esta imagen 360°? Esta acción no se puede deshacer."
-                                   itemName={deleteModal.image?.title || 'Imagen sin título'}
-                                   isDeleting={deleteModal.isDeleting}
-                            />
+                            {/* Content - Álbum de Fotos */}
+                            <div className="mt-12">
+                                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+                                          <span className="text-blue-600 dark:text-blue-400">📸</span>
+                                          Álbum de Fotos
+                                   </h2>
+                                   <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50">
+                                          {place.images.filter(img => img.type === 'gallery').length === 0 ? (
+                                                 <div className="text-center py-16">
+                                                        <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">📷</div>
+                                                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No hay fotos en el álbum</h3>
+                                                        <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+                                                               Agrega fotos para crear un álbum atractivo de este lugar turístico
+                                                        </p>
+                                                        <Link
+                                                               href={`/admin/places/${place.id}/images/create?type=gallery`}
+                                                               className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-all"
+                                                        >
+                                                               <Upload className="h-5 w-5" />
+                                                               Agregar Primera Foto
+                                                        </Link>
+                                                 </div>
+                                          ) : (
+                                                 <div className="p-6">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                               {place.images.filter(img => img.type === 'gallery').map((image) => (
+                                                                      <ImageCard
+                                                                             key={image.id}
+                                                                             image={image}
+                                                                             place={place}
+                                                                             onToggleActive={() => handleToggleActive(image)}
+                                                                             onDelete={() => handleDeleteClick(image)}
+                                                                      />
+                                                               ))}
+                                                        </div>
+                                                 </div>
+                                          )}
+                                   </div>
+                            </div>
                      </div>
+
+                     <ConfirmDeleteModal
+                            isOpen={deleteModal.isOpen}
+                            onClose={handleDeleteCancel}
+                            onConfirm={handleDeleteConfirm}
+                            title="Eliminar Imagen"
+                            message="¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer."
+                            itemName={deleteModal.image?.title || 'Imagen sin título'}
+                            isDeleting={deleteModal.isDeleting}
+                     />
               </AppLayout>
        );
 }
 
-interface EmptyStateProps {
-       placeId: number;
-}
-
-function EmptyState({ placeId }: EmptyStateProps) {
-       return (
-              <div className="text-center py-16">
-                     <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">📷</div>
-                     <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                            No hay imágenes 360° registradas
-                     </h3>
-                     <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
-                            Comienza agregando la primera imagen 360° para crear experiencias inmersivas
-                     </p>
-                     <Link
-                            href={`/admin/places/${placeId}/images/create`}
-                            className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-medium px-6 py-3 rounded-lg transition-all"
-                     >
-                            <Upload className="h-5 w-5" />
-                            Agregar Primera Imagen 360°
-                     </Link>
-              </div>
-       );
-}
 
 interface ImageCardProps {
        image: PlaceImage;
        place: Place;
        onToggleActive: () => void;
-       // onSetAsMain: () => void; // Comentado para uso futuro
        onDelete: () => void;
 }
 
-function ImageCard({ image, place, onToggleActive, /* onSetAsMain, */ onDelete }: ImageCardProps) { // onSetAsMain comentado para uso futuro
+function ImageCard({ image, place, onToggleActive, onDelete }: ImageCardProps) {
        const placeholderImage = "/images/placeholder-360.jpg";
        const imageUrl = `/storage/${image.image_path}`;
 
@@ -272,13 +298,13 @@ function ImageCard({ image, place, onToggleActive, /* onSetAsMain, */ onDelete }
 
                             {/* Badges */}
                             <div className="absolute top-3 left-3 flex flex-col gap-2">
-                                   {/* Badge de imagen principal comentado para uso futuro */}
-                                   {/* {image.is_main && (
-                                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100/90 dark:bg-yellow-900/90 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-700 backdrop-blur-sm">
-                                                 <Star className="h-3 w-3" />
-                                                 Principal
-                                          </span>
-                                   )} */}
+                                   {/* Badge de tipo de imagen */}
+                                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${image.type === 'main_360'
+                                          ? 'bg-purple-100/90 dark:bg-purple-900/90 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-700'
+                                          : 'bg-blue-100/90 dark:bg-blue-900/90 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700'
+                                          }`}>
+                                          {image.type === 'main_360' ? '🌐 360°' : '📸 Álbum'}
+                                   </span>
                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${image.is_active
                                           ? 'bg-green-100/90 dark:bg-green-900/90 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700'
                                           : 'bg-red-100/90 dark:bg-red-900/90 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700'
@@ -327,17 +353,6 @@ function ImageCard({ image, place, onToggleActive, /* onSetAsMain, */ onDelete }
                                           <Edit className="h-3 w-3" />
                                           Editar
                                    </Link>
-
-                                   {/* Funcionalidad de imagen principal comentada para uso futuro */}
-                                   {/* {!image.is_main && (
-                                          <button
-                                                 onClick={onSetAsMain}
-                                                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 rounded-md text-xs font-medium transition-colors"
-                                          >
-                                                 <Star className="h-3 w-3" />
-                                                 Principal
-                                          </button>
-                                   )} */}
 
                                    <button
                                           onClick={onToggleActive}
