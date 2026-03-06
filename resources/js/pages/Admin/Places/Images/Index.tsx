@@ -313,16 +313,18 @@ function ImageCard({ image, place, onToggleActive, onDelete }: ImageCardProps) {
                                    </span>
                             </div>
 
-                            {/* View 360 Button */}
-                            <div className="absolute bottom-3 right-3">
-                                   <Link
-                                          href={`/vr?image=${encodeURIComponent(imageUrl)}&place_id=${place.id}`}
-                                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-200 backdrop-blur-sm border border-white/20 dark:border-gray-600/20 hover:bg-white dark:hover:bg-gray-800 transition-colors"
-                                   >
-                                          <Eye className="h-3 w-3" />
-                                          Ver 360°
-                                   </Link>
-                            </div>
+                            {/* View 360 Button - Only for 360° images */}
+                            {image.type === 'main_360' && (
+                                   <div className="absolute bottom-3 right-3">
+                                          <Link
+                                                 href={`/vr?image=${encodeURIComponent(imageUrl)}&place_id=${place.id}`}
+                                                 className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-200 backdrop-blur-sm border border-white/20 dark:border-gray-600/20 hover:bg-white dark:hover:bg-gray-800 transition-colors"
+                                          >
+                                                 <Eye className="h-3 w-3" />
+                                                 Ver 360°
+                                          </Link>
+                                   </div>
+                            )}
                      </div>
 
                      {/* Content */}

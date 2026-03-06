@@ -15,6 +15,7 @@ interface PlaceImage {
        title: string | null;
        image_path: string;
        description: string | null;
+       type: 'main_360' | 'gallery' | 'thumbnail';
        is_main: boolean;
        is_active: boolean;
        sort_order: number;
@@ -148,7 +149,7 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                      { title: 'Imágenes 360°', href: `/admin/places/${place.id}/images` },
                      { title: 'Editar Imagen', href: `/admin/places/${place.id}/images/${placeImage.id}/edit` }
               ]}>
-                     <Head title={`Admin - Editar Imagen 360° de ${place.title}`} />
+                     <Head title={`Admin - Editar ${placeImage.type === 'main_360' ? 'Imagen 360°' : 'Foto del Álbum'} de ${place.title}`} />
 
                      <div className="p-6">
                             {/* Header */}
@@ -164,10 +165,10 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                    </div>
 
                                    <div className="flex items-center gap-3">
-                                          <Camera className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                                          <Camera className={`h-8 w-8 ${placeImage.type === 'main_360' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'}`} />
                                           <div>
                                                  <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                                                        Editar Imagen 360°
+                                                        {placeImage.type === 'main_360' ? 'Editar Imagen 360°' : 'Editar Foto del Álbum'}
                                                  </h1>
                                                  <p className="mt-1 text-gray-600 dark:text-gray-400">
                                                         Lugar: <span className="font-medium text-gray-900 dark:text-gray-100">{place.title}</span>
@@ -193,14 +194,16 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                                  }`}>
                                                  {placeImage.is_active ? '✓ Activa' : '✕ Inactiva'}
                                           </span>
-                                          <button
-                                                 type="button"
-                                                 onClick={viewImage360}
-                                                 className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-full text-xs font-medium transition-colors"
-                                          >
-                                                 <Eye className="h-3 w-3" />
-                                                 Ver 360°
-                                          </button>
+                                          {placeImage.type === 'main_360' && (
+                                                 <button
+                                                        type="button"
+                                                        onClick={viewImage360}
+                                                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-full text-xs font-medium transition-colors"
+                                                 >
+                                                        <Eye className="h-3 w-3" />
+                                                        Ver 360°
+                                                 </button>
+                                          )}
                                    </div>
                             </div>
 
@@ -237,24 +240,26 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                                                              )}
                                                                       </div>
 
-                                                                      {/* Description */}
-                                                                      <div>
-                                                                             <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                                                    Descripción
-                                                                             </label>
-                                                                             <textarea
-                                                                                    id="description"
-                                                                                    name="description"
-                                                                                    rows={4}
-                                                                                    value={formData.description}
-                                                                                    onChange={handleInputChange}
-                                                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                                                                                    placeholder="Describe lo que se puede ver en esta imagen 360°..."
-                                                                             />
-                                                                             {errors.description && (
-                                                                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
-                                                                             )}
-                                                                      </div>
+                                                                      {/* Description - Only for 360° images */}
+                                                                      {placeImage.type === 'main_360' && (
+                                                                             <div>
+                                                                                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                                                           Descripción
+                                                                                    </label>
+                                                                                    <textarea
+                                                                                           id="description"
+                                                                                           name="description"
+                                                                                           rows={4}
+                                                                                           value={formData.description}
+                                                                                           onChange={handleInputChange}
+                                                                                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                                                                           placeholder="Describe lo que se puede ver en esta imagen 360°..."
+                                                                                    />
+                                                                                    {errors.description && (
+                                                                                           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
+                                                                                    )}
+                                                                             </div>
+                                                                      )}
 
                                                                       {/* Sort Order */}
                                                                       <div>
@@ -340,8 +345,8 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                                  <div>
                                                         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700">
                                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                                                                      <Upload className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                                                                      Imagen 360°
+                                                                      <Upload className={`h-5 w-5 ${placeImage.type === 'main_360' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                                                                      {placeImage.type === 'main_360' ? 'Imagen 360°' : 'Foto del Álbum'}
                                                                </h3>
 
                                                                {/* Current or new image */}
@@ -349,21 +354,23 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                                                       <div className="relative">
                                                                              <img
                                                                                     src={imagePreview || currentImageUrl}
-                                                                                    alt="Imagen 360°"
+                                                                                    alt={placeImage.type === 'main_360' ? 'Imagen 360°' : 'Foto del Álbum'}
                                                                                     className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
                                                                                     onError={(e) => {
                                                                                            (e.target as HTMLImageElement).src = '/images/placeholder-360.jpg';
                                                                                     }}
                                                                              />
                                                                              <div className="absolute top-2 right-2 flex gap-2">
-                                                                                    <button
-                                                                                           type="button"
-                                                                                           onClick={viewImage360}
-                                                                                           className="p-2 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors"
-                                                                                           title="Ver imagen 360°"
-                                                                                    >
-                                                                                           <Eye className="h-4 w-4" />
-                                                                                    </button>
+                                                                                    {placeImage.type === 'main_360' && (
+                                                                                           <button
+                                                                                                  type="button"
+                                                                                                  onClick={viewImage360}
+                                                                                                  className="p-2 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors"
+                                                                                                  title="Ver imagen 360°"
+                                                                                           >
+                                                                                                  <Eye className="h-4 w-4" />
+                                                                                           </button>
+                                                                                    )}
                                                                                     {imagePreview && (
                                                                                            <button
                                                                                                   type="button"
@@ -439,7 +446,7 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                                  <button
                                                         type="submit"
                                                         disabled={isSubmitting}
-                                                        className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50"
+                                                        className={`inline-flex items-center gap-2 px-6 py-3 ${placeImage.type === 'main_360' ? 'bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600' : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'} disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50`}
                                                  >
                                                         {isSubmitting ? (
                                                                <>
@@ -449,7 +456,7 @@ export default function EditPlaceImage({ place, placeImage }: EditPlaceImageProp
                                                         ) : (
                                                                <>
                                                                       <Upload className="h-5 w-5" />
-                                                                      Actualizar Imagen 360°
+                                                                      Actualizar {placeImage.type === 'main_360' ? 'Imagen 360°' : 'Foto del Álbum'}
                                                                </>
                                                         )}
                                                  </button>
