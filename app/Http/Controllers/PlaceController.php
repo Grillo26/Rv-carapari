@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Asset3d;
 use App\Models\Place;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -58,8 +59,12 @@ class PlaceController extends Controller
         // Get approved reviews
         $place->reviews = $place->approvedReviews()->with('user')->latest()->get();
 
+        // Get all active 3D assets
+        $assets3d = Asset3d::active()->ordered()->get();
+
         return Inertia::render('Places/[slug]', [
-            'place' => $place,
+            'place'    => $place,
+            'assets3d' => $assets3d,
         ]);
     }
 }

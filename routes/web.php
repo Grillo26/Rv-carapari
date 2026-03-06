@@ -51,10 +51,14 @@ Route::get('/images/3d/{filename}', function ($filename) {
 
 // Página de visualización de modelo 3D
 Route::get('/model-3d/{id}', function ($id) {
+    $model = \App\Models\Asset3d::findOrFail($id);
+    $allAssets = \App\Models\Asset3d::active()->ordered()->get();
+    $modelExists = \Illuminate\Support\Facades\Storage::disk('public')->exists($model->model_path);
+
     return Inertia::render('Model3D', [
-        'model' => [
-            'id' => $id,
-        ],
+        'model'       => $model,
+        'allAssets'   => $allAssets,
+        'modelExists' => $modelExists,
     ]);
 })->name('model-3d.show');
 
