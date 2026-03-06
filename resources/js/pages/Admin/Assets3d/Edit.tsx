@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Upload, Save, X } from 'lucide-react';
+import { ArrowLeft, Upload, Save, X, File } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 
 interface Asset3d {
@@ -17,7 +17,7 @@ interface Asset3d {
 interface FormErrors {
        name?: string;
        description?: string;
-       model_path?: string;
+       model_file?: string;
        sort_order?: string;
 }
 
@@ -27,20 +27,32 @@ interface EditAsset3dProps {
 
 export default function EditAsset3d({ asset }: EditAsset3dProps) {
        const { data, setData, put, processing, errors } = useForm({
-              name: asset.name,
-              description: asset.description || '',
-              model_path: asset.model_path,
-              is_active: asset.is_active,
-              sort_order: asset.sort_order,
+              name: asset?.name || '',
+              description: asset?.description || '',
+              model_file: null as File | null,
+              is_active: asset?.is_active ?? true,
+              sort_order: asset?.sort_order ?? 0,
        });
 
        const [errorMessages, setErrorMessages] = useState<FormErrors>({});
+       const [fileName, setFileName] = useState<string>('');
 
        const handleSubmit = (e: React.FormEvent) => {
               e.preventDefault();
               setErrorMessages({});
 
-              put(`/admin/assets3d/${asset.id}`, {
+              // Use router.post with FormData to support file uploads
+              const formData = new FormData();
+              formData.append('name', data.name);
+              formData.append('description', data.description);
+              if (data.model_file) {
+                     formData.append('model_file', data.model_file);
+              }
+              formData.append('is_active', String(data.is_active));
+              formData.append('sort_order', String(data.sort_order));
+              formData.append('_method', 'PUT');
+
+              router.post(`/admin/assets3d/${asset.id}`, formData, {
                      onError: (errors) => {
                             setErrorMessages(errors as FormErrors);
                      }
@@ -53,6 +65,26 @@ export default function EditAsset3d({ asset }: EditAsset3dProps) {
                      [field]: undefined
               }));
        };
+
+       const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                     if (!file.name.toLowerCase().endsWith('.glb')) {
+                            setErrorMessages(prev => ({
+                                   ...prev,
+                                   model_file: 'El archivo debe ser de tipo .glb'
+                            }));
+                            setFileName('');
+                            setData('model_file', null);
+                     } else {
+                            setData('model_file', file);
+                            setFileName(file.name);
+                            clearError('model_file');
+                     }
+              }
+       };
+
+       const currentFileName = asset.model_path ? asset.model_path.split('/').pop() || 'Archivo actual' : 'Sin archivo asignado';
 
        return (
               <AppLayout breadcrumbs={[
@@ -156,29 +188,52 @@ export default function EditAsset3d({ asset }: EditAsset3dProps) {
                                                                )}
                                                         </div>
 
-                                                        {/* Model Path */}
+                                                        {/* Model File Upload */}
                                                         <div>
-                                                               <label htmlFor="model_path" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                                      Ruta del Archivo (.glb) *
+                                                               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                                      Archivo del Modelo (.glb)
                                                                </label>
-                                                               <input
-                                                                      type="text"
-                                                                      id="model_path"
-                                                                      value={data.model_path}
-                                                                      onChange={(e) => {
-                                                                             setData('model_path', e.target.value);
-                                                                             clearError('model_path');
-                                                                      }}
-                                                                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-                                                                      placeholder="Ej: images/3d/monumento.glb"
-                                                                      disabled={processing}
-                                                               />
-                                                               <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                                                      La ruta debe ser relativa a la carpeta public. Los archivos .glb deben estar en public/images/3d/
-                                                               </p>
-                                                               {errorMessages.model_path && (
-                                                                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errorMessages.model_path}</p>
-                                                               )}
+
+                                                               <div className="space-y-3">
+                                                                      {/* Current File */}
+                                                                      <div className="p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-md">
+                                                                             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Archivo actual:</p>
+                                                                             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{currentFileName}</p>
+                                                                      </div>
+
+                                                                      {/* File Upload Area */}
+                                                                      <div>
+                                                                             <label htmlFor="model_file" className="block text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                                                                    Cambiar archivo (opcional):
+                                                                             </label>
+                                                                             <div className="relative">
+                                                                                    <input
+                                                                                           type="file"
+                                                                                           id="model_file"
+                                                                                           accept=".glb"
+                                                                                           onChange={handleFileChange}
+                                                                                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                                                           disabled={processing}
+                                                                                    />
+                                                                                    <div className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                                                                                           <File className="h-5 w-5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                                                                                           <div>
+                                                                                                  {fileName ? (
+                                                                                                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{fileName}</p>
+                                                                                                  ) : (
+                                                                                                         <p className="text-sm text-gray-500 dark:text-gray-400">Haz clic para seleccionar un archivo .glb</p>
+                                                                                                  )}
+                                                                                           </div>
+                                                                                    </div>
+                                                                             </div>
+                                                                             <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                                                                    Máximo 100MB. Solo se actualizará si seleccionas un nuevo archivo.
+                                                                             </p>
+                                                                             {errorMessages.model_file && (
+                                                                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errorMessages.model_file}</p>
+                                                                             )}
+                                                                      </div>
+                                                               </div>
                                                         </div>
                                                  </div>
                                           </div>

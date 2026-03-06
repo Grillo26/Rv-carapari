@@ -7,6 +7,7 @@ use App\Models\Asset3d;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Asset3dController extends Controller
 {
@@ -36,17 +37,37 @@ class Asset3dController extends Controller
     public function store(Request $request)
     {
         // Validar datos
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'model_path' => 'required|string|max:500',
-            'is_active' => 'boolean',
-            'sort_order' => 'integer|min:0',
+            'model_file' => 'required|file|max:102400',
+            'is_active' => 'nullable|in:0,1,true,false',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
 
+        // Validar extensión .glb manualmente
+        if ($request->hasFile('model_file')) {
+            $extension = strtolower($request->file('model_file')->getClientOriginalExtension());
+            if ($extension !== 'glb') {
+                return back()->withErrors(['model_file' => 'El archivo debe ser de tipo .glb'])->withInput();
+            }
+        }
+
+        $validated = $request->only(['name', 'description', 'is_active', 'sort_order']);
+
         // Asignar valores por defecto
-        $validated['is_active'] = $validated['is_active'] ?? true;
-        $validated['sort_order'] = $validated['sort_order'] ?? 0;
+        $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['sort_order'] = $request->integer('sort_order', 0);
+
+        // Handle file upload
+        if ($request->hasFile('model_file')) {
+            $filename = Str::random(40) . '.glb';
+            $modelPath = $request->file('model_file')->storeAs('3d-models', $filename, 'public');
+            $validated['model_path'] = $modelPath;
+        }
+
+        // Remove model_file from validated array as it's not a database field
+        unset($validated['model_file']);
 
         // Crear el asset
         Asset3d::create($validated);
@@ -72,13 +93,40 @@ class Asset3dController extends Controller
     public function update(Request $request, Asset3d $asset3d)
     {
         // Validar datos
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'model_path' => 'required|string|max:500',
-            'is_active' => 'boolean',
-            'sort_order' => 'integer|min:0',
+            'model_file' => 'nullable|file|max:102400',
+            'is_active' => 'nullable|in:0,1,true,false',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
+
+        // Validar extensión .glb manualmente si se sube un archivo
+        if ($request->hasFile('model_file')) {
+            $extension = strtolower($request->file('model_file')->getClientOriginalExtension());
+            if ($extension !== 'glb') {
+                return back()->withErrors(['model_file' => 'El archivo debe ser de tipo .glb'])->withInput();
+            }
+        }
+
+        $validated = $request->only(['name', 'description', 'is_active', 'sort_order']);
+        $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['sort_order'] = $request->integer('sort_order', 0);
+
+        // Handle file upload if a new file is provided
+        if ($request->hasFile('model_file')) {
+            // Delete old file if exists
+            if ($asset3d->model_path && Storage::disk('public')->exists($asset3d->model_path)) {
+                Storage::disk('public')->delete($asset3d->model_path);
+            }
+
+            $filename = Str::random(40) . '.glb';
+            $modelPath = $request->file('model_file')->storeAs('3d-models', $filename, 'public');
+            $validated['model_path'] = $modelPath;
+        }
+
+        // Remove model_file from validated array as it's not a database field
+        unset($validated['model_file']);
 
         // Actualizar el asset
         $asset3d->update($validated);
@@ -93,6 +141,11 @@ class Asset3dController extends Controller
      */
     public function destroy(Asset3d $asset3d)
     {
+        // Delete the file if it exists
+        if ($asset3d->model_path && Storage::disk('public')->exists($asset3d->model_path)) {
+            Storage::disk('public')->delete($asset3d->model_path);
+        }
+
         $asset3d->delete();
 
         return redirect()
