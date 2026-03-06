@@ -22,7 +22,8 @@ import {
     MessageSquare,
     Image as ImageIcon,
     Settings,
-    Star
+    Star,
+    Box
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -46,6 +47,11 @@ const mainNavItems: NavItem[] = [
         title: 'Reseñas y Calificaciones',
         href: '/admin/reviews',
         icon: MessageSquare,
+    },
+    {
+        title: 'Modelos 3D',
+        href: '/admin/assets3d',
+        icon: Box,
     },
 ];
 
