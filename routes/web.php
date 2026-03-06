@@ -119,7 +119,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             ->name('users.toggle-role');
 
         // 3D Assets management
-        Route::resource('assets3d', Asset3dController::class);
+        Route::resource('assets3d', Asset3dController::class)->parameters(['assets3d' => 'asset3d']);
         Route::patch('assets3d/{asset3d}/toggle-active', [Asset3dController::class, 'toggleActive'])
             ->name('assets3d.toggle-active');
 

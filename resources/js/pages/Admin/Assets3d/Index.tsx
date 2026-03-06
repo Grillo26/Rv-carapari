@@ -74,6 +74,8 @@ export default function Asset3dIndex({ assets = { data: [], links: [], meta: { c
               setDeleteModal(prev => ({ ...prev, isDeleting: true }));
 
               router.delete(`/admin/assets3d/${deleteModal.asset.id}`, {
+                     preserveState: true,
+                     preserveScroll: true,
                      onSuccess: () => {
                             setDeleteModal({ isOpen: false, asset: null, isDeleting: false });
                      },

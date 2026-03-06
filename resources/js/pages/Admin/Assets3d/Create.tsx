@@ -189,7 +189,7 @@ export default function CreateAsset3d() {
                                                                       </div>
                                                                </div>
                                                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                                                      Selecciona un archivo .glb (máximo 100MB). El archivo se guardará automáticamente en el servidor.
+                                                                      Selecciona un archivo .glb (máximo 256MB). El archivo se guardará automáticamente en el servidor.
                                                                </p>
                                                                {errorMessages.model_file && (
                                                                       <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errorMessages.model_file}</p>

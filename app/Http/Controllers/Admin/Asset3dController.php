@@ -40,7 +40,7 @@ class Asset3dController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'model_file' => 'required|file|max:102400',
+            'model_file' => 'required|file|max:262144',
             'is_active' => 'nullable|in:0,1,true,false',
             'sort_order' => 'nullable|integer|min:0',
         ]);
@@ -96,7 +96,7 @@ class Asset3dController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'model_file' => 'nullable|file|max:102400',
+            'model_file' => 'nullable|file|max:262144',
             'is_active' => 'nullable|in:0,1,true,false',
             'sort_order' => 'nullable|integer|min:0',
         ]);

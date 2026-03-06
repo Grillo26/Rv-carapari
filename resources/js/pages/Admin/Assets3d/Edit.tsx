@@ -227,7 +227,7 @@ export default function EditAsset3d({ asset }: EditAsset3dProps) {
                                                                                     </div>
                                                                              </div>
                                                                              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                                                                    Máximo 100MB. Solo se actualizará si seleccionas un nuevo archivo.
+                                                                                    Máximo 256MB. Solo se actualizará si seleccionas un nuevo archivo.
                                                                              </p>
                                                                              {errorMessages.model_file && (
                                                                                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errorMessages.model_file}</p>
