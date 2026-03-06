@@ -23,15 +23,12 @@ class HotspotController extends Controller
             ->ordered()
             ->paginate(15);
 
-        // Convertir a array y asegurar que las relaciones se incluyen
-        $hotspotsData = $hotspots->items();
-        
-        // Re-cargar las relaciones si es necesario
-        foreach ($hotspotsData as $hotspot) {
-            if (!$hotspot->asset3d) {
-                $hotspot->load('asset3d');
-            }
-        }
+        // Mapear al formato que espera el frontend (asset3d → asset_3d)
+        $hotspotsData = collect($hotspots->items())->map(function ($hotspot) {
+            $arr = $hotspot->toArray();
+            $arr['asset_3d'] = $hotspot->asset3d ? $hotspot->asset3d->toArray() : null;
+            return $arr;
+        })->values()->all();
 
         return Inertia::render('Admin/Hotspots/Index', [
             'place' => $place,

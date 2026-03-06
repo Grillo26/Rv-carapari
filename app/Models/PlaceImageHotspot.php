@@ -42,7 +42,7 @@ class PlaceImageHotspot extends Model
      */
     public function asset3d(): BelongsTo
     {
-        return $this->belongsTo(Asset3d::class);
+        return $this->belongsTo(Asset3d::class, 'asset_3d_id');
     }
 
     /**
