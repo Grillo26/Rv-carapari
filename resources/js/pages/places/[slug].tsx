@@ -93,6 +93,13 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
     const [userVotes, setUserVotes] = useState<{ [key: number]: 'helpful' | 'unhelpful' | null }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [selectedImage, setSelectedImage] = useState<PlaceImage | null>(null);
+
+    // Bloquear scroll del fondo cuando el modal está abierto
+    useEffect(() => {
+        document.body.style.overflow = selectedImage ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [selectedImage]);
+
     // Estado para los votos de cada comentario
     const [reviewVoteCounts, setReviewVoteCounts] = useState<{ [key: number]: { helpful: number; unhelpful: number } }>({});
 
@@ -631,7 +638,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
 
                 {/* Mapa de Ubicación */}
                 {(place.latitude && place.longitude) && (
-                    <section className="mx-auto max-w-7xl px-6 py-16">
+                    <section className="mx-auto max-w-7xl px-6 py-16 isolate">
                         <h2 className="text-3xl font-bold mb-8 text-center">Ubicación</h2>
                         <div className="bg-neutral-800/60 rounded-2xl p-8">
                             <LocationMap
