@@ -88,7 +88,7 @@ const createBreadcrumbs = (placeId: number, imageId: number, placeName: string, 
        },
        {
               title: imageName,
-              href: `/admin/places/${placeId}/images/${imageId}`,
+              href: `/admin/places/${placeId}/images`,
        },
        {
               title: 'Puntos de Interés',

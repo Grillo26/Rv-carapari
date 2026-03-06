@@ -62,7 +62,7 @@ const createBreadcrumbs = (placeId: number, imageId: number, placeName: string, 
        },
        {
               title: imageName,
-              href: `/admin/places/${placeId}/images/${imageId}`,
+              href: `/admin/places/${placeId}/images`,
        },
        {
               title: 'Puntos de Interés',
@@ -143,8 +143,8 @@ export default function HotspotEdit({ place, placeImage, hotspot, assets3d }: Pr
                                                                clearError('asset_3d_id');
                                                         }}
                                                         className={`w-full px-4 py-2 rounded-lg border ${errors.asset_3d_id
-                                                                      ? 'border-red-500 dark:border-red-500'
-                                                                      : 'border-gray-300 dark:border-gray-600'
+                                                               ? 'border-red-500 dark:border-red-500'
+                                                               : 'border-gray-300 dark:border-gray-600'
                                                                } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
                                                  >
                                                         <option value="">Seleccionar modelo...</option>
@@ -173,8 +173,8 @@ export default function HotspotEdit({ place, placeImage, hotspot, assets3d }: Pr
                                                         }}
                                                         placeholder="Ej: Portal entrada"
                                                         className={`w-full px-4 py-2 rounded-lg border ${errors.label
-                                                                      ? 'border-red-500 dark:border-red-500'
-                                                                      : 'border-gray-300 dark:border-gray-600'
+                                                               ? 'border-red-500 dark:border-red-500'
+                                                               : 'border-gray-300 dark:border-gray-600'
                                                                } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
                                                  />
                                                  {errors.label && (
@@ -199,8 +199,8 @@ export default function HotspotEdit({ place, placeImage, hotspot, assets3d }: Pr
                                                         }}
                                                         placeholder="0.00"
                                                         className={`w-full px-4 py-2 rounded-lg border ${errors.pos_x
-                                                                      ? 'border-red-500 dark:border-red-500'
-                                                                      : 'border-gray-300 dark:border-gray-600'
+                                                               ? 'border-red-500 dark:border-red-500'
+                                                               : 'border-gray-300 dark:border-gray-600'
                                                                } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
                                                  />
                                                  {errors.pos_x && (
@@ -222,8 +222,8 @@ export default function HotspotEdit({ place, placeImage, hotspot, assets3d }: Pr
                                                         }}
                                                         placeholder="0.00"
                                                         className={`w-full px-4 py-2 rounded-lg border ${errors.pos_y
-                                                                      ? 'border-red-500 dark:border-red-500'
-                                                                      : 'border-gray-300 dark:border-gray-600'
+                                                               ? 'border-red-500 dark:border-red-500'
+                                                               : 'border-gray-300 dark:border-gray-600'
                                                                } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
                                                  />
                                                  {errors.pos_y && (
@@ -245,8 +245,8 @@ export default function HotspotEdit({ place, placeImage, hotspot, assets3d }: Pr
                                                         }}
                                                         placeholder="0.00"
                                                         className={`w-full px-4 py-2 rounded-lg border ${errors.pos_z
-                                                                      ? 'border-red-500 dark:border-red-500'
-                                                                      : 'border-gray-300 dark:border-gray-600'
+                                                               ? 'border-red-500 dark:border-red-500'
+                                                               : 'border-gray-300 dark:border-gray-600'
                                                                } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
                                                  />
                                                  {errors.pos_z && (
@@ -269,8 +269,8 @@ export default function HotspotEdit({ place, placeImage, hotspot, assets3d }: Pr
                                                  placeholder="Descripción opcional del punto de interés"
                                                  rows={4}
                                                  className={`w-full px-4 py-2 rounded-lg border ${errors.description
-                                                               ? 'border-red-500 dark:border-red-500'
-                                                               : 'border-gray-300 dark:border-gray-600'
+                                                        ? 'border-red-500 dark:border-red-500'
+                                                        : 'border-gray-300 dark:border-gray-600'
                                                         } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
                                           />
                                           {errors.description && (
@@ -293,8 +293,8 @@ export default function HotspotEdit({ place, placeImage, hotspot, assets3d }: Pr
                                                                clearError('sort_order');
                                                         }}
                                                         className={`w-full px-4 py-2 rounded-lg border ${errors.sort_order
-                                                                      ? 'border-red-500 dark:border-red-500'
-                                                                      : 'border-gray-300 dark:border-gray-600'
+                                                               ? 'border-red-500 dark:border-red-500'
+                                                               : 'border-gray-300 dark:border-gray-600'
                                                                } bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400`}
                                                  />
                                                  {errors.sort_order && (
