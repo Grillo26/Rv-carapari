@@ -12,6 +12,7 @@ interface PlaceImage {
     title: string | null;
     image_path: string;
     description: string | null;
+    type: 'main_360' | 'gallery' | 'thumbnail';
     is_main: boolean;
     is_active: boolean;
     sort_order: number;
@@ -91,6 +92,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
     const [editingReview, setEditingReview] = useState<number | null>(null);
     const [userVotes, setUserVotes] = useState<{ [key: number]: 'helpful' | 'unhelpful' | null }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<PlaceImage | null>(null);
     // Estado para los votos de cada comentario
     const [reviewVoteCounts, setReviewVoteCounts] = useState<{ [key: number]: { helpful: number; unhelpful: number } }>({});
 
@@ -595,23 +597,35 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                         className="flex gap-4 overflow-x-auto py-10 px-2 scrollbar-hide snap-x select-none"
                         style={{ margin: '-40px 0' }} // Compensamos el padding para que no ocupe espacio extra en el layout
                     >
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-                            <div
-                                key={item}
-                                className="flex-none w-64 lg:w-80 aspect-video relative rounded-md transition-all duration-500 hover:scale-110 hover:z-50 cursor-pointer shadow-2xl bg-neutral-800 snap-start group/item outline outline-1 outline-white/5"
-                            >
-                                {/* La imagen debe tener rounded-md también para que el hover se vea limpio */}
-                                <img
-                                    src={`https://picsum.photos/seed/${item + 100}/800/450`}
-                                    alt="Vista de Caraparí"
-                                    className="w-full h-full object-cover rounded-md"
-                                />
+                        {place.active_images.filter(img => img.type === 'gallery').length > 0 ? (
+                            place.active_images.filter(img => img.type === 'gallery').map((image) => (
+                                <div
+                                    key={image.id}
+                                    className="flex-none w-64 lg:w-80 aspect-video relative rounded-md transition-all duration-500 hover:scale-110 hover:z-50 cursor-pointer shadow-2xl bg-neutral-800 snap-start group/item outline outline-1 outline-white/5"
+                                    onClick={() => setSelectedImage(image)}
+                                >
+                                    {/* La imagen debe tener rounded-md también para que el hover se vea limpio */}
+                                    <img
+                                        src={`/storage/${image.image_path}`}
+                                        alt={image.title || 'Foto del álbum'}
+                                        className="w-full h-full object-cover rounded-md"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = placeholderImage;
+                                        }}
+                                    />
 
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 rounded-md">
-                                    <p className="text-white text-xs font-bold uppercase tracking-widest">Explorar en 360°</p>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 rounded-md">
+                                        <p className="text-white text-xs font-bold uppercase tracking-widest">
+                                            {image.title || 'Ver imagen'}
+                                        </p>
+                                    </div>
                                 </div>
+                            ))
+                        ) : (
+                            <div className="flex-none w-64 lg:w-80 aspect-video relative rounded-md flex items-center justify-center bg-neutral-800">
+                                <p className="text-neutral-400 text-center">No hay fotos en el álbum</p>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
 
@@ -668,7 +682,7 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                                     <div
                                         key={image.id}
                                         className="relative group cursor-pointer"
-                                        onClick={() => router.get('/vr', { image: `/storage/${image.image_path}` })}
+                                        onClick={() => setSelectedImage(image)}
                                     >
                                         <div className="relative overflow-hidden rounded-xl bg-neutral-800">
                                             <img
@@ -1032,6 +1046,51 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                         </div>
                     </div>
                 </footer>
+
+                {/* Modal de Imagen Ampliada */}
+                {selectedImage && (
+                    <div
+                        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <div
+                            className="relative bg-neutral-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-auto"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Botón Cerrar */}
+                            <button
+                                onClick={() => setSelectedImage(null)}
+                                className="absolute top-4 right-4 z-10 p-2 bg-black/60 hover:bg-black text-white rounded-full transition-colors"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
+                            {/* Imagen */}
+                            <img
+                                src={`/storage/${selectedImage.image_path}`}
+                                alt={selectedImage.title || 'Imagen'}
+                                className="w-full h-auto object-contain"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = placeholderImage;
+                                }}
+                            />
+
+                            {/* Información */}
+                            {(selectedImage.title || selectedImage.description) && (
+                                <div className="p-6 border-t border-neutral-700">
+                                    {selectedImage.title && (
+                                        <h3 className="text-2xl font-bold text-white mb-2">{selectedImage.title}</h3>
+                                    )}
+                                    {selectedImage.description && (
+                                        <p className="text-neutral-300 leading-relaxed">{selectedImage.description}</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div >
         </div >
     );
