@@ -43,8 +43,8 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
               description: place.description,
               is_available: place.is_available,
               sort_order: place.sort_order,
-              latitude: place.latitude ? Number(place.latitude) : 0,
-              longitude: place.longitude ? Number(place.longitude) : 0,
+              latitude: place.latitude ? Number(place.latitude) : -21.82883402776101,
+              longitude: place.longitude ? Number(place.longitude) : -63.742374335631794,
               address: place.address || '',
        });
 

@@ -9,24 +9,29 @@ interface LocationPickerProps {
        onLocationChange?: (latitude: number, longitude: number, address: string) => void;
 }
 
+const DEFAULT_LATITUDE = -21.82840189264017;
+const DEFAULT_LONGITUDE = -63.74364026082149;
+
 export default function LocationPicker({
-       initialLatitude = -21.82840189264017,
-       initialLongitude = -63.74364026082149,
+       initialLatitude,
+       initialLongitude,
        initialAddress = '',
        onLocationChange
 }: LocationPickerProps) {
        const mapRef = useRef<HTMLDivElement>(null);
        const mapInstance = useRef<L.Map | null>(null);
        const markerRef = useRef<L.Marker | null>(null);
-       const [latitude, setLatitude] = useState(initialLatitude);
-       const [longitude, setLongitude] = useState(initialLongitude);
+       const [latitude, setLatitude] = useState(initialLatitude ?? DEFAULT_LATITUDE);
+       const [longitude, setLongitude] = useState(initialLongitude ?? DEFAULT_LONGITUDE);
        const [address, setAddress] = useState(initialAddress);
+       const [hasSetLocation, setHasSetLocation] = useState(initialLatitude !== undefined && initialLongitude !== undefined);
 
        // Actualizar ubicación cuando cambian los inputs
        const handleLocationUpdate = (lat: number, lng: number, addr: string) => {
               setLatitude(lat);
               setLongitude(lng);
               setAddress(addr);
+              setHasSetLocation(true);
               onLocationChange?.(lat, lng, addr);
 
               // Actualizar marcador en el mapa
@@ -156,13 +161,23 @@ export default function LocationPicker({
                             </div>
 
                             {/* Info de coordenadas actuales */}
-                            <div className="bg-green-50 dark:bg-green-600/10 border border-green-200 dark:border-green-600/20 rounded-lg p-4 mt-4">
-                                   <p className="text-green-700 dark:text-green-400 text-sm">
-                                          <strong>Ubicación actual:</strong><br />
-                                          Lat: <span className="font-mono">{latitude.toFixed(8)}</span><br />
-                                          Lng: <span className="font-mono">{longitude.toFixed(8)}</span>
-                                          {address && <><br />Dirección: <span className="font-mono">{address}</span></>}
-                                   </p>
+                            <div className={`rounded-lg p-4 mt-4 border ${hasSetLocation ?
+                                   'bg-green-50 dark:bg-green-600/10 border-green-200 dark:border-green-600/20' :
+                                   'bg-red-50 dark:bg-red-600/10 border-red-200 dark:border-red-600/20'
+                                   }`}>
+                                   {hasSetLocation ? (
+                                          <p className="text-green-700 dark:text-green-400 text-sm">
+                                                 <strong>Ubicación actual:</strong><br />
+                                                 Lat: <span className="font-mono">{latitude.toFixed(8)}</span><br />
+                                                 Lng: <span className="font-mono">{longitude.toFixed(8)}</span>
+                                                 {address && <><br />Dirección: <span className="font-mono">{address}</span></>}
+                                          </p>
+                                   ) : (
+                                          <p className="text-red-700 dark:text-red-400 text-sm">
+                                                 <strong>⚠️ Ubicación requerida</strong><br />
+                                                 Debes agregar un lugar haciendo click en el mapa o ingresando las coordenadas.
+                                          </p>
+                                   )}
                             </div>
                      </div>
               </div>
