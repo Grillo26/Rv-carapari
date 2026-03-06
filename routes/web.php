@@ -10,7 +10,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
-use App\Http\Controllers\Api\ReviewVoteController;
+use App\Http\Controllers\Admin\HotspotController;
+use App\Http\Controllers\Admin\Asset3dController;
 
 
 Route::get('/', function () {
@@ -117,6 +118,11 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::patch('users/{user}/toggle-role', [UserController::class, 'toggleRole'])
             ->name('users.toggle-role');
 
+        // 3D Assets management
+        Route::resource('assets3d', Asset3dController::class);
+        Route::patch('assets3d/{asset3d}/toggle-active', [Asset3dController::class, 'toggleActive'])
+            ->name('assets3d.toggle-active');
+
         // Places management
         Route::resource('places', AdminPlaceController::class);
         Route::patch('places/{place}/toggle-availability', [AdminPlaceController::class, 'toggleAvailability'])
@@ -129,6 +135,13 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
                 ->name('images.toggle-active');
             Route::patch('images/{image}/set-main', [PlaceImageController::class, 'setAsMain'])
                 ->name('images.set-main');
+
+            // Hotspots management for place images
+            Route::prefix('images/{image}')->name('images.')->group(function () {
+                Route::resource('hotspots', HotspotController::class)->except(['show']);
+                Route::patch('hotspots/{hotspot}/toggle-active', [HotspotController::class, 'toggleActive'])
+                    ->name('hotspots.toggle-active');
+            });
         });
     });
 });

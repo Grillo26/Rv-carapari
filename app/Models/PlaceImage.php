@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PlaceImage extends Model
 {
@@ -29,6 +30,14 @@ class PlaceImage extends Model
     public function place(): BelongsTo
     {
         return $this->belongsTo(Place::class);
+    }
+
+    /**
+     * Get all hotspots for this image.
+     */
+    public function hotspots(): HasMany
+    {
+        return $this->hasMany(PlaceImageHotspot::class);
     }
 
     /**
