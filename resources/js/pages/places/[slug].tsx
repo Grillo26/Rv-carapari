@@ -671,65 +671,6 @@ export default function PlaceShow({ place, canRegister = true }: PlaceShowProps)
                     </section>
                 )}
 
-                {/* Images Gallery */}
-                {
-                    place.active_images.length > 0 && (
-                        <section className="mx-auto max-w-7xl px-6 py-16">
-                            <h2 className="text-3xl font-bold mb-8 text-center">Galería de Imágenes 360°</h2>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {place.active_images.map((image, index) => (
-                                    <div
-                                        key={image.id}
-                                        className="relative group cursor-pointer"
-                                        onClick={() => setSelectedImage(image)}
-                                    >
-                                        <div className="relative overflow-hidden rounded-xl bg-neutral-800">
-                                            <img
-                                                src={`/storage/${image.image_path}`}
-                                                alt={image.title || `${place.title} - Imagen ${index + 1}`}
-                                                className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).src = placeholderImage;
-                                                }}
-                                            />
-
-                                            {/* Overlay */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100 group-hover:opacity-80 transition-opacity duration-300"></div>
-
-                                            {/* Play Icon */}
-                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <div className="bg-green-600/90 text-black rounded-full p-3">
-                                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-
-                                            {/* Main Badge */}
-                                            {image.is_main && (
-                                                <div className="absolute top-3 left-3">
-                                                    <span className="bg-green-600 text-black text-xs px-2 py-1 rounded-full font-bold">
-                                                        Principal
-                                                    </span>
-                                                </div>
-                                            )}
-
-                                            {/* Title */}
-                                            {image.title && (
-                                                <div className="absolute bottom-3 left-3 right-3">
-                                                    <p className="bg-black/70 text-white text-sm px-3 py-1 rounded-lg truncate">
-                                                        {image.title}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )
-                }
 
                 {/* Sección de Modelos 3D */}
                 {
