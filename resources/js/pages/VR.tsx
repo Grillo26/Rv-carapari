@@ -213,7 +213,7 @@ export default function VR() {
                                           textAlign: 'center',
                                           maxWidth: '350px', // Reducido para el costado
                                           width: '350px',
-                                          border: '2px solid #00AAFF',
+                                          border: '2px solid #0000000',
                                           boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
                                    }}>
                                           <div style={{
@@ -223,7 +223,7 @@ export default function VR() {
                                                  marginBottom: '15px'
                                           }}>
                                                  <h3 style={{
-                                                        color: '#00AAFF',
+                                                        color: '#00CC55',
                                                         margin: '0',
                                                         fontSize: '16px',
                                                         flex: 1
@@ -266,7 +266,7 @@ export default function VR() {
                                                         <div style={{ fontSize: '13px' }}>
                                                                • <strong>CTRL + RUEDA</strong> o <strong>PELLIZCA</strong> para zoom
                                                         </div>
-                                                        <div style={{ fontSize: '12px', color: '#88DDFF', marginTop: '5px' }}>
+                                                        <div style={{ fontSize: '12px', color: '#88FFB3', marginTop: '5px' }}>
                                                                💫 <em>Efecto ruleta: suelta para que siga girando</em>
                                                         </div>
                                                  </div>
@@ -286,7 +286,7 @@ export default function VR() {
                                                         <div style={{ fontSize: '13px' }}>
                                                                • <strong>PELLIZCA</strong> con dos dedos para zoom
                                                         </div>
-                                                        <div style={{ fontSize: '12px', color: '#88DDFF', marginTop: '5px' }}>
+                                                        <div style={{ fontSize: '12px', color: '#88FFB3', marginTop: '5px' }}>
                                                                💫 <em>Suelta el dedo para inercia tipo ruleta</em>
                                                         </div>
                                                  </div>
@@ -317,7 +317,7 @@ export default function VR() {
                                                  style={{
                                                         marginTop: '15px',
                                                         padding: '8px 20px',
-                                                        background: '#00AAFF',
+                                                        background: '#00CC55',
                                                         border: 'none',
                                                         borderRadius: 6,
                                                         color: 'white',
@@ -346,19 +346,19 @@ export default function VR() {
                                           height: '50px',
                                           borderRadius: '50%',
                                           background: 'rgba(0,0,0,0.8)',
-                                          border: '2px solid #00AAFF',
-                                          color: '#00AAFF',
+                                          border: '2px solid rgba(0,0,0,0.5)',
+                                          color: '#00CC55',
                                           cursor: 'pointer',
                                           fontSize: '20px',
                                           display: 'flex',
                                           alignItems: 'center',
                                           justifyContent: 'center',
-                                          boxShadow: '0 2px 12px rgba(0,170,255,0.3)',
+                                          boxShadow: '0 2px 12px rgba(0,204,85,0.3)',
                                           transition: 'all 0.3s ease',
                                           opacity: sidebarMinimized ? 1 : 0.6
                                    }}
                                    onMouseEnter={(e) => {
-                                          e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
+                                          e.currentTarget.style.background = 'rgba(0,204,85,0.2)';
                                           e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)';
                                           e.currentTarget.style.opacity = '1';
                                    }}
@@ -382,7 +382,7 @@ export default function VR() {
                                    background: 'rgba(0,0,0,0.9)',
                                    zIndex: 9998,
                                    transition: 'right 0.3s ease',
-                                   borderLeft: sidebarMinimized ? 'none' : '2px solid #00AAFF'
+                                   borderLeft: sidebarMinimized ? 'none' : '2px solid #000000'
                             }}>
                                    {/* Sidebar Header */}
                                    <div style={{
@@ -395,7 +395,7 @@ export default function VR() {
                                                  alignItems: 'center'
                                           }}>
                                                  <h3 style={{
-                                                        color: '#00AAFF',
+                                                        color: '#0000000',
                                                         margin: '0',
                                                         fontSize: '16px',
                                                         fontWeight: 'bold'
@@ -466,20 +466,20 @@ export default function VR() {
                                                                                     style={{
                                                                                            padding: '12px',
                                                                                            background: isCurrentImage
-                                                                                                  ? 'rgba(0,170,255,0.3)'
+                                                                                                  ? 'rgba(0,204,85,0.3)'
                                                                                                   : 'rgba(255,255,255,0.1)',
                                                                                            borderRadius: '8px',
                                                                                            cursor: 'pointer',
                                                                                            transition: 'all 0.2s ease',
                                                                                            border: isCurrentImage
-                                                                                                  ? '2px solid #00AAFF'
+                                                                                                  ? '2px solid #00CC55'
                                                                                                   : '1px solid transparent',
                                                                                            transform: isCurrentImage ? 'scale(1.02)' : 'scale(1)'
                                                                                     }}
                                                                                     onMouseEnter={(e) => {
                                                                                            if (!isCurrentImage) {
-                                                                                                  e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
-                                                                                                  e.currentTarget.style.border = '1px solid #00AAFF';
+                                                                                                  e.currentTarget.style.background = 'rgba(0,204,85,0.2)';
+                                                                                                  e.currentTarget.style.border = '1px solid #00CC55';
                                                                                            }
                                                                                     }}
                                                                                     onMouseLeave={(e) => {
@@ -503,7 +503,7 @@ export default function VR() {
                                                                                            {displayTitle}
                                                                                     </div>
                                                                                     <div style={{
-                                                                                           color: isCurrentImage ? '#00AAFF' : '#88DDFF',
+                                                                                           color: isCurrentImage ? '#00CC55' : '#88FFB3',
                                                                                            fontSize: '12px',
                                                                                            marginTop: '5px',
                                                                                            fontWeight: isCurrentImage ? '500' : 'normal'
@@ -535,18 +535,18 @@ export default function VR() {
                                           height: '45px',
                                           borderRadius: '50%',
                                           background: 'rgba(0,0,0,0.8)',
-                                          border: '2px solid #00AAFF',
-                                          color: '#00AAFF',
+                                          border: '2px solid #00CC55',
+                                          color: '#00CC55',
                                           cursor: 'pointer',
                                           fontSize: '18px',
                                           display: 'flex',
                                           alignItems: 'center',
                                           justifyContent: 'center',
-                                          boxShadow: '0 2px 12px rgba(0,170,255,0.3)',
+                                          boxShadow: '0 2px 12px rgba(0,204,85,0.3)',
                                           transition: 'all 0.3s ease'
                                    }}
                                    onMouseEnter={(e) => {
-                                          e.currentTarget.style.background = 'rgba(0,170,255,0.2)';
+                                          e.currentTarget.style.background = 'rgba(0,204,85,0.2)';
                                           e.currentTarget.style.transform = 'scale(1.05)';
                                    }}
                                    onMouseLeave={(e) => {
