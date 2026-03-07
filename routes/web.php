@@ -155,11 +155,13 @@ Route::view('/vr-demo', 'vr_demo');
 // Usar Inertia para el visor VR para que los enlaces desde Inertia funcionen correctamente
 Route::get('/vr', function () {
     $placeId = request()->query('place_id');
+    $imageParam = request()->query('image');
     $place = null;
-    
+    $hotspots = [];
+
     if ($placeId) {
         $place = \App\Models\Place::with(['activeImages'])->find($placeId);
-        
+
         // Formatear las imágenes para el frontend
         if ($place && $place->activeImages) {
             $place->images = $place->activeImages->map(function($image) {
@@ -171,13 +173,56 @@ Route::get('/vr', function () {
                 ];
             });
         }
+
+        // Cargar hotspots de la imagen actual
+        if ($imageParam) {
+            // Normalizar: quitar /storage/ del inicio para comparar con image_path en BD
+            $imagePath = $imageParam;
+            if (str_starts_with($imagePath, '/storage/')) {
+                $imagePath = substr($imagePath, strlen('/storage/'));
+            } elseif (str_starts_with($imagePath, 'storage/')) {
+                $imagePath = substr($imagePath, strlen('storage/'));
+            }
+            // Quitar slash inicial si queda
+            $imagePath = ltrim($imagePath, '/');
+
+            $placeImage = \App\Models\PlaceImage::where('place_id', $placeId)
+                ->where('image_path', $imagePath)
+                ->first();
+
+            if ($placeImage) {
+                $hotspots = $placeImage->hotspots()
+                    ->where('is_active', true)
+                    ->with('asset3d')
+                    ->orderBy('sort_order')
+                    ->get()
+                    ->map(function($hotspot) {
+                        return [
+                            'id'          => $hotspot->id,
+                            'pos_x'       => $hotspot->pos_x,
+                            'pos_y'       => $hotspot->pos_y,
+                            'pos_z'       => $hotspot->pos_z,
+                            'label'       => $hotspot->label,
+                            'description' => $hotspot->description,
+                            'asset_3d'    => $hotspot->asset3d ? [
+                                'id'          => $hotspot->asset3d->id,
+                                'name'        => $hotspot->asset3d->name,
+                                'description' => $hotspot->asset3d->description,
+                                'model_path'  => $hotspot->asset3d->model_path,
+                                'is_active'   => $hotspot->asset3d->is_active,
+                            ] : null,
+                        ];
+                    })->values()->all();
+            }
+        }
     }
-    
+
     return Inertia::render('VR', [
-        'image' => request()->query('image'),
-        'place' => $place ? [
-            'id' => $place->id,
-            'title' => $place->title,
+        'image'    => $imageParam,
+        'hotspots' => $hotspots,
+        'place'    => $place ? [
+            'id'     => $place->id,
+            'title'  => $place->title,
             'images' => $place->images ?? []
         ] : null,
     ]);
