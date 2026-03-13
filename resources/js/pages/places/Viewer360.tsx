@@ -52,6 +52,15 @@ function loadAFrame(): Promise<void> {
        return aframePromise;
 }
 
+function normalizePath(src: string | undefined | null): string {
+       if (!src) return '';
+       if (/^https?:\/\//i.test(src)) return src;
+       if (src.startsWith('/storage/')) return src;
+       if (src.startsWith('storage/')) return `/${src}`;
+       if (src.startsWith('/')) return src;
+       return `/storage/${src}`;
+}
+
 function loadModelViewer() {
        if (document.querySelector('script[data-model-viewer]')) return;
        const s = document.createElement('script');
@@ -450,7 +459,7 @@ function HotspotModal({ hotspot, onClose }: { hotspot: Hotspot; onClose: () => v
                                                                </div>
                                                                {/* @ts-ignore */}
                                                                <model-viewer
-                                                                      src={modelPath}
+                                                                      src={normalizePath(modelPath)}
                                                                       auto-rotate
                                                                       camera-controls
                                                                       shadow-intensity="1.2"
@@ -478,7 +487,7 @@ function HotspotModal({ hotspot, onClose }: { hotspot: Hotspot; onClose: () => v
                                                                       color: 'rgba(255,255,255,0.55)', fontSize: 11,
                                                                       fontFamily: 'monospace', wordBreak: 'break-all',
                                                                }}>
-                                                                      {modelPath}
+                                                                      {normalizePath(modelPath)}
                                                                </div>
                                                         </div>
                                                  )}
