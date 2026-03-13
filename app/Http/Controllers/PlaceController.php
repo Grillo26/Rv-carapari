@@ -67,4 +67,58 @@ class PlaceController extends Controller
             'assets3d' => $assets3d,
         ]);
     }
+
+    /**
+     * Display the 360° viewer for a place.
+     */
+    public function show360($slug)
+    {
+        $place = Place::where('slug', $slug)
+            ->available()
+            ->firstOrFail();
+
+        // Imagen principal 360 (is_main = 1)
+        $mainImage = $place->images()
+            ->where('is_main', true)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$mainImage) {
+            // Si no hay imagen marcada como principal, usar la primera activa
+            $mainImage = $place->images()->where('is_active', true)->first();
+        }
+
+        $hotspots = [];
+        if ($mainImage) {
+            $hotspots = $mainImage->hotspots()
+                ->where('is_active', true)
+                ->with('asset3d')
+                ->orderBy('sort_order')
+                ->get()
+                ->map(fn($h) => [
+                    'id'          => $h->id,
+                    'pos_x'       => $h->pos_x,
+                    'pos_y'       => $h->pos_y,
+                    'pos_z'       => $h->pos_z,
+                    'label'       => $h->label,
+                    'description' => $h->description,
+                    'asset_3d'    => $h->asset3d ? [
+                        'id'          => $h->asset3d->id,
+                        'name'        => $h->asset3d->name,
+                        'description' => $h->asset3d->description,
+                        'model_path'  => $h->asset3d->model_path,
+                    ] : null,
+                ])->values()->all();
+        }
+
+        return Inertia::render('Places/Viewer360', [
+            'place'     => [
+                'id'    => $place->id,
+                'title' => $place->title,
+                'slug'  => $place->slug,
+            ],
+            'image'     => $mainImage ? '/storage/' . $mainImage->image_path : null,
+            'hotspots'  => $hotspots,
+        ]);
+    }
 }

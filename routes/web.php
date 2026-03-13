@@ -66,6 +66,7 @@ Route::get('/model-3d/{id}', function ($id) {
 // Public places routes
 Route::get('/places', [PlaceController::class, 'index'])->name('places.index');
 Route::get('/places/{slug}', [PlaceController::class, 'show'])->name('places.show');
+Route::get('/places/{slug}/360', [PlaceController::class, 'show360'])->name('places.360');
 
 // Public API routes for ratings and reviews
 Route::prefix('api')->group(function () {

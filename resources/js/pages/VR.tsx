@@ -51,22 +51,16 @@ function normalizePath(src: string | undefined | null): string {
 }
 
 // ── Estado global para rastrear si A-Frame ya fue cargado ───────────────────
-// Esto evita múltiples instancias de Three.js en navegaciones SPA
 let aframeLoadPromise: Promise<void> | null = null;
 
 function loadAFrame(): Promise<void> {
-       // Si ya existe en el DOM (navegación SPA), resolver inmediatamente
        if ((window as any).AFRAME) {
               return Promise.resolve();
        }
-
-       // Si ya estamos cargando, devolver la misma promesa
        if (aframeLoadPromise) {
               return aframeLoadPromise;
        }
-
        aframeLoadPromise = new Promise<void>((resolve) => {
-              // Verificar si el script ya está en el DOM
               const existing = document.querySelector('script[data-aframe]');
               if (existing) {
                      if ((window as any).AFRAME) {
@@ -76,18 +70,16 @@ function loadAFrame(): Promise<void> {
                      }
                      return;
               }
-
               const script = document.createElement('script');
               script.src = 'https://aframe.io/releases/1.4.1/aframe.min.js';
               script.setAttribute('data-aframe', 'true');
               script.onload = () => resolve();
               script.onerror = () => {
-                     aframeLoadPromise = null; // permitir reintento
-                     resolve(); // continuar aunque falle
+                     aframeLoadPromise = null;
+                     resolve();
               };
               document.head.appendChild(script);
        });
-
        return aframeLoadPromise;
 }
 
@@ -99,6 +91,8 @@ function loadModelViewer(): void {
        script.setAttribute('data-model-viewer', 'true');
        document.head.appendChild(script);
 }
+
+
 
 // ════════════════════════════════════════════════════════════════════════════
 export default function VR() {
@@ -119,11 +113,9 @@ export default function VR() {
        const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
        const [showInstructions, setShowInstructions] = useState(true);
        const [sidebarMinimized, setSidebarMinimized] = useState(false);
-       // 'loading' | 'ready' | 'error'
        const [sceneStatus, setSceneStatus] = useState<'loading' | 'ready' | 'error'>('loading');
 
        const vrContainerRef = useRef<HTMLDivElement>(null);
-       // Guardamos refs estables para no recrear la escena
        const hotspotsRef = useRef(hotspots);
        const panoSrcRef = useRef('');
 
@@ -150,29 +142,25 @@ export default function VR() {
               return () => clearTimeout(t);
        }, []);
 
-       // ── EFECTO PRINCIPAL: carga A-Frame → inyecta escena → adjunta eventos ──
+       // ── EFECTO PRINCIPAL ────────────────────────────────────────────────────
        useEffect(() => {
               let cancelled = false;
               let inertiaAnim: number | null = null;
               let cleanupEvents: (() => void) | undefined;
 
               const init = async () => {
-                     // 1. Cargar A-Frame (una sola instancia global)
                      await loadAFrame();
-
-                     // 2. Cargar model-viewer en paralelo (no bloquea)
                      loadModelViewer();
 
                      if (cancelled || !vrContainerRef.current) return;
 
-                     // 3. Si ya hay una escena en el DOM (hot-reload), destruirla limpiamente
                      const oldScene = vrContainerRef.current.querySelector('a-scene') as any;
                      if (oldScene) {
                             try { oldScene.destroy?.(); } catch (_) { }
                             vrContainerRef.current.innerHTML = '';
                      }
 
-                     // 4. Construir el HTML de los hotspots
+                     // ── HTML de los hotspots (sin rotación propia, la hereda del wrapper) ──
                      const hotspotsHTML = hotspotsRef.current.map((h) => {
                             const safeLabel = (h.label || h.asset_3d?.name || 'Punto')
                                    .replace(/"/g, '&quot;')
@@ -180,7 +168,8 @@ export default function VR() {
                             return `
                     <a-entity
                         position="${h.pos_x} ${h.pos_y} ${h.pos_z}"
-                        data-hotspot-id="${h.id}">
+                        data-hotspot-id="${h.id}"
+                        look-at="#vr-camera">
                         <a-torus
                             radius="0.18"
                             radius-tubular="0.012"
@@ -211,7 +200,8 @@ export default function VR() {
                     </a-entity>`;
                      }).join('');
 
-                     // 5. Inyectar la escena A-Frame completa
+                     // ── Escena: hotspots dentro de un entity con la misma rotación del sky ──
+                     // Esto alinea el sistema de coordenadas de los hotspots con la imagen 360°
                      vrContainerRef.current.innerHTML = `
                 <a-scene
                     id="vr-scene"
@@ -222,12 +212,17 @@ export default function VR() {
                     <a-assets timeout="15000">
                         <img id="pano-img" src="${panoSrcRef.current}" crossorigin="anonymous" />
                     </a-assets>
+
                     <a-sky
                         id="vr-sky"
-                        src="#pano-img"
-                        rotation="0 -130 0">
+                        src="#pano-img">
                     </a-sky>
-                    ${hotspotsHTML}
+
+                    <!-- hotspots sin rotación extra: las coords vienen ya en espacio A-Frame -->
+                    <a-entity id="hotspots-root">
+                        ${hotspotsHTML}
+                    </a-entity>
+
                     <a-camera
                         id="vr-camera"
                         position="0 0 0"
@@ -236,7 +231,7 @@ export default function VR() {
                     </a-camera>
                 </a-scene>`;
 
-                     // 6. Esperar a que la escena esté lista
+                     // ── Esperar a que la escena esté lista ──────────────────────────────
                      const sceneEl = vrContainerRef.current.querySelector('#vr-scene') as any;
                      if (!sceneEl) return;
 
@@ -369,7 +364,7 @@ export default function VR() {
                      if (inertiaAnim) cancelAnimationFrame(inertiaAnim);
               };
               // eslint-disable-next-line react-hooks/exhaustive-deps
-       }, []); // ← sin dependencias: solo se ejecuta UNA VEZ al montar
+       }, []);
 
        return (
               <>
@@ -561,7 +556,6 @@ export default function VR() {
                                    backdropFilter: 'blur(16px)',
                                    display: 'flex', flexDirection: 'column',
                             }}>
-                                   {/* Header sidebar */}
                                    <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
                                           <h3 style={{ color: '#00CC55', margin: '0 0 6px 0', fontSize: 14, fontWeight: 700 }}>
                                                  📍 Vistas del Lugar
@@ -573,7 +567,6 @@ export default function VR() {
                                           )}
                                    </div>
 
-                                   {/* Lista imágenes */}
                                    <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
                                           {(() => {
                                                  const allImages = place?.images ?? [];
@@ -652,7 +645,7 @@ export default function VR() {
                                    {sidebarMinimized ? '📍' : '✕'}
                             </button>
 
-                            {/* ── Indicadores mini (post instrucciones) ───────────────── */}
+                            {/* ── Indicadores mini ────────────────────────────────────── */}
                             {!showInstructions && (
                                    <div style={{
                                           position: 'fixed', bottom: 16, left: 16, zIndex: 9998,
@@ -671,12 +664,7 @@ export default function VR() {
                                    </div>
                             )}
 
-                            {/* ════════════════════════════════════════════════════════════
-                    MODAL HOTSPOT
-                    ✅ Usa <model-viewer> (Web Component de Google).
-                       NO crea una segunda <a-scene>, evitando el conflicto
-                       con Three.js y el error "a[e] is not a constructor".
-                ════════════════════════════════════════════════════════════ */}
+                            {/* ── MODAL HOTSPOT ────────────────────────────────────────── */}
                             {selectedHotspot && (
                                    <div
                                           onClick={() => setSelectedHotspot(null)}
@@ -699,7 +687,6 @@ export default function VR() {
                                                         animation: 'hotspot-modal-in 0.25s cubic-bezier(.16,1,.3,1)',
                                                  }}
                                           >
-                                                 {/* Header modal */}
                                                  <div style={{
                                                         background: 'linear-gradient(90deg,#00CC55 0%,#009940 100%)',
                                                         padding: '15px 20px',
@@ -726,7 +713,6 @@ export default function VR() {
                                                                }}>✕</button>
                                                  </div>
 
-                                                 {/* Body modal */}
                                                  <div style={{ padding: 22, maxHeight: '68vh', overflowY: 'auto' }}>
 
                                                         {selectedHotspot.description && (
@@ -744,7 +730,6 @@ export default function VR() {
 
                                                         {selectedHotspot.asset_3d ? (
                                                                <>
-                                                                      {/* Nombre asset */}
                                                                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                                                                              <div style={{
                                                                                     width: 42, height: 42, borderRadius: 12, flexShrink: 0,
@@ -770,7 +755,6 @@ export default function VR() {
                                                                              </p>
                                                                       )}
 
-                                                                      {/* ── VISOR 3D ── model-viewer, sin conflicto con A-Frame ── */}
                                                                       {selectedHotspot.asset_3d.model_path &&
                                                                              /\.(glb|gltf)$/i.test(selectedHotspot.asset_3d.model_path) && (
                                                                                     <div style={{
@@ -803,7 +787,6 @@ export default function VR() {
                                                                                     </div>
                                                                              )}
 
-                                                                      {/* Ruta normalizada */}
                                                                       {selectedHotspot.asset_3d.model_path && (
                                                                              <div style={{
                                                                                     background: 'rgba(0,204,85,0.06)',
@@ -825,7 +808,6 @@ export default function VR() {
                                                                              </div>
                                                                       )}
 
-                                                                      {/* Badges */}
                                                                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                                                                              <span style={{
                                                                                     background: selectedHotspot.asset_3d.is_active ? 'rgba(0,204,85,0.15)' : 'rgba(255,80,80,0.15)',
@@ -855,7 +837,6 @@ export default function VR() {
                                                                </div>
                                                         )}
 
-                                                        {/* Coordenadas */}
                                                         <div style={{
                                                                marginTop: 16, padding: '9px 14px',
                                                                background: 'rgba(255,255,255,0.04)',
