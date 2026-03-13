@@ -62,7 +62,7 @@ class PlaceController extends Controller
         // Get all active 3D assets
         $assets3d = Asset3d::active()->ordered()->get();
 
-        return Inertia::render('places/[slug]', [
+        return Inertia::render('Places/[slug]', [
             'place'    => $place,
             'assets3d' => $assets3d,
         ]);
