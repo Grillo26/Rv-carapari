@@ -68,7 +68,7 @@ export default function PlacesEdit({ place }: PlacesEditProps) {
        }, [place]);
 
        const handleLocationChange = (latitude: number, longitude: number, address: string) => {
-              setFormData({ ...formData, latitude, longitude, address });
+              setFormData(prev => ({ ...prev, latitude, longitude, address }));
        };
 
        const generateSlug = (title: string) => {

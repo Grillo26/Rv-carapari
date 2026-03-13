@@ -198,6 +198,34 @@ class PlaceController extends Controller
 
         $place->update($validated);
 
+        // Sincronizar el registro main_360 en place_images
+        $imageData = [
+            'title'       => $validated['title'],
+            'description' => $validated['short_description'] ?? null,
+        ];
+        if (!empty($validated['main_360_image'])) {
+            $imageData['image_path'] = $validated['main_360_image'];
+        }
+
+        $existingImage = PlaceImage::where('place_id', $place->id)
+            ->where('type', 'main_360')
+            ->where('is_main', true)
+            ->first();
+
+        if ($existingImage) {
+            $existingImage->update($imageData);
+        } elseif (!empty($validated['main_360_image'])) {
+            // Crear si no existe y se subió una imagen nueva
+            PlaceImage::create(array_merge($imageData, [
+                'place_id'  => $place->id,
+                'image_path'=> $validated['main_360_image'],
+                'type'      => 'main_360',
+                'is_main'   => true,
+                'is_active' => true,
+                'sort_order'=> 0,
+            ]));
+        }
+
         return redirect()->route('admin.places.index')
             ->with('success', 'Lugar turístico actualizado exitosamente.');
     }
