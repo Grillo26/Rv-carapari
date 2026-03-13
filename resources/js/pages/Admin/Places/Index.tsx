@@ -35,6 +35,7 @@ interface PlacesIndexProps {
 export default function PlacesIndex({ places }: PlacesIndexProps) {
        const [searchTerm, setSearchTerm] = useState('');
        const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'hidden'>('all');
+       const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
        const [deleteModal, setDeleteModal] = useState<{
               isOpen: boolean;
               place: Place | null;
@@ -45,17 +46,23 @@ export default function PlacesIndex({ places }: PlacesIndexProps) {
               isDeleting: false
        });
 
-       // Filtrar lugares según búsqueda y estado
-       const filteredPlaces = places.data.filter(place => {
-              const matchesSearch = place.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                     place.short_description.toLowerCase().includes(searchTerm.toLowerCase());
+       // Filtrar y ordenar lugares
+       const filteredPlaces = places.data
+              .filter(place => {
+                     const matchesSearch = place.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            place.short_description.toLowerCase().includes(searchTerm.toLowerCase());
 
-              const matchesFilter = filterStatus === 'all' ||
-                     (filterStatus === 'available' && place.is_available) ||
-                     (filterStatus === 'hidden' && !place.is_available);
+                     const matchesFilter = filterStatus === 'all' ||
+                            (filterStatus === 'available' && place.is_available) ||
+                            (filterStatus === 'hidden' && !place.is_available);
 
-              return matchesSearch && matchesFilter;
-       });
+                     return matchesSearch && matchesFilter;
+              })
+              .sort((a, b) => {
+                     const dateA = new Date(a.created_at).getTime();
+                     const dateB = new Date(b.created_at).getTime();
+                     return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+              });
 
        const handleToggleAvailability = (place: Place) => {
               router.patch(`/admin/places/${place.id}/toggle-availability`, {}, {
@@ -198,6 +205,19 @@ export default function PlacesIndex({ places }: PlacesIndexProps) {
                                                         <option value="all">Todos los estados</option>
                                                         <option value="available">Disponibles</option>
                                                         <option value="hidden">Ocultos</option>
+                                                 </select>
+                                          </div>
+
+                                          {/* Sort */}
+                                          <div className="flex items-center gap-2">
+                                                 <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                                 <select
+                                                        value={sortOrder}
+                                                        onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+                                                        className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                                                 >
+                                                        <option value="newest">Más recientes</option>
+                                                        <option value="oldest">Más antiguos</option>
                                                  </select>
                                           </div>
                                    </div>

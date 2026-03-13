@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useState, useRef, useEffect } from 'react';
 import { THEME_COLORS } from '@/constants/theme';
+import AppLogoIcon from '@/components/app-logo-icon';
 
 interface NavbarProps {
        isScrolled: boolean;
@@ -47,8 +48,8 @@ export default function Navbar({
                      <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between h-20">
                             {/* Logo - Izquierda */}
                             <div className="flex-shrink-0">
-                                   <Link href="/" className="text-2xl font-extrabold tracking-tight hover:opacity-80 transition">
-                                          CARAPARÍ
+                                   <Link href="/" className="flex items-center gap-2 text-2xl font-extrabold tracking-tight hover:opacity-80 transition">
+                                          <AppLogoIcon className="w-32 object-contain" />
                                    </Link>
                             </div>
 
