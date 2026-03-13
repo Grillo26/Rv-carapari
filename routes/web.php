@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\PlaceImageController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Api\ReviewVoteController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\HotspotController;
 use App\Http\Controllers\Admin\Asset3dController;

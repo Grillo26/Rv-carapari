@@ -2,6 +2,7 @@ import { Head, Link, router, usePage, useForm } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import LocationMap from '@/components/LocationMap';
+import RouteMap from '@/components/RouteMap';
 import { login, register } from '@/routes';
 import { type SharedData } from '@/types';
 import { THEME_COLORS } from '@/constants/theme';
@@ -93,6 +94,8 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
     const [userVotes, setUserVotes] = useState<{ [key: number]: 'helpful' | 'unhelpful' | null }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [selectedImage, setSelectedImage] = useState<PlaceImage | null>(null);
+    const [showRoute, setShowRoute] = useState(false);
+    const routeSectionRef = useRef<HTMLDivElement>(null);
 
     // Bloquear scroll del fondo cuando el modal está abierto
     useEffect(() => {
@@ -380,11 +383,10 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
     };
 
     const handleDirections = () => {
-        if (place.latitude && place.longitude) {
-            // Esta URL abre Google Maps con la ruta desde la ubicación actual del usuario
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`;
-            window.open(url, '_blank');
-        }
+        setShowRoute(true);
+        setTimeout(() => {
+            routeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
     };
 
     // 1. Definimos el tipo de la referencia para que TypeScript sepa que es un elemento HTML
@@ -620,16 +622,15 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
 
                                 <button
                                     onClick={handleDirections}
-                                    className="w-auto inline-flex items-center justify-center gap-3 mt-2 px-8 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg rounded-md transition-all border border-white/10 shadow-lg group"
+                                    className="w-auto inline-flex items-center justify-center gap-3 mt-2 px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-bold text-lg rounded-md transition-all shadow-lg group"
                                 >
                                     <svg
-                                        className="w-6 h-6 text-green-500 group-hover:scale-110 transition-transform"
+                                        className="w-6 h-6 group-hover:scale-110 transition-transform"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
                                     >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                                     </svg>
                                     Cómo llegar?
                                 </button>
@@ -638,6 +639,17 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
                     </section>
                 )}
 
+                {/* Sección de Ruta */}
+                {showRoute && place.latitude && place.longitude && (
+                    <section ref={routeSectionRef} className="mx-auto max-w-7xl px-6 pb-8">
+                        <RouteMap
+                            destLat={Number(place.latitude)}
+                            destLon={Number(place.longitude)}
+                            placeName={place.title}
+                            onClose={() => setShowRoute(false)}
+                        />
+                    </section>
+                )}
 
                 {/* Sección de Modelos 3D */}
                 {
