@@ -504,14 +504,14 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
 
                             {/* Botones de Acción */}
                             <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                                {/* Botón Explorar con icono de Lentes VR */}
+                                {/* Botón Explorar 360° */}
                                 <button
                                     onClick={() => {
                                         if (imagePath) {
-                                            router.get('/vr', { image: `/storage/${imagePath}`, place_id: place.id });
+                                            router.get(`/places/${place.slug}/360`);
                                         }
                                     }}
-                                    disabled={!imagePath} // Deshabilita el botón si no hay imagen
+                                    disabled={!imagePath}
                                     className={`w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 font-extrabold text-lg rounded transition-all transform shadow-xl ${imagePath
                                         ? "bg-white hover:bg-neutral-200 text-black active:scale-95"
                                         : "bg-neutral-700 text-neutral-400 cursor-not-allowed opacity-70"
