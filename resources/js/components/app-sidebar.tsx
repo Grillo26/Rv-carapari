@@ -53,6 +53,11 @@ const adminNavItems: NavItem[] = [
         href: '/admin/assets3d',
         icon: Box,
     },
+    {
+        title: 'Mi Perfil',
+        href: '/settings/profile',
+        icon: UserCircle,
+    },
 ];
 
 const userNavItems: NavItem[] = [
@@ -68,7 +73,7 @@ export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
     const isAdmin = (auth.user as any)?.role === 'admin';
     const navItems = isAdmin ? adminNavItems : userNavItems;
-    const homeHref = isAdmin ? dashboard() : '/settings/profile';
+    const homeHref = isAdmin ? dashboard() : '/';
 
     return (
         <Sidebar collapsible="icon" variant="inset">
