@@ -77,20 +77,16 @@ class PlaceController extends Controller
             ->available()
             ->firstOrFail();
 
-        // Imagen principal 360 (is_main = 1)
-        $mainImage = $place->images()
-            ->where('is_main', true)
+        // Todas las imágenes 360° activas de este lugar
+        $allImages = $place->images()
+            ->where('type', 'main_360')
             ->where('is_active', true)
-            ->first();
+            ->orderByDesc('is_main')
+            ->orderBy('sort_order')
+            ->get();
 
-        if (!$mainImage) {
-            // Si no hay imagen marcada como principal, usar la primera activa
-            $mainImage = $place->images()->where('is_active', true)->first();
-        }
-
-        $hotspots = [];
-        if ($mainImage) {
-            $hotspots = $mainImage->hotspots()
+        $mapHotspots = function ($image) {
+            return $image->hotspots()
                 ->where('is_active', true)
                 ->with('asset3d')
                 ->orderBy('sort_order')
@@ -109,7 +105,18 @@ class PlaceController extends Controller
                         'model_path'  => $h->asset3d->model_path,
                     ] : null,
                 ])->values()->all();
-        }
+        };
+
+        $images360 = $allImages->map(fn($img) => [
+            'id'        => $img->id,
+            'title'     => $img->title,
+            'image_url' => '/storage/' . $img->image_path,
+            'is_main'   => $img->is_main,
+            'hotspots'  => $mapHotspots($img),
+        ])->values()->all();
+
+        // Imagen inicial: la principal o la primera disponible
+        $mainImage = $allImages->firstWhere('is_main', true) ?? $allImages->first();
 
         return Inertia::render('Places/Viewer360', [
             'place'     => [
@@ -118,7 +125,8 @@ class PlaceController extends Controller
                 'slug'  => $place->slug,
             ],
             'image'     => $mainImage ? '/storage/' . $mainImage->image_path : null,
-            'hotspots'  => $hotspots,
+            'hotspots'  => $mainImage ? $mapHotspots($mainImage) : [],
+            'images360' => $images360,
         ]);
     }
 }

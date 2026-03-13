@@ -21,10 +21,19 @@ interface Hotspot {
        asset_3d?: Asset3D | null;
 }
 
+interface PlaceImage360 {
+       id: number;
+       title: string | null;
+       image_url: string;
+       is_main: boolean;
+       hotspots: Hotspot[];
+}
+
 interface Props {
        place: { id: number; title: string; slug: string };
        image: string | null;
        hotspots: Hotspot[];
+       images360: PlaceImage360[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -156,6 +165,12 @@ function AFrameViewer({
                         radius="0.14" color="#00CC55" opacity="0.9">
                     </a-sphere>
                     <a-sphere radius="0.07" color="#ffffff" opacity="0.8"></a-sphere>
+                    <a-text
+                        value="Click aqui" align="center"
+                        color="#ffffff" width="1.4"
+                        position="0 0.35 0" side="double"
+                        opacity="0.9">
+                    </a-text>
                 </a-entity>`;
                      }).join('');
 
@@ -457,13 +472,27 @@ function HotspotModal({ hotspot, onClose }: { hotspot: Hotspot; onClose: () => v
 // ─────────────────────────────────────────────────────────────────────────────
 // Página principal
 // ─────────────────────────────────────────────────────────────────────────────
-export default function Viewer360({ place, image, hotspots }: Props) {
+export default function Viewer360({ place, image, hotspots, images360 }: Props) {
        const [selected, setSelected] = useState<Hotspot | null>(null);
+       const [currentImage, setCurrentImage] = useState(image);
+       const [currentHotspots, setCurrentHotspots] = useState(hotspots);
+       const [activeImageId, setActiveImageId] = useState<number | null>(
+              () => images360.find((i) => i.image_url === image)?.id ?? images360[0]?.id ?? null,
+       );
+       const [dropdownOpen, setDropdownOpen] = useState(false);
 
        const handleHotspotClick = useCallback((id: number) => {
-              const found = hotspots.find((h) => h.id === id);
+              const found = currentHotspots.find((h) => h.id === id);
               if (found) setSelected(found);
-       }, [hotspots]);
+       }, [currentHotspots]);
+
+       const handleImageSwitch = useCallback((img: PlaceImage360) => {
+              setCurrentImage(img.image_url);
+              setCurrentHotspots(img.hotspots);
+              setActiveImageId(img.id);
+              setDropdownOpen(false);
+              setSelected(null);
+       }, []);
 
        return (
               <>
@@ -489,10 +518,10 @@ export default function Viewer360({ place, image, hotspots }: Props) {
                      <div style={{ height: '100vh', width: '100vw', background: '#000', position: 'relative', overflow: 'hidden' }}>
 
                             {/* ── Visor A-Frame ─────────────────────────────────── */}
-                            {image ? (
+                            {currentImage ? (
                                    <AFrameViewer
-                                          image={image}
-                                          hotspots={hotspots}
+                                          image={currentImage}
+                                          hotspots={currentHotspots}
                                           onHotspotClick={handleHotspotClick}
                                    />
                             ) : (
@@ -537,17 +566,109 @@ export default function Viewer360({ place, image, hotspots }: Props) {
                                    {place.title}
                             </div>
 
-                            {/* ── Contador hotspots ─────────────────────────────── */}
-                            {hotspots.length > 0 && (
-                                   <div style={{
-                                          position: 'fixed', top: 16, right: 16, zIndex: 9999,
-                                          background: 'rgba(0,0,0,0.7)',
-                                          backdropFilter: 'blur(8px)',
-                                          padding: '6px 12px', borderRadius: 20,
-                                          border: '1px solid rgba(0,204,85,0.3)',
-                                          color: '#00CC55', fontSize: 12, fontWeight: 600,
-                                   }}>
-                                          🟢 {hotspots.length} punto{hotspots.length !== 1 ? 's' : ''}
+                            {/* ── Selector de imágenes 360° ───────────────────── */}
+                            {images360.length > 0 && (
+                                   <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}>
+                                          <button
+                                                 onClick={() => setDropdownOpen((v) => !v)}
+                                                 style={{
+                                                        background: 'rgba(0,0,0,0.75)',
+                                                        backdropFilter: 'blur(8px)',
+                                                        padding: '8px 14px', borderRadius: 10,
+                                                        border: '1px solid rgba(255,255,255,0.15)',
+                                                        color: 'white', fontSize: 13, fontWeight: 600,
+                                                        cursor: 'pointer',
+                                                        display: 'flex', alignItems: 'center', gap: 8,
+                                                        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+                                                 }}
+                                          >
+                                                 📍 Ubicaciones ({images360.length})
+                                                 <span style={{
+                                                        display: 'inline-block',
+                                                        transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                                        transition: 'transform 0.2s',
+                                                        fontSize: 10,
+                                                 }}>▼</span>
+                                          </button>
+
+                                          {dropdownOpen && (
+                                                 <>
+                                                        {/* Overlay para cerrar */}
+                                                        <div
+                                                               onClick={() => setDropdownOpen(false)}
+                                                               style={{ position: 'fixed', inset: 0, zIndex: -1 }}
+                                                        />
+                                                        <div style={{
+                                                               marginTop: 6,
+                                                               background: 'rgba(15,15,15,0.95)',
+                                                               backdropFilter: 'blur(16px)',
+                                                               border: '1px solid rgba(255,255,255,0.12)',
+                                                               borderRadius: 12,
+                                                               boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                                                               overflow: 'hidden',
+                                                               maxHeight: '60vh',
+                                                               overflowY: 'auto',
+                                                               minWidth: 220,
+                                                        }}>
+                                                               {images360.map((img) => {
+                                                                      const isActive = img.id === activeImageId;
+                                                                      return (
+                                                                             <button
+                                                                                    key={img.id}
+                                                                                    onClick={() => handleImageSwitch(img)}
+                                                                                    style={{
+                                                                                           width: '100%',
+                                                                                           padding: '10px 16px',
+                                                                                           background: isActive ? 'rgba(0,204,85,0.12)' : 'transparent',
+                                                                                           border: 'none',
+                                                                                           borderBottom: '1px solid rgba(255,255,255,0.06)',
+                                                                                           color: isActive ? '#00CC55' : 'rgba(255,255,255,0.85)',
+                                                                                           fontSize: 13, fontWeight: isActive ? 700 : 500,
+                                                                                           cursor: 'pointer',
+                                                                                           display: 'flex', alignItems: 'center', gap: 10,
+                                                                                           textAlign: 'left',
+                                                                                           transition: 'background 0.15s',
+                                                                                    }}
+                                                                                    onMouseEnter={(e) => {
+                                                                                           if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                                                                                    }}
+                                                                                    onMouseLeave={(e) => {
+                                                                                           e.currentTarget.style.background = isActive ? 'rgba(0,204,85,0.12)' : 'transparent';
+                                                                                    }}
+                                                                             >
+                                                                                    <span style={{
+                                                                                           width: 8, height: 8, borderRadius: '50%',
+                                                                                           background: isActive ? '#00CC55' : 'rgba(255,255,255,0.3)',
+                                                                                           flexShrink: 0,
+                                                                                    }} />
+                                                                                    <span style={{ flex: 1 }}>
+                                                                                           {img.title || `Vista ${img.id}`}
+                                                                                    </span>
+                                                                                    {img.is_main && (
+                                                                                           <span style={{
+                                                                                                  fontSize: 10, fontWeight: 700,
+                                                                                                  background: 'rgba(0,204,85,0.2)',
+                                                                                                  color: '#00CC55',
+                                                                                                  padding: '2px 8px', borderRadius: 10,
+                                                                                                  flexShrink: 0,
+                                                                                           }}>
+                                                                                                  Principal
+                                                                                           </span>
+                                                                                    )}
+                                                                                    {img.hotspots.length > 0 && (
+                                                                                           <span style={{
+                                                                                                  fontSize: 10, color: 'rgba(255,255,255,0.4)',
+                                                                                                  flexShrink: 0,
+                                                                                           }}>
+                                                                                                  {img.hotspots.length} pt{img.hotspots.length !== 1 ? 's' : ''}
+                                                                                           </span>
+                                                                                    )}
+                                                                             </button>
+                                                                      );
+                                                               })}
+                                                        </div>
+                                                 </>
+                                          )}
                                    </div>
                             )}
 
