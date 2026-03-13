@@ -147,11 +147,6 @@ function AFrameViewer({
                         radius="0.14" color="#00CC55" opacity="0.9">
                     </a-sphere>
                     <a-sphere radius="0.07" color="#ffffff" opacity="0.8"></a-sphere>
-                    <a-text
-                        value="${safeLabel}" align="center"
-                        color="#ffffff" width="1.6"
-                        position="0 0.35 0" side="double">
-                    </a-text>
                 </a-entity>`;
                      }).join('');
 
@@ -320,7 +315,7 @@ function AFrameViewer({
                      {/* Hint */}
                      {status === 'ready' && (
                             <div style={{
-                                   position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+                                   position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)',
                                    zIndex: 30, pointerEvents: 'none',
                                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
                                    color: 'white', fontSize: 12, padding: '6px 14px',
@@ -617,13 +612,14 @@ export default function Viewer360({ place, image, hotspots }: Props) {
                             )}
 
                             {/* ── Lista hotspots (bottom) ────────────────────────── */}
-                            {hotspots.length > 0 && (
+                            {/* {hotspots.length > 0 && (
                                    <div style={{
-                                          position: 'fixed', bottom: 16, left: '50%',
-                                          transform: 'translateX(-50%)',
+                                          position: 'fixed', bottom: 16, left: 0, right: 0,
                                           zIndex: 9999,
-                                          display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center',
-                                          maxWidth: '90vw',
+                                          display: 'flex', gap: 8, justifyContent: 'center',
+                                          overflowX: 'auto',
+                                          padding: '0 16px',
+                                          WebkitOverflowScrolling: 'touch',
                                    }}>
                                           {hotspots.map((h) => (
                                                  <button
@@ -641,6 +637,8 @@ export default function Viewer360({ place, image, hotspots }: Props) {
                                                                backdropFilter: 'blur(8px)',
                                                                display: 'flex', alignItems: 'center', gap: 6,
                                                                transition: 'all 0.2s',
+                                                               whiteSpace: 'nowrap',
+                                                               flexShrink: 0,
                                                         }}
                                                  >
                                                         <span style={{
@@ -652,7 +650,7 @@ export default function Viewer360({ place, image, hotspots }: Props) {
                                                  </button>
                                           ))}
                                    </div>
-                            )}
+                            )} */}
                      </div>
 
                      {/* ── Modal ─────────────────────────────────────────────── */}
