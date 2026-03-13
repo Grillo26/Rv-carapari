@@ -12,6 +12,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Api\ReviewVoteController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\HotspotController;
+use App\Http\Controllers\Admin\PlaceImageRouteController;
 use App\Http\Controllers\Admin\Asset3dController;
 
 
@@ -147,6 +148,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
                 Route::resource('hotspots', HotspotController::class)->except(['show']);
                 Route::patch('hotspots/{hotspot}/toggle-active', [HotspotController::class, 'toggleActive'])
                     ->name('hotspots.toggle-active');
+
+                // Routes (navigation arrows between 360 images)
+                Route::post('routes', [PlaceImageRouteController::class, 'store'])
+                    ->name('routes.store');
+                Route::delete('routes/{route}', [PlaceImageRouteController::class, 'destroy'])
+                    ->name('routes.destroy');
             });
         });
     });

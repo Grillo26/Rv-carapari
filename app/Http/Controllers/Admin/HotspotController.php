@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Place;
 use App\Models\PlaceImage;
 use App\Models\PlaceImageHotspot;
+use App\Models\PlaceImageRoute;
 use App\Models\Asset3d;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -45,6 +46,7 @@ class HotspotController extends Controller
                 ],
                 'links' => $this->generatePaginationLinks($hotspots),
             ],
+            'routes' => $image->routes()->with('targetImage')->get(),
         ]);
     }
 
@@ -109,6 +111,12 @@ class HotspotController extends Controller
             'place' => $place,
             'placeImage' => $image,
             'assets3d' => $assets3d,
+            'availableImages' => PlaceImage::where('place_id', $place->id)
+                ->where('id', '!=', $image->id)
+                ->where('type', 'main_360')
+                ->active()
+                ->ordered()
+                ->get(),
         ]);
     }
 

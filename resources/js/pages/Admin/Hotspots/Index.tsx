@@ -25,6 +25,24 @@ interface Hotspot {
        asset_3d: Asset3d;
 }
 
+interface RouteTarget {
+       id: number;
+       title: string | null;
+       image_path: string;
+}
+
+interface PlaceImageRoute {
+       id: number;
+       source_image_id: number;
+       target_image_id: number;
+       pos_x: number;
+       pos_y: number;
+       pos_z: number;
+       label: string | null;
+       created_at: string;
+       target_image: RouteTarget;
+}
+
 interface PlaceImage {
        id: number;
        title: string | null;
@@ -35,15 +53,6 @@ interface PlaceImage {
 interface Place {
        id: number;
        title: string;
-}
-
-interface PaginationMeta {
-       current_page: number;
-       last_page: number;
-       per_page: number;
-       total: number;
-       from: number;
-       to: number;
 }
 
 interface PaginationLink {
@@ -67,6 +76,7 @@ interface Props {
               };
               links: PaginationLink[];
        };
+       routes: PlaceImageRoute[];
 }
 
 const createBreadcrumbs = (placeId: number, imageId: number, placeName: string, imageName: string): BreadcrumbItem[] => [
@@ -96,10 +106,11 @@ const createBreadcrumbs = (placeId: number, imageId: number, placeName: string, 
        },
 ];
 
-export default function HotspotIndex({ place, placeImage, hotspots }: Props) {
+export default function HotspotIndex({ place, placeImage, hotspots, routes }: Props) {
        const [deleteId, setDeleteId] = useState<number | null>(null);
        const [showDeleteModal, setShowDeleteModal] = useState(false);
        const [deletingHotspotLabel, setDeletingHotspotLabel] = useState<string>('');
+       const [deleteType, setDeleteType] = useState<'hotspot' | 'route'>('hotspot');
 
        const breadcrumbs = createBreadcrumbs(
               place.id,
@@ -124,14 +135,28 @@ export default function HotspotIndex({ place, placeImage, hotspots }: Props) {
        const handleDeleteClick = (hotspotId: number, label: string | null) => {
               setDeleteId(hotspotId);
               setDeletingHotspotLabel(label || `Punto #${hotspotId}`);
+              setDeleteType('hotspot');
+              setShowDeleteModal(true);
+       };
+
+       const handleRouteDeleteClick = (routeId: number, label: string | null) => {
+              setDeleteId(routeId);
+              setDeletingHotspotLabel(label || `Ruta #${routeId}`);
+              setDeleteType('route');
               setShowDeleteModal(true);
        };
 
        const handleConfirmDelete = () => {
               if (deleteId) {
-                     router.delete(
-                            `/admin/places/${place.id}/images/${placeImage.id}/hotspots/${deleteId}`
-                     );
+                     if (deleteType === 'hotspot') {
+                            router.delete(
+                                   `/admin/places/${place.id}/images/${placeImage.id}/hotspots/${deleteId}`
+                            );
+                     } else {
+                            router.delete(
+                                   `/admin/places/${place.id}/images/${placeImage.id}/routes/${deleteId}`
+                            );
+                     }
                      setShowDeleteModal(false);
                      setDeleteId(null);
               }
@@ -314,13 +339,96 @@ export default function HotspotIndex({ place, placeImage, hotspots }: Props) {
                                           </div>
                                    )}
                             </div>
+
+                            {/* ── Tabla de Rutas de Navegación ── */}
+                            <div className="p-6 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-neutral-900 overflow-x-auto">
+                                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                          ➡️ Rutas de Navegación
+                                          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                 ({routes.length})
+                                          </span>
+                                   </h2>
+
+                                   {routes.length > 0 ? (
+                                          <table className="w-full">
+                                                 <thead>
+                                                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                                                               <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                                                                      Imagen Destino
+                                                               </th>
+                                                               <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                                                                      Etiqueta
+                                                               </th>
+                                                               <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                                                                      Coordenadas
+                                                               </th>
+                                                               <th className="text-center py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                                                                      Fecha
+                                                               </th>
+                                                               <th className="text-right py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                                                                      Acciones
+                                                               </th>
+                                                        </tr>
+                                                 </thead>
+                                                 <tbody>
+                                                        {routes.map((route) => (
+                                                               <tr
+                                                                      key={route.id}
+                                                                      className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                                                               >
+                                                                      <td className="py-3 px-4">
+                                                                             <div className="flex items-center gap-3">
+                                                                                    <img
+                                                                                           src={`/storage/${route.target_image.image_path}`}
+                                                                                           alt={route.target_image.title || 'Destino'}
+                                                                                           className="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
+                                                                                    />
+                                                                                    <span className="font-medium text-gray-900 dark:text-white">
+                                                                                           {route.target_image.title || `Imagen ${route.target_image.id}`}
+                                                                                    </span>
+                                                                             </div>
+                                                                      </td>
+                                                                      <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                                                                             {route.label || '—'}
+                                                                      </td>
+                                                                      <td className="py-3 px-4">
+                                                                             <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-gray-900 dark:text-gray-100">
+                                                                                    ({route.pos_x.toFixed(2)}, {route.pos_y.toFixed(2)}, {route.pos_z.toFixed(2)})
+                                                                             </code>
+                                                                      </td>
+                                                                      <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400 text-center">
+                                                                             {new Date(route.created_at).toLocaleDateString('es-ES')}
+                                                                      </td>
+                                                                      <td className="py-3 px-4 text-right">
+                                                                             <button
+                                                                                    onClick={() => handleRouteDeleteClick(route.id, route.label)}
+                                                                                    className="px-3 py-1 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-700 dark:text-red-200 rounded text-sm font-medium transition-colors"
+                                                                             >
+                                                                                    Eliminar
+                                                                             </button>
+                                                                      </td>
+                                                               </tr>
+                                                        ))}
+                                                 </tbody>
+                                          </table>
+                                   ) : (
+                                          <div className="text-center py-8">
+                                                 <div className="text-gray-400 dark:text-gray-600 mb-3 text-3xl">➡️</div>
+                                                 <p className="text-gray-500 dark:text-gray-400 text-sm">
+                                                        No hay rutas de navegación. Puedes crear una desde el botón "+ Nuevo Punto".
+                                                 </p>
+                                          </div>
+                                   )}
+                            </div>
                      </div>
 
                      {/* Delete Modal */}
                      <ConfirmDeleteModal
                             isOpen={showDeleteModal}
-                            title="Eliminar Punto de Interés"
-                            message="¿Estás seguro de que deseas eliminar este punto de interés? Esta acción no se puede deshacer."
+                            title={deleteType === 'hotspot' ? 'Eliminar Punto de Interés' : 'Eliminar Ruta de Navegación'}
+                            message={deleteType === 'hotspot'
+                                   ? '¿Estás seguro de que deseas eliminar este punto de interés? Esta acción no se puede deshacer.'
+                                   : '¿Estás seguro de que deseas eliminar esta ruta de navegación? Esta acción no se puede deshacer.'}
                             itemName={deletingHotspotLabel}
                             onConfirm={handleConfirmDelete}
                             onClose={() => {

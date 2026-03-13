@@ -41,6 +41,14 @@ class PlaceImage extends Model
     }
 
     /**
+     * Get all outgoing routes from this image.
+     */
+    public function routes(): HasMany
+    {
+        return $this->hasMany(PlaceImageRoute::class, 'source_image_id');
+    }
+
+    /**
      * Get active images.
      */
     public function scopeActive($query)

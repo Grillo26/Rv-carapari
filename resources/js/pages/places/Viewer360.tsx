@@ -21,18 +21,29 @@ interface Hotspot {
        asset_3d?: Asset3D | null;
 }
 
+interface Route {
+       id: number;
+       target_image_id: number;
+       pos_x: number;
+       pos_y: number;
+       pos_z: number;
+       label?: string;
+}
+
 interface PlaceImage360 {
        id: number;
        title: string | null;
        image_url: string;
        is_main: boolean;
        hotspots: Hotspot[];
+       routes: Route[];
 }
 
 interface Props {
        place: { id: number; title: string; slug: string };
        image: string | null;
        hotspots: Hotspot[];
+       routes: Route[];
        images360: PlaceImage360[];
 }
 
@@ -121,18 +132,26 @@ function registerLookAtCam() {
 function AFrameViewer({
        image,
        hotspots,
+       routes,
        onHotspotClick,
+       onRouteClick,
 }: {
        image: string;
        hotspots: Hotspot[];
+       routes: Route[];
        onHotspotClick: (id: number) => void;
+       onRouteClick: (targetImageId: number) => void;
 }) {
        const containerRef = useRef<HTMLDivElement>(null);
        const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
        const hotspotsRef = useRef(hotspots);
+       const routesRef = useRef(routes);
        const onClickRef = useRef(onHotspotClick);
+       const onRouteClickRef = useRef(onRouteClick);
        hotspotsRef.current = hotspots;
+       routesRef.current = routes;
        onClickRef.current = onHotspotClick;
+       onRouteClickRef.current = onRouteClick;
 
        useEffect(() => {
               let cancelled = false;
@@ -174,6 +193,49 @@ function AFrameViewer({
                 </a-entity>`;
                      }).join('');
 
+                     // Flechas de rutas de navegación
+                     const routesHTML = routesRef.current.map((r) => {
+                            const safeLabel = (r.label || 'Ir')
+                                   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                            return `
+                <a-entity
+                    position="${r.pos_x} ${r.pos_y} ${r.pos_z}"
+                    data-route-target="${r.target_image_id}"
+                    look-at-cam>
+                    <!-- Anillo exterior pulsante -->
+                    <a-torus
+                        radius="0.22" radius-tubular="0.014"
+                        color="#3B82F6" opacity="0.5"
+                        animation="property:scale;from:1 1 1;to:1.4 1.4 1.4;dir:alternate;dur:1000;easing:easeInOutSine;loop:true"
+                        animation__opacity="property:opacity;from:0.5;to:0.15;dir:alternate;dur:1000;easing:easeInOutSine;loop:true">
+                    </a-torus>
+                    <!-- Disco base -->
+                    <a-circle
+                        class="route-trigger"
+                        data-route-target="${r.target_image_id}"
+                        radius="0.18" color="#3B82F6" opacity="0.85"
+                        side="double">
+                    </a-circle>
+                    <!-- Triángulo / flecha (cono aplastado) -->
+                    <a-cone
+                        class="route-trigger"
+                        data-route-target="${r.target_image_id}"
+                        radius-bottom="0.10" radius-top="0" height="0.14"
+                        color="#ffffff" opacity="0.95"
+                        rotation="0 0 0"
+                        position="0 0 0.01"
+                        animation="property:position;from:0 0 0.01;to:0 0.06 0.01;dir:alternate;dur:800;easing:easeInOutSine;loop:true">
+                    </a-cone>
+                    <!-- Etiqueta -->
+                    <a-text
+                        value="${safeLabel}" align="center"
+                        color="#ffffff" width="1.6"
+                        position="0 0.38 0" side="double"
+                        opacity="0.9">
+                    </a-text>
+                </a-entity>`;
+                     }).join('');
+
                      containerRef.current.innerHTML = `
             <a-scene
                 id="vr-scene"
@@ -186,6 +248,7 @@ function AFrameViewer({
                 </a-assets>
                 <a-sky id="vr-sky" src="#pano-img"></a-sky>
                 <a-entity id="hotspots-root">${hotspotsHTML}</a-entity>
+                <a-entity id="routes-root">${routesHTML}</a-entity>
                 <a-camera
                     id="vr-camera" position="0 0 0"
                     look-controls="reverseMouseDrag:true;reverseTouchDrag:true;touchEnabled:true"
@@ -218,17 +281,36 @@ function AFrameViewer({
                                    };
                                    const ray = new THREE.Raycaster();
                                    ray.setFromCamera(ndc, sceneEl.camera);
+
+                                   // Hotspot meshes
                                    const meshes: any[] = [];
                                    sceneEl.querySelectorAll('.hotspot-trigger').forEach((el: any) => {
                                           el.object3D?.traverse((child: any) => {
                                                  if (child.isMesh) {
                                                         child.__hotspotId = parseInt(el.getAttribute('data-hotspot-id'), 10);
+                                                        child.__isRoute = false;
                                                         meshes.push(child);
                                                  }
                                           });
                                    });
+
+                                   // Route meshes
+                                   sceneEl.querySelectorAll('.route-trigger').forEach((el: any) => {
+                                          el.object3D?.traverse((child: any) => {
+                                                 if (child.isMesh) {
+                                                        child.__routeTarget = parseInt(el.getAttribute('data-route-target'), 10);
+                                                        child.__isRoute = true;
+                                                        meshes.push(child);
+                                                 }
+                                          });
+                                   });
+
                                    const hit = ray.intersectObjects(meshes, false)[0];
-                                   if (hit?.object.__hotspotId) onClickRef.current(hit.object.__hotspotId);
+                                   if (hit?.object.__isRoute && hit.object.__routeTarget) {
+                                          onRouteClickRef.current(hit.object.__routeTarget);
+                                   } else if (hit?.object.__hotspotId) {
+                                          onClickRef.current(hit.object.__hotspotId);
+                                   }
                             };
 
                             // Inercia
@@ -472,10 +554,11 @@ function HotspotModal({ hotspot, onClose }: { hotspot: Hotspot; onClose: () => v
 // ─────────────────────────────────────────────────────────────────────────────
 // Página principal
 // ─────────────────────────────────────────────────────────────────────────────
-export default function Viewer360({ place, image, hotspots, images360 }: Props) {
+export default function Viewer360({ place, image, hotspots, routes, images360 }: Props) {
        const [selected, setSelected] = useState<Hotspot | null>(null);
        const [currentImage, setCurrentImage] = useState(image);
        const [currentHotspots, setCurrentHotspots] = useState(hotspots);
+       const [currentRoutes, setCurrentRoutes] = useState(routes);
        const [activeImageId, setActiveImageId] = useState<number | null>(
               () => images360.find((i) => i.image_url === image)?.id ?? images360[0]?.id ?? null,
        );
@@ -486,9 +569,22 @@ export default function Viewer360({ place, image, hotspots, images360 }: Props) 
               if (found) setSelected(found);
        }, [currentHotspots]);
 
+       const handleRouteClick = useCallback((targetImageId: number) => {
+              const targetImg = images360.find((i) => i.id === targetImageId);
+              if (targetImg) {
+                     setCurrentImage(targetImg.image_url);
+                     setCurrentHotspots(targetImg.hotspots);
+                     setCurrentRoutes(targetImg.routes);
+                     setActiveImageId(targetImg.id);
+                     setDropdownOpen(false);
+                     setSelected(null);
+              }
+       }, [images360]);
+
        const handleImageSwitch = useCallback((img: PlaceImage360) => {
               setCurrentImage(img.image_url);
               setCurrentHotspots(img.hotspots);
+              setCurrentRoutes(img.routes);
               setActiveImageId(img.id);
               setDropdownOpen(false);
               setSelected(null);
@@ -522,7 +618,9 @@ export default function Viewer360({ place, image, hotspots, images360 }: Props) 
                                    <AFrameViewer
                                           image={currentImage}
                                           hotspots={currentHotspots}
+                                          routes={currentRoutes}
                                           onHotspotClick={handleHotspotClick}
+                                          onRouteClick={handleRouteClick}
                                    />
                             ) : (
                                    <div style={{

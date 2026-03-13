@@ -107,12 +107,27 @@ class PlaceController extends Controller
                 ])->values()->all();
         };
 
+        $mapRoutes = function ($image) {
+            return $image->routes()
+                ->with('targetImage')
+                ->get()
+                ->map(fn($r) => [
+                    'id'              => $r->id,
+                    'target_image_id' => $r->target_image_id,
+                    'pos_x'           => $r->pos_x,
+                    'pos_y'           => $r->pos_y,
+                    'pos_z'           => $r->pos_z,
+                    'label'           => $r->label,
+                ])->values()->all();
+        };
+
         $images360 = $allImages->map(fn($img) => [
             'id'        => $img->id,
             'title'     => $img->title,
             'image_url' => '/storage/' . $img->image_path,
             'is_main'   => $img->is_main,
             'hotspots'  => $mapHotspots($img),
+            'routes'    => $mapRoutes($img),
         ])->values()->all();
 
         // Imagen inicial: la principal o la primera disponible
@@ -126,6 +141,7 @@ class PlaceController extends Controller
             ],
             'image'     => $mainImage ? '/storage/' . $mainImage->image_path : null,
             'hotspots'  => $mainImage ? $mapHotspots($mainImage) : [],
+            'routes'    => $mainImage ? $mapRoutes($mainImage) : [],
             'images360' => $images360,
         ]);
     }
