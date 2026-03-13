@@ -345,179 +345,110 @@ function HotspotModal({ hotspot, onClose }: { hotspot: Hotspot; onClose: () => v
 
        const modelPath = hotspot.asset_3d?.model_path;
        const hasModel = modelPath && /\.(glb|gltf)$/i.test(modelPath);
+       const title = hotspot.label || hotspot.asset_3d?.name || 'Elemento 3D';
 
        return (
               <div
                      onClick={onClose}
                      style={{
                             position: 'fixed', inset: 0, zIndex: 10000,
-                            background: 'rgba(0,0,0,0.72)',
-                            backdropFilter: 'blur(10px)',
+                            background: 'rgba(0,0,0,0.82)',
+                            backdropFilter: 'blur(12px)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            padding: 20,
+                            padding: 16,
                             animation: 'modal-in 0.2s ease',
                      }}
               >
                      <div
                             onClick={(e) => e.stopPropagation()}
                             style={{
-                                   background: 'linear-gradient(150deg, rgb(8,18,8) 0%, rgb(4,28,14) 100%)',
-                                   border: '1.5px solid #00CC55',
-                                   borderRadius: 20, maxWidth: 480, width: '100%',
-                                   boxShadow: '0 0 60px rgba(0,204,85,0.18), 0 24px 64px rgba(0,0,0,0.85)',
+                                   background: '#111',
+                                   border: '1px solid rgba(255,255,255,0.12)',
+                                   borderRadius: 16, maxWidth: 700, width: '100%',
+                                   boxShadow: '0 24px 80px rgba(0,0,0,0.9)',
                                    overflow: 'hidden',
                                    animation: 'hotspot-modal-in 0.25s cubic-bezier(.16,1,.3,1)',
+                                   display: 'flex', flexDirection: 'column',
+                                   maxHeight: '90vh',
                             }}
                      >
                             {/* Header */}
                             <div style={{
-                                   background: 'linear-gradient(90deg,#00CC55 0%,#009940 100%)',
-                                   padding: '15px 20px',
+                                   padding: '14px 20px',
                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                   borderBottom: '1px solid rgba(255,255,255,0.08)',
+                                   flexShrink: 0,
                             }}>
                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                          <span style={{ fontSize: 22 }}>📦</span>
-                                          <div>
-                                                 <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, lineHeight: 1.2 }}>
-                                                        {hotspot.label || hotspot.asset_3d?.name || 'Elemento 3D'}
-                                                 </div>
-                                                 <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginTop: 2 }}>
-                                                        Hotspot #{hotspot.id}
-                                                 </div>
-                                          </div>
+                                          <span style={{ fontSize: 20 }}>🧊</span>
+                                          <span style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>
+                                                 {title}
+                                          </span>
                                    </div>
                                    <button
                                           onClick={onClose}
                                           style={{
-                                                 background: 'rgba(0,0,0,0.2)', border: 'none',
-                                                 borderRadius: '50%', width: 30, height: 30,
-                                                 color: '#fff', fontSize: 15, cursor: 'pointer',
+                                                 background: 'rgba(255,255,255,0.08)', border: 'none',
+                                                 borderRadius: '50%', width: 32, height: 32,
+                                                 color: '#fff', fontSize: 16, cursor: 'pointer',
                                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                 transition: 'background 0.15s',
                                           }}
+                                          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+                                          onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
                                    >✕</button>
                             </div>
 
-                            {/* Body */}
-                            <div style={{ padding: 22, maxHeight: '68vh', overflowY: 'auto' }}>
-
-                                   {hotspot.description && (
-                                          <p style={{
-                                                 color: 'rgba(255,255,255,0.8)', fontSize: 13,
-                                                 lineHeight: 1.65, margin: '0 0 18px 0',
-                                                 padding: '12px 14px',
-                                                 background: 'rgba(255,255,255,0.05)',
-                                                 borderRadius: 10,
-                                                 borderLeft: '3px solid #00CC55',
+                            {/* Body — visor 3D */}
+                            <div style={{ flex: 1, minHeight: 0 }}>
+                                   {hotspot.asset_3d && hasModel ? (
+                                          <div style={{
+                                                 height: 420, background: '#0a0a0a',
+                                                 position: 'relative',
                                           }}>
-                                                 {hotspot.description}
-                                          </p>
-                                   )}
-
-                                   {hotspot.asset_3d ? (
-                                          <>
-                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                                                        <div style={{
-                                                               width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-                                                               background: 'linear-gradient(135deg,#00CC55,#009940)',
-                                                               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
-                                                        }}>🧊</div>
-                                                        <div>
-                                                               <div style={{ color: '#00CC55', fontWeight: 700, fontSize: 15 }}>
-                                                                      {hotspot.asset_3d.name}
-                                                               </div>
-                                                               <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
-                                                                      Asset 3D · ID {hotspot.asset_3d.id}
-                                                               </div>
-                                                        </div>
+                                                 {/* @ts-ignore */}
+                                                 <model-viewer
+                                                        src={normalizePath(modelPath)}
+                                                        auto-rotate
+                                                        camera-controls
+                                                        shadow-intensity="1"
+                                                        exposure="1"
+                                                        rotation-per-second="30deg"
+                                                        ar-modes="none"
+                                                        style={{ width: '100%', height: '100%' }}
+                                                 />
+                                                 <div style={{
+                                                        position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)',
+                                                        color: 'rgba(255,255,255,0.35)', fontSize: 11,
+                                                        pointerEvents: 'none', whiteSpace: 'nowrap',
+                                                 }}>
+                                                        Arrastra para rotar · Scroll para zoom
                                                  </div>
-
-                                                 {hotspot.asset_3d.description && (
-                                                        <p style={{
-                                                               color: 'rgba(255,255,255,0.7)', fontSize: 13,
-                                                               lineHeight: 1.6, margin: '0 0 16px 0',
-                                                        }}>
-                                                               {hotspot.asset_3d.description}
-                                                        </p>
-                                                 )}
-
-                                                 {hasModel && (
-                                                        <div style={{
-                                                               borderRadius: 12, overflow: 'hidden',
-                                                               border: '1px solid rgba(0,204,85,0.3)',
-                                                               height: 220, marginBottom: 18,
-                                                               background: '#060d06', position: 'relative',
-                                                        }}>
-                                                               <div style={{
-                                                                      position: 'absolute', top: 8, left: 10, zIndex: 1,
-                                                                      color: '#88FFB3', fontSize: 9, fontWeight: 700,
-                                                                      letterSpacing: '0.08em', textTransform: 'uppercase',
-                                                                      pointerEvents: 'none',
-                                                                      background: 'rgba(0,0,0,0.5)',
-                                                                      padding: '3px 8px', borderRadius: 4,
-                                                               }}>
-                                                                      ▶ Vista previa 3D — arrastra para rotar
-                                                               </div>
-                                                               {/* @ts-ignore */}
-                                                               <model-viewer
-                                                                      src={normalizePath(modelPath)}
-                                                                      auto-rotate
-                                                                      camera-controls
-                                                                      shadow-intensity="1.2"
-                                                                      exposure="0.9"
-                                                                      rotation-per-second="28deg"
-                                                                      ar-modes="none"
-                                                                      style={{ width: '100%', height: '100%' }}
-                                                               />
-                                                        </div>
-                                                 )}
-
-                                                 {modelPath && (
-                                                        <div style={{
-                                                               background: 'rgba(0,204,85,0.06)',
-                                                               border: '1px solid rgba(0,204,85,0.2)',
-                                                               borderRadius: 10, padding: '9px 13px', marginBottom: 14,
-                                                        }}>
-                                                               <div style={{
-                                                                      color: '#88FFB3', fontSize: 9, fontWeight: 700,
-                                                                      marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.08em',
-                                                               }}>
-                                                                      📁 Archivo del modelo
-                                                               </div>
-                                                               <div style={{
-                                                                      color: 'rgba(255,255,255,0.55)', fontSize: 11,
-                                                                      fontFamily: 'monospace', wordBreak: 'break-all',
-                                                               }}>
-                                                                      {normalizePath(modelPath)}
-                                                               </div>
-                                                        </div>
-                                                 )}
-                                          </>
+                                          </div>
                                    ) : (
                                           <div style={{
-                                                 textAlign: 'center', color: 'rgba(255,255,255,0.4)',
-                                                 padding: '28px 0', fontSize: 13,
+                                                 height: 300,
+                                                 display: 'flex', flexDirection: 'column',
+                                                 alignItems: 'center', justifyContent: 'center',
+                                                 color: 'rgba(255,255,255,0.35)', gap: 12,
                                           }}>
-                                                 <div style={{ fontSize: 40, marginBottom: 10 }}>🔍</div>
-                                                 Sin asset 3D asignado
+                                                 <span style={{ fontSize: 48 }}>🔍</span>
+                                                 <span style={{ fontSize: 14 }}>Sin modelo 3D disponible</span>
                                           </div>
                                    )}
-
-                                   {/* Coordenadas */}
-                                   <div style={{
-                                          marginTop: 16, padding: '9px 14px',
-                                          background: 'rgba(255,255,255,0.04)',
-                                          borderRadius: 8, display: 'flex', gap: 20, justifyContent: 'center',
-                                   }}>
-                                          {(['X', 'Y', 'Z'] as const).map((axis) => (
-                                                 <div key={axis} style={{ textAlign: 'center' }}>
-                                                        <div style={{ color: '#88FFB3', fontSize: 9, fontWeight: 700, letterSpacing: '0.12em' }}>{axis}</div>
-                                                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, fontFamily: 'monospace' }}>
-                                                               {Number(hotspot[`pos_${axis.toLowerCase()}` as keyof Hotspot] ?? 0).toFixed(2)}
-                                                        </div>
-                                                 </div>
-                                          ))}
-                                   </div>
                             </div>
+
+                            {/* Footer — descripción del asset si existe */}
+                            {hotspot.asset_3d?.description && (
+                                   <div style={{
+                                          padding: '12px 20px',
+                                          borderTop: '1px solid rgba(255,255,255,0.08)',
+                                          color: 'rgba(255,255,255,0.6)', fontSize: 13,
+                                          lineHeight: 1.5, flexShrink: 0,
+                                   }}>
+                                          {hotspot.asset_3d.description}
+                                   </div>
+                            )}
                      </div>
               </div>
        );
