@@ -68,7 +68,7 @@ export default function LocationMap({
               // Inicializar mapa
               mapInstance.current = L.map(mapRef.current).setView(
                      [latitude, longitude],
-                     13
+                     17
               );
 
               // Agregar capa satelital por defecto
