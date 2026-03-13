@@ -42,7 +42,7 @@ export default function LocationPicker({
                             .addTo(mapInstance.current)
                             .openPopup();
 
-                     mapInstance.current.setView([lat, lng], 13);
+                     mapInstance.current.panTo([lat, lng]);
               }
        };
 
@@ -52,7 +52,7 @@ export default function LocationPicker({
               // Inicializar mapa
               mapInstance.current = L.map(mapRef.current).setView(
                      [latitude, longitude],
-                     13
+                     17
               );
 
               // Agregar capa satelital

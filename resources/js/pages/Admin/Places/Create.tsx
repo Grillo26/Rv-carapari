@@ -69,12 +69,12 @@ export default function PlacesCreate() {
        };
 
        const handleLocationChange = (latitude: number, longitude: number, address: string) => {
-              setFormData({
-                     ...formData,
+              setFormData(prev => ({
+                     ...prev,
                      latitude,
                      longitude,
                      address
-              });
+              }));
        };
 
        const handleFileChange = (file: File | null, type: 'thumbnail' | 'main360') => {
