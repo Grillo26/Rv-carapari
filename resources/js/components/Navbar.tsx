@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { THEME_COLORS } from '@/constants/theme';
 
 interface NavbarProps {
@@ -9,6 +9,7 @@ interface NavbarProps {
                      id: number;
                      name: string;
                      avatar?: string;
+                     role?: string;
               };
        };
        canRegister?: boolean;
@@ -24,6 +25,19 @@ export default function Navbar({
        registerRoute,
 }: NavbarProps) {
        const [menuOpen, setMenuOpen] = useState(false);
+       const dropdownRef = useRef<HTMLDivElement>(null);
+
+       useEffect(() => {
+              const handleClickOutside = (e: MouseEvent) => {
+                     if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                            setMenuOpen(false);
+                     }
+              };
+              if (menuOpen) {
+                     document.addEventListener('mousedown', handleClickOutside);
+              }
+              return () => document.removeEventListener('mousedown', handleClickOutside);
+       }, [menuOpen]);
 
        return (
               <nav
@@ -76,7 +90,7 @@ export default function Navbar({
                                                  )}
                                           </>
                                    ) : (
-                                          <div className="relative">
+                                          <div className="relative" ref={dropdownRef}>
                                                  <button
                                                         onClick={() => setMenuOpen((s) => !s)}
                                                         className="flex items-center gap-2"
@@ -95,22 +109,35 @@ export default function Navbar({
                                                         <div className="text-sm text-neutral-300 hidden md:block">
                                                                {auth.user.name}
                                                         </div>
+                                                        <span className={`text-neutral-400 text-xs transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}>
+                                                               ▾
+                                                        </span>
                                                  </button>
 
                                                  {menuOpen && (
                                                         <div className="absolute right-0 mt-2 w-40 rounded bg-neutral-800/90 p-2 shadow-lg">
+                                                               <div className="flex items-center justify-between px-2 pb-2 mb-1 border-b border-neutral-700">
+                                                                      <span className="text-xs text-neutral-500 font-medium">Mi cuenta</span>
+                                                                      <button
+                                                                             onClick={() => setMenuOpen(false)}
+                                                                             className="text-neutral-500 hover:text-white transition text-sm leading-none"
+                                                                             aria-label="Cerrar menú"
+                                                                      >✕</button>
+                                                               </div>
                                                                <Link
                                                                       href="/settings/profile"
                                                                       className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded transition"
                                                                >
                                                                       Perfil
                                                                </Link>
-                                                               <Link
-                                                                      href="/dashboard"
-                                                                      className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded transition"
-                                                               >
-                                                                      Dashboard
-                                                               </Link>
+                                                               {auth.user?.role === 'admin' && (
+                                                                      <Link
+                                                                             href="/dashboard"
+                                                                             className="block px-2 py-1 text-sm text-neutral-200 hover:bg-neutral-700 rounded transition"
+                                                                      >
+                                                                             Dashboard
+                                                                      </Link>
+                                                               )}
                                                                <Link
                                                                       method="post"
                                                                       href="/logout"
