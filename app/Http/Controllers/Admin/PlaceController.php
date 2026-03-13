@@ -99,6 +99,20 @@ class PlaceController extends Controller
 
             \Log::info('Place created successfully', ['place_id' => $place->id]);
 
+            // Guardar imagen 360 también en place_images
+            if (!empty($validated['main_360_image'])) {
+                PlaceImage::create([
+                    'place_id'   => $place->id,
+                    'title'      => 'Vista Principal',
+                    'image_path' => $validated['main_360_image'],
+                    'description'=> $validated['short_description'] ?? null,
+                    'type'       => 'main_360',
+                    'is_main'    => true,
+                    'is_active'  => true,
+                    'sort_order' => 0,
+                ]);
+            }
+
             return redirect()->route('admin.places.index')
                 ->with('success', 'Lugar turístico creado exitosamente.');
 
