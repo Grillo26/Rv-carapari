@@ -405,7 +405,10 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
         }
     };
 
-    const imagePath = place.main_360_image || place.active_images[0]?.image_path;
+    const mainImage360 = place.active_images.find(img => img.is_main && img.type === 'main_360');
+    const imagePath = mainImage360?.image_path
+        ?? place.active_images.find(img => img.is_main)?.image_path
+        ?? place.main_360_image;
 
     return (
         <div className="min-h-screen bg-neutral-900 text-white" style={{ fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto" }}>
