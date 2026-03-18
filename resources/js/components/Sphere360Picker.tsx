@@ -157,7 +157,7 @@ export default function Sphere360Picker({ imageUrl, onPick, initialPosition }: P
                 </a-entity>
 
                 <!-- Cámara manual (sin look-controls nativos) -->
-                <a-camera id="picker-cam" position="0 0 0"
+                <a-camera id="picker-cam" position="0 0 0" fov="100"
                     look-controls="enabled:false"
                     wasd-controls="enabled:false">
                 </a-camera>
@@ -260,8 +260,14 @@ export default function Sphere360Picker({ imageUrl, onPick, initialPosition }: P
                                    const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
                                    const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
-                                   // Convertir usando la rotación actual de la cámara
-                                   const pt = ndcToSpherePoint(ndcX, ndcY, rotRef.current.x, rotRef.current.y);
+                                   // Usar la cámara real de la escena (tiene el aspect ratio y FOV correctos)
+                                   const cam = scene.camera;
+                                   if (!cam) return;
+                                   cam.updateMatrixWorld();
+
+                                   const ray = new THREE.Raycaster();
+                                   ray.setFromCamera({ x: ndcX, y: ndcY }, cam);
+                                   const pt = ray.ray.direction.clone().normalize().multiplyScalar(9.5);
 
                                    const x = parseFloat(pt.x.toFixed(4));
                                    const y = parseFloat(pt.y.toFixed(4));
@@ -320,7 +326,7 @@ export default function Sphere360Picker({ imageUrl, onPick, initialPosition }: P
                      <div
                             ref={containerRef}
                             className="relative w-full rounded-xl overflow-hidden border border-gray-300 dark:border-gray-600 bg-gray-900"
-                            style={{ height: 420 }}
+                            style={{ height: 600 }}
                      />
 
                      {status === 'loading' && (
