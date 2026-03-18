@@ -654,7 +654,7 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
                     </section>
                 )}
 
-                {/* Sección de Modelos 3D */}
+                {/* Sección de Modelos 3D 
                 {
                     assets3d && assets3d.length > 0 && (
                         <section className="mx-auto max-w-7xl px-6 py-16">
@@ -668,7 +668,6 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
                                         onClick={() => router.get(`/model-3d/${model.id}`, { model_path: model.model_path })}
                                     >
                                         <div className="relative overflow-hidden rounded-xl bg-neutral-800 aspect-square">
-                                            {/* Placeholder visual: ícono 3D */}
                                             <div className="w-full h-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center">
                                                 <svg className="w-16 h-16 text-green-500/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
@@ -676,10 +675,9 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
                                                 </svg>
                                             </div>
 
-                                            {/* Overlay */}
+                                            
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 group-hover:opacity-80 transition-opacity duration-300"></div>
 
-                                            {/* Play Icon on hover */}
                                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                 <div className="bg-green-600/90 text-black rounded-full p-3">
                                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -689,7 +687,6 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
                                                 </div>
                                             </div>
 
-                                            {/* Título y descripción */}
                                             <div className="absolute bottom-0 left-0 right-0 p-4">
                                                 <h3 className="text-white font-semibold truncate">{model.name}</h3>
                                                 {model.description && (
@@ -702,7 +699,7 @@ export default function PlaceShow({ place, assets3d, canRegister = true }: Place
                             </div>
                         </section>
                     )
-                }
+                } */}
 
                 {/* Sección de Calificaciones y Comentarios */}
                 <section ref={commentsRef} className="mx-auto max-w-7xl px-6 py-16">
